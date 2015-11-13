@@ -29,8 +29,8 @@ public class NggIsomorphismTester {
 	}
 
 
-	public static boolean subgraphIsomorphic(DocumentNGramGraph dngA, 
-											 DocumentNGramGraph dngB)
+	public static boolean subgraphIsomorphic
+	(DocumentNGramGraph dngA, DocumentNGramGraph dngB)
 	{
 		/* get the maximum of the 2 graphs' minimum degrees
 		   and the minimum of their maximum degrees */
@@ -65,8 +65,8 @@ public class NggIsomorphismTester {
 	 * @param uvgB the second unique vertex graph
 	 * @return true only if uvgA is a subgraph of and isomorphic to uvgB
 	 */
-	protected static boolean subgraphAux(UniqueVertexGraph uvgA, 
-										 UniqueVertexGraph uvgB)
+	protected static boolean subgraphAux
+	(UniqueVertexGraph uvgA, UniqueVertexGraph uvgB)
 	{
 		/* get vertex maps for both graphs */
 		HashMap<String, Vertex> vcmA = uvgA.UniqueVertices;
