@@ -28,7 +28,16 @@ public class NggIsomorphismTester {
 		return (numA > numB) ? numB : numA;
 	}
 
-
+	/**
+	 * Checks two undirected document n-gram graphs for
+	 * subgraph isomorphism. Checking is done based on 
+	 * vertex labels, meaning that edges of different weights
+	 * that connect two vertices with the same labels are 
+	 * considered part of an isomorphism.
+	 * @param dngA the first graph
+	 * @param dngB the second graph
+	 * @return true if dngA is subgraph isomorphic to dngB
+	 */
 	public static boolean subgraphIsomorphic
 	(DocumentNGramGraph dngA, DocumentNGramGraph dngB)
 	{
@@ -87,11 +96,11 @@ public class NggIsomorphismTester {
 		Set<WeightedEdgeImpl> edgsa = uvgA.getEdgeSet();
 		Set<WeightedEdgeImpl> edgsb = uvgB.getEdgeSet();
 	
-		for (WeightedEdgeImpl e: edgsa) {
-			if (!edgsb.contains(e)) { return false; }
+		if (edgsb.containsAll(edgsa)) {
+			return true;
 		}
-
-		/* if all checks succeeded, return true */
-		return true;
+		else {
+			return false;
+		}
 	}
 }
