@@ -4,9 +4,25 @@
   <groupId>gr.demokritos.biographs</groupId>
   <artifactId>BioGraphs</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.1</version>
   <name>BioGraphs</name>
   <url>http://maven.apache.org</url>
+  
+  <!-- 1.3 source does not support generics! -->
+  <build>
+    <plugins>
+	  <plugin>
+		 <groupId>org.apache.maven.plugins</groupId>
+		 <artifactId>maven-compiler-plugin</artifactId>
+		 <configuration>
+			<source>1.5</source>
+			<target>1.5</target>
+		  <debug>true</debug>
+		</configuration>
+	  </plugin>
+	</plugins>
+  </build>
+
   <dependencies>
 
   	<!-- junit for tests -->
@@ -17,11 +33,11 @@
       <scope>test</scope>
     </dependency>
 
-	<!-- project should be dependent on biojava -->
+	<!-- project is dependent on JInsect -->
 	<dependency>
-		<groupId>org.biojava</groupId>
-		<artifactId>biojava-core</artifactId>
-		<version>4.0.0</version>
+		<groupId>gr.demokritos.iit.jinsect</groupId>
+		<artifactId>JInsect</artifactId>
+		<version>1.0</version>
 	</dependency>
 
 	<!-- project is dependent on OpenJGraph -->
