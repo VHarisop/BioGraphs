@@ -47,6 +47,22 @@ public class AppTest
 		assertTrue( res );
 	}
 
+	/**
+	 * Verify that subgraph isomorphism check is negative
+	 * for non subgraph-isomorphing NGGs.
+	 */
+	public void testSubgraphNonIso()
+	{
+		DocumentNGramGraph dngA = new DocumentNGramGraph();
+		DocumentNGramGraph dngB = new DocumentNGramGraph();
+
+		dngA.setDataString("AGTA");
+		dngB.setDataString("ACTAG");
+
+		boolean res = NggIsomorphismTester.subgraphIsomorphic(dngA, dngB);
+		assertTrue( !res );
+	}
+
     /**
      * Rigourous Test :-)
      */
