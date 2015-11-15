@@ -194,7 +194,7 @@ public class PrefixTree<Value> {
 		root = delete(root, key, 0);
 	}
 
-    private Node delete(Node x, String key, int d) {
+	private Node delete(Node x, String key, int d) {
 		if (x == null) return null;
 		if (d == key.length()) {
 		    if (x.val != null) N--;
@@ -205,7 +205,7 @@ public class PrefixTree<Value> {
 		    x.next[c] = delete(x.next[c], key, d+1);
 		}
 
-        // remove subtrie rooted at x if it is completely empty
+		// remove subtrie rooted at x if it is completely empty
 		if (x.val != null) return x;	
 		for (int c = 0; c < R; c++)
 			if (x.next[c] != null)
