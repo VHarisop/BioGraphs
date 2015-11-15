@@ -33,6 +33,13 @@
       <scope>test</scope>
     </dependency>
 
+	<!-- use PatriciaTrie from apache commons -->
+	<dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-collections4</artifactId>
+		<version>4.0</version>
+	</dependency>
+
 	<!-- project is dependent on JInsect -->
 	<dependency>
 		<groupId>gr.demokritos.iit.jinsect</groupId>

@@ -63,6 +63,29 @@ public class AppTest
 		assertTrue( !res );
 	}
 
+	/** 
+	 * Test the prefix tree implementation of biographs 
+	 */
+	public void testPrefixTree() 
+	{
+		PrefixTree<Integer> pt = new PrefixTree<Integer>();
+		pt.put("tester", 1);
+		pt.put("testing", 2);
+		pt.put("teasing", 3);
+
+		assertTrue(pt.size() == 3);
+
+		int size = 0;
+		for (String s: pt.keysWithPrefix("tes")) 
+			size++;
+		assertTrue(size == 2);
+
+		size = 0;
+		for (String s: pt.keysWithPrefix("tea"))
+			size++;
+		assertTrue(size == 1);
+	}
+
     /**
      * Rigourous Test :-)
      */
