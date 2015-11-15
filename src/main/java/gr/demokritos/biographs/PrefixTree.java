@@ -64,11 +64,11 @@ public class PrefixTree<Value> {
 	}
 
    	private Node get(Node x, String key, int d) {
-        if (x == null) return null;
-        if (d == key.length()) return x;
-        char c = key.charAt(d);
-        return get(x.next[c], key, d+1);
-    }
+		if (x == null) return null;
+		if (d == key.length()) return x;
+		char c = key.charAt(d);
+		return get(x.next[c], key, d+1); 
+	}
 
 	/**
 	 * Inserts a key-value pair into the tree, overwriting the old
@@ -195,21 +195,21 @@ public class PrefixTree<Value> {
 	}
 
     private Node delete(Node x, String key, int d) {
-        if (x == null) return null;
-        if (d == key.length()) {
-            if (x.val != null) N--;
-            x.val = null;
-        }
-        else {
-            char c = key.charAt(d);
-            x.next[c] = delete(x.next[c], key, d+1);
-        }
+		if (x == null) return null;
+		if (d == key.length()) {
+		    if (x.val != null) N--;
+		    x.val = null;
+		}
+		else {
+		    char c = key.charAt(d);
+		    x.next[c] = delete(x.next[c], key, d+1);
+		}
 
         // remove subtrie rooted at x if it is completely empty
-        if (x.val != null) return x;
-        for (int c = 0; c < R; c++)
-            if (x.next[c] != null)
-                return x;
-        return null;
-    }
+		if (x.val != null) return x;	
+		for (int c = 0; c < R; c++)
+			if (x.next[c] != null)
+				return x;
+    	return null;
+	}
 }
