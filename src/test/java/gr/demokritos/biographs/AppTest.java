@@ -5,6 +5,9 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import gr.demokritos.iit.jinsect.documentModel.representations.DocumentNGramGraph;
+import gr.demokritos.iit.jinsect.utils;
+
+import java.util.ArrayList;
 
 /**
  * Unit test for simple App.
@@ -33,34 +36,72 @@ public class AppTest
 
 	/**
 	 * Verify that subgraph isomorphism test works
-	 * for comparing undirected NGGs. 
+	 * for comparing isomorphic BioGraphs.
 	 */
 	public void testSubgraphIso() 
 	{
-		DocumentNGramGraph dngA = new DocumentNGramGraph();
-		DocumentNGramGraph dngB = new DocumentNGramGraph();
-
-		dngA.setDataString("ACTA");
-		dngB.setDataString("ACTAG");
-
-		boolean res = NggIsomorphismTester.subgraphIsomorphic(dngA, dngB);
+		BioGraph bgx = new BioGraph("ACTA");
+		BioGraph bgy = new BioGraph("ACTAG");
+		
+		boolean res = NggIsomorphismTester.subgraphIsomorphic(bgx, bgy);
 		assertTrue( res );
 	}
 
 	/**
+	 * Verify that exact graph isomorphism works
+	 * for comparing a BioGraph with itself, and
+	 * returns false if the BioGraph is slightly 
+	 * altered.
+	 */
+	public void testGraphIso()
+	{
+		BioGraph bgx = new BioGraph("ACTAGA");
+		BioGraph bgy = new BioGraph("ACTAGA");
+
+		boolean res = NggIsomorphismTester.graphIsomorphic(bgx, bgy);
+		assertTrue( res );
+
+		bgy.setDataString("ACTAG");
+		res = NggIsomorphismTester.graphIsomorphic(bgx, bgy);
+		assertTrue( !res );
+	}
+
+	/**
+	 * Test using the toDot() method to print the graphs in DOT format.
+	 */
+	public void testDot() 
+	{
+		BioGraph bgx = new BioGraph("CTATAG");
+		BioGraph bgy = new BioGraph("CTAG");
+
+		System.out.println(bgx.toDot());
+		System.out.println(bgy.toDot());
+
+		assertTrue( true );
+	}
+
+	/**
 	 * Verify that subgraph isomorphism check is negative
-	 * for non subgraph-isomorphing NGGs.
+	 * for non subgraph-isomorphic NGGs.
 	 */
 	public void testSubgraphNonIso()
 	{
-		DocumentNGramGraph dngA = new DocumentNGramGraph();
-		DocumentNGramGraph dngB = new DocumentNGramGraph();
+		BioGraph bgx = new BioGraph("AGTA");
+		BioGraph bgy = new BioGraph("ACTAG");
 
-		dngA.setDataString("AGTA");
-		dngB.setDataString("ACTAG");
-
-		boolean res = NggIsomorphismTester.subgraphIsomorphic(dngA, dngB);
+		boolean res = NggIsomorphismTester.subgraphIsomorphic(bgx, bgy);
 		assertTrue( !res );
+	}
+
+	/**
+	 * Verify that DFS encoding works properly.
+	 */
+	public void testDFSCoding() 
+	{
+		BioGraph bgx = new BioGraph("AGTAC");
+		System.out.println(bgx.getDfsCode());
+
+		assertTrue( true );
 	}
 
 	/** 
@@ -85,12 +126,4 @@ public class AppTest
 			size++;
 		assertTrue(size == 1);
 	}
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
 }

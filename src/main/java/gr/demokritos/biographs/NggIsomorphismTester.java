@@ -2,10 +2,13 @@ package gr.demokritos.biographs;
 
 import gr.demokritos.iit.jinsect.documentModel.representations.DocumentNGramGraph;
 import gr.demokritos.iit.jinsect.structs.UniqueVertexGraph;
+
 import java.util.HashMap;
 import java.util.Set;
+import java.lang.Math;
 
 import salvo.jesus.graph.WeightedEdgeImpl;
+import salvo.jesus.graph.Edge;
 import salvo.jesus.graph.Vertex;
 
 /**
@@ -26,6 +29,11 @@ public class NggIsomorphismTester {
 	/* reimplementation of the min function */
 	private static final int min(int numA, int numB) {
 		return (numA > numB) ? numB : numA;
+	}
+
+	/* compare two doubles with respect to precision */
+	private static boolean compareDouble(Double a, Double b) {
+		return (Math.abs(a - b) < 0.000001);
 	}
 
 	/**
@@ -61,8 +69,58 @@ public class NggIsomorphismTester {
 
 		/* if every degree was isomorphic, return True */
 		return true;
+	}
+
+	public static boolean graphIsomorphic
+	(DocumentNGramGraph dngA, DocumentNGramGraph dngB)
+	{
+		/* check if the degree ranges of the 2 graphs
+		 * are compatible */
+		int dMin = max(dngA.getMinSize(), dngB.getMinSize());
+		int dMax = min(dngA.getMaxSize(), dngB.getMaxSize());
+
+		/* if dMin > dMax, they can't be isomorphic */
+		if (dMax < dMin) { return false; }
+
+		/* check graphs of every compatible degree for
+		 * exact isomorphism, break if non isomorphic */
+		for (int tmp = dMin; tmp <= dMax; ++tmp) {
+			if (!graphAux(
+				dngA.getGraphLevelByNGramSize(tmp),
+				dngB.getGraphLevelByNGramSize(tmp)))
+				return false;
+		}
+
+		/* return true if every degree was isomorphic */
+		return true;
+	}
 
 
+	protected static boolean graphAux
+	(UniqueVertexGraph uvgA, UniqueVertexGraph uvgB)
+	{
+		/* get the Edge maps of both graphs */
+		HashMap<Edge, Double> edgA = uvgA.UniqueEdges;
+		HashMap<Edge, Double> edgB = uvgB.UniqueEdges;
+
+		/* if the edge maps differ in size, 
+		 * they cannot be isomorphic */
+		if (edgA.size() != edgB.size()) { return false; }
+
+		for (Edge e: edgA.keySet()) {
+			/* if edge is not present in the other graph,
+			 * return false */
+			if (!edgB.containsKey(e)) 
+				return false;
+			
+			/* if edge is present but weight differs,
+			 * return false as well */
+			if (!compareDouble(e.getWeight(), edgB.get(e)))
+				return false;
+		}
+
+		/* if all checks succeed, return true */
+		return true;
 	}
 
 	/**
