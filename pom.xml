@@ -21,10 +21,17 @@
 		</configuration>
 	  </plugin>
 	</plugins>
+	
+	<!-- path for resources (files etc.) -->
+    <resources>
+  		<resource>
+			<directory>src/test/resources</directory>
+			<filtering>true</filtering>
+		</resource>
+  	</resources>
   </build>
-
+  
   <dependencies>
-
   	<!-- junit for tests -->
     <dependency>
       <groupId>junit</groupId>
@@ -45,6 +52,13 @@
 		<groupId>org.jgrapht</groupId>
 		<artifactId>jgrapht-core</artifactId>
 		<version>0.9.1</version>
+	</dependency>
+	
+	<!-- use BioJava for various ops on sequences -->
+	<dependency>
+		<groupId>org.biojava</groupId>
+		<artifactId>biojava-core</artifactId>
+		<version>4.0.0</version>
 	</dependency>
 
 	<!-- project is dependent on JInsect -->

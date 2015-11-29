@@ -8,9 +8,15 @@ import salvo.jesus.graph.Vertex;
 import salvo.jesus.graph.WeightedEdgeImpl;
 import salvo.jesus.graph.algorithm.DepthFirstCoding;
 
+import org.biojava.nbio.core.sequence.DNASequence;
+
+import java.io.File;
+
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.LinkedHashMap;
 
 /**
  * A class for representing N-Gram Graphs for biological sequences.
@@ -45,6 +51,62 @@ public class BioGraph extends DocumentNGramGraph {
 	public BioGraph(String data, int order, int correlationWindow) {
 		super(order, order, correlationWindow);
 		this.setDataString(data);
+	}
+
+	/**
+	 * Creates a BioGraph object to represent a given 
+	 * {@link org.biojava.nbio.core.sequence.DNASequence }
+	 * @param dnaSeq a <tt>DNASequence</tt> object 
+	 * @return a <tt>BioGraph</tt> object to represent the sequence
+	 */
+	public static BioGraph fromSequence(DNASequence dnaSeq) {
+		return new BioGraph(dnaSeq.getSequenceAsString());
+	}
+
+	/**
+	 * Creates a BioGraph object to represent a 
+	 * {@link org.biojava.nbio.core.sequence.DNASequence} 
+	 * that is provided in a given FASTA File.
+	 * @param inFile the <tt>File</tt> which contains the sequence 
+	 * @return a <tt>BioGraph</tt> object to represent the sequence 
+	 * @throws Exception if something is wrong with the file
+	 */
+	public static BioGraph fromFastaFile(File inFile) 
+	throws Exception
+	{
+		BioGraph bGraph = null;
+		LinkedHashMap<String, DNASequence> entries = 
+			GraphDatabase.readFastaFile(inFile);
+		/* try reading the first dna sequence from the file */
+		for (Entry<String, DNASequence> entry: entries.entrySet()) {
+			bGraph = fromSequence(entry.getValue());
+			break;
+		}
+
+		return bGraph;
+	}
+	
+	/**
+	 * Creates a BioGraph object to represent a 
+	 * {@link org.biojava.nbio.core.sequence.DNASequence} 
+	 * that is provided in a FASTA file with a given path.
+	 * @param fName a <tt>String</tt> containing the path of the file.
+	 * @return a <tt>BioGraph</tt> object to represent the sequence 
+	 * @throws Exception if something is wrong with the file
+	 */
+	public static BioGraph fromFastaFile(String fName) 
+	throws Exception 
+	{
+		BioGraph bGraph = null;
+		LinkedHashMap<String, DNASequence> entries = 
+			GraphDatabase.readFastaFile(fName);
+		/* try reading the first dna sequence from the file */
+		for (Entry<String, DNASequence> entry : entries.entrySet()) {
+			bGraph = fromSequence(entry.getValue());
+			break;
+		}
+
+		return bGraph;
 	}
 
 	/**
@@ -87,7 +149,7 @@ public class BioGraph extends DocumentNGramGraph {
 	/**
 	 * Returns an array of labels produced by the DFS encoding of the
 	 * underlying graph. 
-	 * @see salvo.jesus.graph.algorithm.DepthFirstCoding#encode() 
+	 * @see salvo.jesus.graph.algorithm.DepthFirstCoding#encodeByInfo() 
 	 * for label ordering and implementation. The simple encode() method
 	 * should be used by default, since indexing N-gram graphs has not
 	 * yet been tried using frequent fragments.
