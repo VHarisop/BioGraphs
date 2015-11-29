@@ -1,7 +1,15 @@
 package gr.demokritos.biographs;
 
 import org.apache.commons.collections4.trie.PatriciaTrie;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Map.Entry;
+import java.util.LinkedHashMap;
 import java.util.ArrayList;
+
+import org.biojava.nbio.core.sequence.DNASequence;
+import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 
 /**
  * A class that handles a graph database, consisting of <tt>BioGraph</tt> 
@@ -137,5 +145,31 @@ public class GraphDatabase {
 		indices = (ArrayList) trieIndex.get(dfsCode);
 
 		return indices;
+	}
+
+	/**
+	 * A wrapper method that reads DNA sequences from a file, given its pathname.
+	 * @see readFastaDNASequence
+	 *
+	 * @param fName a <tt>String</tt> containing the path of the file
+	 * @return a <tt>LinkedHashMap</tt> of String/Sequence pairs.
+	 */
+	public static LinkedHashMap<String, DNASequence> readFastaFile(String fName) 
+	throws Exception
+	{
+		return readFastaFile(new File(fName));
+	}
+
+	/**
+	 * A wrapper method around BioJava's <tt>readFastaDNASequence</tt> in order
+	 * to facilicate reading DNA sequences from FASTA files. 
+	 *
+	 * @param inFile the <tt>File</tt> from which to read the sequences
+	 * @return a <tt>LinkedHashMap</tt> of String/Sequence pairs.
+	 */
+	public static LinkedHashMap<String, DNASequence> readFastaFile(File inFile) 
+	throws Exception 
+	{
+		return FastaReaderHelper.readFastaDNASequence(inFile);
 	}
 }
