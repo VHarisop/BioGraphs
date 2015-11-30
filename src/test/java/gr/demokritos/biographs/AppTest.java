@@ -7,7 +7,9 @@ import junit.framework.TestSuite;
 import gr.demokritos.iit.jinsect.documentModel.representations.DocumentNGramGraph;
 import gr.demokritos.iit.jinsect.utils;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 /**
  * Unit test for simple App.
@@ -36,15 +38,24 @@ public class AppTest
 
 	/**
 	 * Verify that subgraph isomorphism test works
-	 * for comparing isomorphic BioGraphs.
+	 * for comparing BioGraphs.
 	 */
 	public void testSubgraphIso() 
 	{
+		/* check if subgraph isomorphism works for
+		 * two isomorphic graphs */
 		BioGraph bgx = new BioGraph("ACTA");
 		BioGraph bgy = new BioGraph("ACTAG");
 		
 		boolean res = NggIsomorphismTester.subgraphIsomorphic(bgx, bgy);
 		assertTrue( res );
+
+		/* set bgx's data to another string
+		 * bgx is now not subgraph isomorphic */
+		bgx.setDataString("AGTA");
+
+		res = NggIsomorphismTester.subgraphIsomorphic(bgx, bgy);
+		assertTrue( !res );
 	}
 
 	/**
@@ -81,16 +92,22 @@ public class AppTest
 	}
 
 	/**
-	 * Verify that subgraph isomorphism check is negative
-	 * for non subgraph-isomorphic NGGs.
+	 * Verify that {@link BioGraph.fromFastaFile()} works properly
+	 * for fasta files with a single entry.
+	 *
 	 */
-	public void testSubgraphNonIso()
+	public void testFasta() 
 	{
-		BioGraph bgx = new BioGraph("AGTA");
-		BioGraph bgy = new BioGraph("ACTAG");
+		BioGraph bgx = null;
+		String fName = "/testFile01.fasta";
+		assertNotNull("Test file missing", getClass().getResource(fName));
 
-		boolean res = NggIsomorphismTester.subgraphIsomorphic(bgx, bgy);
-		assertTrue( !res );
+		try {
+			bgx = BioGraph.fromFastaFile(new File(getClass().getResource(fName).toURI()));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		assertNotNull(bgx);
 	}
 
 	/**
