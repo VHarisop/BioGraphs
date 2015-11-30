@@ -95,7 +95,15 @@ public class NggIsomorphismTester {
 		return true;
 	}
 
-
+	/**
+	 * Auxiliary function that checks graph isomorphism
+	 * for 2 unique vertex graphs. It should only be called from inside
+	 * {@link graphIsomorphic(DocumentNGramGraph, DocumentNGramGraph)}
+	 * when checking two NGGs for subgraph isomorphism.
+	 * @param uvgA the first unique vertex graph
+	 * @param uvgB the second unique vertex graph
+	 * @return true only if uvgA is graph isomorphic to uvgB
+	 */
 	protected static boolean graphAux
 	(UniqueVertexGraph uvgA, UniqueVertexGraph uvgB)
 	{
@@ -103,19 +111,23 @@ public class NggIsomorphismTester {
 		HashMap<Edge, Double> edgA = uvgA.UniqueEdges;
 		HashMap<Edge, Double> edgB = uvgB.UniqueEdges;
 
+		Double wOther;
+
 		/* if the edge maps differ in size, 
 		 * they cannot be isomorphic */
 		if (edgA.size() != edgB.size()) { return false; }
 
 		for (Edge e: edgA.keySet()) {
+
+			wOther = edgB.get(e);
 			/* if edge is not present in the other graph,
 			 * return false */
-			if (!edgB.containsKey(e)) 
+			if (wOther == null) 
 				return false;
 			
 			/* if edge is present but weight differs,
 			 * return false as well */
-			if (!compareDouble(e.getWeight(), edgB.get(e)))
+			if (!compareDouble(e.getWeight(), wOther))
 				return false;
 		}
 
