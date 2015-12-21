@@ -4,7 +4,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import gr.demokritos.iit.jinsect.documentModel.representations.NGramJGraph;
 import gr.demokritos.iit.jinsect.documentModel.representations.DocumentNGramGraph;
+import gr.demokritos.iit.jinsect.structs.Edge;
 import gr.demokritos.iit.jinsect.utils;
 
 import java.io.File;
@@ -35,46 +37,31 @@ public class AppTest
         return new TestSuite( AppTest.class );
     }
 
-
 	/**
 	 * Verify that subgraph isomorphism test works
-	 * for comparing BioGraphs.
+	 * for comparing BioJGraphs.
 	 */
-	public void testSubgraphIso() 
-	{
-		/* check if subgraph isomorphism works for
-		 * two isomorphic graphs */
-		BioGraph bgx = new BioGraph("ACTA");
-		BioGraph bgy = new BioGraph("ACTAG");
-		
-		boolean res = NggIsomorphismTester.subgraphIsomorphic(bgx, bgy);
-		assertTrue( res );
+	public void testIso() {
+		BioJGraph bgx = new BioJGraph("ACTA");
+		BioJGraph bgy = new BioJGraph("ACTAG");
 
-		/* set bgx's data to another string
-		 * bgx is now not subgraph isomorphic */
+		boolean res = IsomorphismTester.subgraphIsomorphic(bgx, bgy);
+		assertTrue(res);
+
+		res = IsomorphismTester.graphIsomorphic(bgx, bgy);
+		assertTrue(!res);
+
 		bgx.setDataString("AGTA");
+		res = IsomorphismTester.subgraphIsomorphic(bgx, bgy);
+		assertTrue(!res);
+		res = IsomorphismTester.graphIsomorphic(bgx, bgy);
+		assertTrue(!res);
 
-		res = NggIsomorphismTester.subgraphIsomorphic(bgx, bgy);
-		assertTrue( !res );
-	}
-
-	/**
-	 * Verify that exact graph isomorphism works
-	 * for comparing a BioGraph with itself, and
-	 * returns false if the BioGraph is slightly 
-	 * altered.
-	 */
-	public void testGraphIso()
-	{
-		BioGraph bgx = new BioGraph("ACTAGA");
-		BioGraph bgy = new BioGraph("ACTAGA");
-
-		boolean res = NggIsomorphismTester.graphIsomorphic(bgx, bgy);
-		assertTrue( res );
-
-		bgy.setDataString("ACTAG");
-		res = NggIsomorphismTester.graphIsomorphic(bgx, bgy);
-		assertTrue( !res );
+		bgx.setDataString("ACTAG");
+		res = IsomorphismTester.graphIsomorphic(bgx, bgy);
+		assertTrue(res);
+		res = IsomorphismTester.subgraphIsomorphic(bgx, bgy);
+		assertTrue(res);
 	}
 
 	/**
@@ -82,8 +69,8 @@ public class AppTest
 	 */
 	public void testDot() 
 	{
-		BioGraph bgx = new BioGraph("CTATAG");
-		BioGraph bgy = new BioGraph("CTAG");
+		BioJGraph bgx = new BioJGraph("CTATAG");
+		BioJGraph bgy = new BioJGraph("CTAG");
 
 		System.out.println(bgx.toDot());
 		System.out.println(bgy.toDot());
@@ -92,22 +79,40 @@ public class AppTest
 	}
 
 	/**
-	 * Verify that {@link BioGraph.fromFastaFile()} works properly
-	 * for fasta files with a single entry.
+	 * Verify that {@link BioJGraph.fromFastaFile()} and
+	 * {@link BioJGraph.fastaFileToGraphs()} work properly
+	 * for fasta files with one or multiple entries.
 	 *
 	 */
 	public void testFasta() 
 	{
-		BioGraph bgx = null;
+		BioJGraph bgx = null;
 		String fName = "/testFile01.fasta";
 		assertNotNull("Test file missing", getClass().getResource(fName));
 
 		try {
-			bgx = BioGraph.fromFastaFile(new File(getClass().getResource(fName).toURI()));
+			bgx = BioJGraph.fromFastaFile(
+				new File(getClass().getResource(fName).toURI()));
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		assertNotNull(bgx);
+		assertTrue(bgx.bioLabel.equals("AB000263"));
+		
+		try {
+			File res = new File(getClass().getResource(fName).toURI());
+			BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(res);
+			
+			for (BioJGraph b: bgs) {
+				assertNotNull(b);
+				assertNotNull(b.bioLabel);
+			}
+		} 
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
 	}
 
 	/**
