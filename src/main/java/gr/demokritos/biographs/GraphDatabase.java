@@ -2,17 +2,20 @@ package gr.demokritos.biographs;
 
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
+import java.lang.UnsupportedOperationException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Map.Entry;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
+import java.util.Set;
 
 import org.biojava.nbio.core.sequence.DNASequence;
 import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 
 /**
- * A class that handles a graph database, consisting of <tt>BioGraph</tt> 
+ * A class that handles a graph database, consisting of <tt>BioJGraph</tt> 
  * objects. A Patricia Trie is maintained for indexing, where the keys are
  * the DFS codes of the graphs. 
  *
@@ -31,7 +34,7 @@ public class GraphDatabase {
 	private PatriciaTrie trieIndex;
 
 	/* an array list of graphs to be kept in memory */
-	private ArrayList<BioGraph> graphArray;
+	private ArrayList<BioJGraph> graphArray;
 	private int arrayIndex;
 	
 	/**
@@ -68,14 +71,46 @@ public class GraphDatabase {
 		arrayIndex = -1;
 	}
 
+	/**
+	 * Builds a graph database index from a given file or directory
+	 * of files.
+	 *
+	 * @param path a string containing a path to a file or directory
+	 */
+	public void buildIndex(String path) 
+	throws Exception
+	{
+		File fPath = new File(path);
+		buildIndex(fPath);
+	}
+
+	/**
+	 * Builds a graph database index from a given file or a directory 
+	 * of files.
+	 *
+	 * @param path a path containing one or multiple files
+	 */
+	public void buildIndex(File path) 
+	throws Exception 
+	{
+		if (!path.isDirectory()) {
+			BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(path);
+			for (BioJGraph bG: bgs) {
+				addGraph(bG);
+			}
+		}
+		else {
+			throw new UnsupportedOperationException("Not implemented yet!");
+		}
+	}
+
 
 	/**
 	 * Add a new graph to the graph database, updating
 	 * the index on the trie as well. 
-	 * @param bg the <tt>BioGraph</tt> to be added
+	 * @param bg the <tt>BioJGraph</tt> to be added
 	 */
-	public void addGraph(BioGraph bg) {
-
+	public void addGraph(BioJGraph bg) {
 		// get the dfsCode of the graph as key
 		String dfsCode = bg.getDfsCode();
 		
@@ -120,11 +155,11 @@ public class GraphDatabase {
 	/**
 	 * Obtain a list of graphs that match a given dfsCode.
 	 * @param dfsCode a <tt>String</tt> containing the query code
-	 * @return an <tt>ArrayList</tt> of BioGraphs that match
+	 * @return an <tt>ArrayList</tt> of BioJGraphs that match
 	 */
-	public ArrayList<BioGraph> getGraphs(String dfsCode) {
+	public ArrayList<BioJGraph> getGraphs(String dfsCode) {
 		ArrayList<Integer> indices = this.getGraphIndices(dfsCode);
-		ArrayList<BioGraph> graphs = new ArrayList<BioGraph>();
+		ArrayList<BioJGraph> graphs = new ArrayList<BioJGraph>();
 
 		for (int i: indices) {
 			graphs.add(graphArray.get(i));
@@ -171,5 +206,12 @@ public class GraphDatabase {
 	throws Exception 
 	{
 		return FastaReaderHelper.readFastaDNASequence(inFile);
+	}
+
+	/**
+	 * Simple getter for the database's trie keyset.
+	 */
+	public Set<String> exposeKeys() {
+		return trieIndex.keySet();
 	}
 }
