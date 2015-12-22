@@ -103,7 +103,7 @@ public class IsomorphismTester {
 	/**
 	 * Auxiliary function that checks graph isomorphism
 	 * for 2 unique vertex graphs. It should only be called from inside
-	 * {@link graphIsomorphic(NGramJGraph, NGramJGraph)}
+	 * {@link #graphIsomorphic(NGramJGraph, NGramJGraph)}
 	 * when checking two NGGs for subgraph isomorphism.
 	 * @param uvgA the first unique vertex graph
 	 * @param uvgB the second unique vertex graph
@@ -145,7 +145,7 @@ public class IsomorphismTester {
 	/**
 	 * Auxiliary function that checks subgraph isomorphism
 	 * for 2 unique vertex graphs. It should only be called from inside
-	 * {@link subgraphIsomorphic(NGramJGraph, NGramJGraph)}
+	 * {@link #subgraphIsomorphic(NGramJGraph, NGramJGraph)}
 	 * when checking two NGGs for subgraph isomorphism.
 	 * @param uvgA the first unique vertex graph
 	 * @param uvgB the second unique vertex graph

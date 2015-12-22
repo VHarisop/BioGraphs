@@ -61,7 +61,7 @@ public class TrieDatabase extends GraphDatabase {
 	 * Builds a graph database index from a given file or a directory 
 	 * of files.
 	 *
-	 * @param path a path containing one or multiple files
+	 * @param fPath a path containing one or multiple files
 	 */
 	@Override
 	public void buildIndex(File fPath) 

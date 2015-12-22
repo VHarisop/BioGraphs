@@ -100,7 +100,6 @@ public abstract class GraphDatabase {
 
 	/**
 	 * A wrapper method that reads DNA sequences from a file, given its pathname.
-	 * @see readFastaDNASequence
 	 *
 	 * @param fName a <tt>String</tt> containing the path of the file
 	 * @return a <tt>LinkedHashMap</tt> of String/Sequence pairs.

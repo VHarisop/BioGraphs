@@ -48,7 +48,6 @@ public class BioJGraph extends NGramJGraph {
 	 *
 	 * @param data the string to be represented
 	 * @param label the label of the data to be represented
-	 * @return a new BioJGraph object
 	 */
 	public BioJGraph(String data, String label) {
 		super(data);
@@ -64,7 +63,6 @@ public class BioJGraph extends NGramJGraph {
 	 * @param label the label of the data to be represented
 	 * @param order the order of the n-grams
 	 * @param correlationWindow the length of the correlation window
-	 * @return a new BioJGraph object
 	 */
 	public BioJGraph(String data, String label, int order, int correlationWindow) {
 		super(data, order, order, correlationWindow);
