@@ -7,6 +7,8 @@ import junit.framework.TestSuite;
 import gr.demokritos.iit.jinsect.documentModel.representations.NGramJGraph;
 import gr.demokritos.iit.jinsect.documentModel.representations.DocumentNGramGraph;
 import gr.demokritos.iit.jinsect.structs.Edge;
+import gr.demokritos.iit.jinsect.structs.JVertex;
+import gr.demokritos.iit.jinsect.structs.NGramVertex;
 import gr.demokritos.iit.jinsect.utils;
 
 import java.io.File;
@@ -64,19 +66,6 @@ public class AppTest
 		assertTrue(res);
 	}
 
-	/**
-	 * Test using the toDot() method to print the graphs in DOT format.
-	 */
-	public void testDot() 
-	{
-		BioJGraph bgx = new BioJGraph("CTATAG");
-		BioJGraph bgy = new BioJGraph("CTAG");
-
-		System.out.println(bgx.toDot());
-		System.out.println(bgy.toDot());
-
-		assertTrue( true );
-	}
 
 	/**
 	 * Verify that {@link BioJGraph.fromFastaFile()} and
@@ -90,23 +79,18 @@ public class AppTest
 		String fName = "/testFile01.fasta";
 		assertNotNull("Test file missing", getClass().getResource(fName));
 
-		try {
-			bgx = BioJGraph.fromFastaFile(
-				new File(getClass().getResource(fName).toURI()));
+		// labels of sequences in fasta file
+		String[] labels = new String[] {"AB000263", "AB00264", "AB00265"};
 
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		assertNotNull(bgx);
-		assertTrue(bgx.bioLabel.equals("AB000263"));
-		
 		try {
 			File res = new File(getClass().getResource(fName).toURI());
 			BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(res);
+			int labelCnt = 0;
 			
 			for (BioJGraph b: bgs) {
 				assertNotNull(b);
 				assertNotNull(b.bioLabel);
+				assertTrue(b.bioLabel.equals(labels[labelCnt++]));
 			}
 		} 
 		catch (Exception ex) {
@@ -116,36 +100,31 @@ public class AppTest
 	}
 
 	/**
+	 * Verify that {@link TrieDatabase.buildIndex()} works properly
+	 */
+	public void testIndex() {
+		String fName = "/testFile01.fasta";
+		TrieDatabase gData = new TrieDatabase();
+		try {
+			File res = new File(getClass().getResource(fName).toURI());
+			gData.buildIndex(res);
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		// make sure 3 different keys exist
+		assertTrue(gData.exposeKeys().size() == 3);
+	}
+
+	/**
 	 * Verify that DFS encoding works properly.
 	 */
 	public void testDFSCoding() 
 	{
-		BioGraph bgx = new BioGraph("AGTAC");
+		BioJGraph bgx = new BioJGraph("AGTAC");
 		System.out.println(bgx.getDfsCode());
 
 		assertTrue( true );
-	}
-
-	/** 
-	 * Test the prefix tree implementation of biographs 
-	 */
-	public void testPrefixTree() 
-	{
-		PrefixTree<Integer> pt = new PrefixTree<Integer>();
-		pt.put("tester", 1);
-		pt.put("testing", 2);
-		pt.put("teasing", 3);
-
-		assertTrue(pt.size() == 3);
-
-		int size = 0;
-		for (String s: pt.keysWithPrefix("tes")) 
-			size++;
-		assertTrue(size == 2);
-
-		size = 0;
-		for (String s: pt.keysWithPrefix("tea"))
-			size++;
-		assertTrue(size == 1);
 	}
 }
