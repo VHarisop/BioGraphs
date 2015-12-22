@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Map.Entry;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.Comparator;
@@ -22,7 +23,7 @@ import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
  */
 public class SimilarityDatabase extends GraphDatabase {
 
-	protected TreeMap<List<BioJGraph>, List<Integer>> treeIndex;
+	protected TreeMap<BioJGraph, List<String>> treeIndex;
 
 	protected Comparator<BioJGraph> bgComp = new Comparator<BioJGraph>(){
 		@Override
@@ -67,7 +68,8 @@ public class SimilarityDatabase extends GraphDatabase {
 	 */
 	@Override
 	public void buildIndex(String path) throws Exception {
-		throw new UnsupportedOperationException("Not yet implemented");
+		File fPath = new File(path);
+		buildIndex(fPath);
 	}
 
 	/**
@@ -77,8 +79,16 @@ public class SimilarityDatabase extends GraphDatabase {
 	 * @param path a path containing one or multiple files
 	 */
 	@Override
-	public void buildIndex(File path) throws Exception {
-		throw new UnsupportedOperationException("Not yet implemented");
+	public void buildIndex(File fPath) throws Exception {
+		if (!fPath.isDirectory()) {
+			BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(fPath);
+			for (BioJGraph bG: bgs) {
+				addGraph(bG);
+			}
+		}
+		else {
+			throw new UnsupportedOperationException("Not implemented yet");
+		}
 	}
 
 	/**
@@ -88,6 +98,22 @@ public class SimilarityDatabase extends GraphDatabase {
 	 */
 	@Override
 	public void addGraph(BioJGraph bg) {
-		throw new UnsupportedOperationException("Not yet implemented");
+		List<String> nodeLabels = treeIndex.get(bg);
+
+		// if key was not there, initialize label array
+		if (nodeLabels == null) {
+			nodeLabels = new ArrayList<String>();
+		}
+		nodeLabels.add(bg.bioLabel);
+		treeIndex.put(bg, nodeLabels);
+	}
+
+	/**
+	 * Gets the keys of the underlying tree map of the database.
+	 * 
+	 * @return a set containing all the keys of the map
+	 */
+	public Set<BioJGraph> exposeKeys() {
+		return treeIndex.keySet();
 	}
 }
