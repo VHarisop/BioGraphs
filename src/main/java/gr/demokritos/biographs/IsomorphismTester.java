@@ -27,17 +27,17 @@ import java.lang.Math;
  */
 public class IsomorphismTester {
 	/* reimplementation of the max function */
-	private static final int max(int numA, int numB) {
+	public static final int max(int numA, int numB) {
 		return (numA > numB) ? numA : numB;
 	}
 
 	/* reimplementation of the min function */
-	private static final int min(int numA, int numB) {
+	public static final int min(int numA, int numB) {
 		return (numA > numB) ? numB : numA;
 	}
 
 	/* compare two doubles with respect to precision */
-	private static boolean compareDouble(Double a, Double b) {
+	public static boolean compareDouble(Double a, Double b) {
 		return (Math.abs(a - b) < 0.000001);
 	}
 
