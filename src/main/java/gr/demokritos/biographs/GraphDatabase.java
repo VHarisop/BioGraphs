@@ -1,41 +1,32 @@
 package gr.demokritos.biographs;
 
-import org.apache.commons.collections4.trie.PatriciaTrie;
-
-import java.lang.UnsupportedOperationException;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.Map.Entry;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
-import java.util.Set;
 
 import org.biojava.nbio.core.sequence.DNASequence;
 import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 
 /**
- * A class that handles a graph database, consisting of <tt>BioJGraph</tt> 
- * objects. A Patricia Trie is maintained for indexing, where the keys are
- * the DFS codes of the graphs. 
+ * An abstract class that handles a graph database, consisting of BioJGraph
+ * objects. Provides auxiliary methods for reading fasta files into the database,
+ * checking if the database is empty, etc.
  *
  * @author VHarisop
  */
-public class GraphDatabase {
+public abstract class GraphDatabase {
 
 	/* the path of the graph database */
-	private String path;
+	protected String path;
 
 	/* boolean variable indicating if the database
 	 * resides in RAM */
-	private boolean inMem;
-
-	/* Trie implementation of an index on graphs */
-	private PatriciaTrie trieIndex;
+	protected boolean inMem;
 
 	/* an array list of graphs to be kept in memory */
-	private ArrayList<BioJGraph> graphArray;
-	private int arrayIndex;
+	protected ArrayList<BioJGraph> graphArray;
+	protected int arrayIndex;
 	
 	/**
 	 * Creates a blank GraphDatabase object.
@@ -44,8 +35,8 @@ public class GraphDatabase {
 		path = null;
 		inMem = true;
 
-		// init trie index
-		initIndex();
+		graphArray = new ArrayList();
+		arrayIndex = -1;
 	}
 
 	/**
@@ -57,18 +48,31 @@ public class GraphDatabase {
 		this.path = path;
 		inMem = false;
 
-		// init trie index
-		initIndex();
+		graphArray = new ArrayList();
+		arrayIndex = -1;
 	}
 
 	/**
-	 * Initializes the patriciaTrie that maintains
-	 * an index on the database's graphs.
+	 * Gets the BioJGraph located at a given index in the graph array.
+	 * If the index is larger than the current array size, returns null instead.
+	 *
+	 * @param graphIndex the index of the graph we want to retrieve
+	 * @return the biograph at the given index, or null if no such graph exists.
 	 */
-	private void initIndex() {
-		trieIndex = new PatriciaTrie();	
-		graphArray = new ArrayList();
-		arrayIndex = -1;
+	public BioJGraph getGraph(int graphIndex) {
+		if (arrayIndex > graphIndex) 
+			return null;
+
+		return graphArray.get(graphIndex);
+	}
+
+	/**
+	 * Checks if the graph database is empty by checking arrayIndex.
+	 * 
+	 * @return true if the graph array is empty, otherwise false.
+	 */
+	public boolean isEmpty() {
+		return (arrayIndex > -1);
 	}
 
 	/**
@@ -77,12 +81,7 @@ public class GraphDatabase {
 	 *
 	 * @param path a string containing a path to a file or directory
 	 */
-	public void buildIndex(String path) 
-	throws Exception
-	{
-		File fPath = new File(path);
-		buildIndex(fPath);
-	}
+	public abstract void buildIndex(String path) throws Exception;
 
 	/**
 	 * Builds a graph database index from a given file or a directory 
@@ -90,97 +89,14 @@ public class GraphDatabase {
 	 *
 	 * @param path a path containing one or multiple files
 	 */
-	public void buildIndex(File path) 
-	throws Exception 
-	{
-		if (!path.isDirectory()) {
-			BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(path);
-			for (BioJGraph bG: bgs) {
-				addGraph(bG);
-			}
-		}
-		else {
-			throw new UnsupportedOperationException("Not implemented yet!");
-		}
-	}
-
+	public abstract void buildIndex(File path) throws Exception;
 
 	/**
-	 * Add a new graph to the graph database, updating
-	 * the index on the trie as well. 
-	 * @param bg the <tt>BioJGraph</tt> to be added
+	 * Adds a new graph to the database, updating the index as well.
+	 * 
+	 * @param bg the BioJGraph object to be added
 	 */
-	public void addGraph(BioJGraph bg) {
-		// get the dfsCode of the graph as key
-		String dfsCode = bg.getDfsCode();
-		
-		// add the graph to the in-memory array
-		arrayIndex++; graphArray.add(bg);
-
-		// update the trie containing the indices
-		addGraph(dfsCode, arrayIndex);
-	}
-
-
-	/**
-	 * Add a new index entry for a graph in the trieIndex 
-	 * maintained. The graph's dfs code is used as a key and
-	 * the index of the graph in the in-memory array becomes
-	 * the new index entry.
-	 * @param dfsCode a <tt>String</tt> containing the DFS code
-	 * @param index the index of the graph in the in-memory array
-	 */
-	private void addGraph(String dfsCode, int index) {
-		if (!(trieIndex.containsKey(dfsCode))) {
-			
-			/* if the given dfs code is not in the trie, create a new 
-		 	 * ArrayList of graph indices */
-			ArrayList<Integer> indices = new ArrayList<Integer>();
-			indices.add(index);
-
-			trieIndex.put(dfsCode, indices);
-		}
-		else {
-			/* if the given dfs code is already in the trie, modify
-			 * the list of graph indices maintained for the key */
-			ArrayList<Integer> indices = (ArrayList) trieIndex.get(dfsCode);
-			indices.add(index);
-
-			/* update trie with new array */
-			trieIndex.put(dfsCode, indices);
-		}
-	}
-
-
-	/**
-	 * Obtain a list of graphs that match a given dfsCode.
-	 * @param dfsCode a <tt>String</tt> containing the query code
-	 * @return an <tt>ArrayList</tt> of BioJGraphs that match
-	 */
-	public ArrayList<BioJGraph> getGraphs(String dfsCode) {
-		ArrayList<Integer> indices = this.getGraphIndices(dfsCode);
-		ArrayList<BioJGraph> graphs = new ArrayList<BioJGraph>();
-
-		for (int i: indices) {
-			graphs.add(graphArray.get(i));
-		}
-
-		return graphs;
-	}
-
-	/**
-	 * Obtain a list of indices pointing to places at the in-memory array
-	 * that contain graphs that match the provided dfsCode. 
-	 * @param dfsCode a <tt>String</tt> containing the query dfs code
-	 * @return an <tt>ArrayList</tt> of integers containing the indices
-	 * 		   in the in-memory array
-	 */
-	private ArrayList<Integer> getGraphIndices(String dfsCode) {
-		ArrayList<Integer> indices = new ArrayList<Integer>();
-		indices = (ArrayList) trieIndex.get(dfsCode);
-
-		return indices;
-	}
+	public abstract void addGraph(BioJGraph bg);
 
 	/**
 	 * A wrapper method that reads DNA sequences from a file, given its pathname.
@@ -206,12 +122,5 @@ public class GraphDatabase {
 	throws Exception 
 	{
 		return FastaReaderHelper.readFastaDNASequence(inFile);
-	}
-
-	/**
-	 * Simple getter for the database's trie keyset.
-	 */
-	public Set<String> exposeKeys() {
-		return trieIndex.keySet();
 	}
 }

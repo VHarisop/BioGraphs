@@ -222,5 +222,16 @@ public class BioJGraph extends NGramJGraph {
 		return (new DepthFirstEncoder(getGraph())).getEncoding();
 	}
 
+	/**
+	 * Returns the label produced by the DFS encoding of the underlying graph.
+	 * @see gr.demokritos.iit.jinsect.structs.DepthFirstEncoder#getEncoding()
+	 * for label ordering and implementation.
+	 *
+	 * @param vFrom the starting node
+	 * @return the dfs label
+	 */
+	public String getDfsCode(JVertex vFrom) {
+		return (new DepthFirstEncoder(getGraph(), vFrom)).getEncoding();
+	}
 }
 
