@@ -5,6 +5,7 @@ import org.apache.commons.collections4.trie.PatriciaTrie;
 import java.lang.UnsupportedOperationException;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.util.Map.Entry;
 import java.util.LinkedHashMap;
@@ -74,7 +75,20 @@ public class TrieDatabase extends GraphDatabase {
 			}
 		}
 		else {
-			throw new UnsupportedOperationException("Not implemented yet!");
+			// get all files in a list
+			File[] fileList = fPath.listFiles(new FileFilter() {
+				public boolean accept(File toFilter) {
+					return toFilter.isFile();
+				}
+			});
+
+			// add the graphs of each file to the database
+			for (File f: fileList) {
+				BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(f);
+				for (BioJGraph bG: bgs) {
+					addGraph(bG);
+				}
+			}
 		}
 	}
 

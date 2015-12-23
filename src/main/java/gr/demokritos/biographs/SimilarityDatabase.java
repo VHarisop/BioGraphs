@@ -1,6 +1,8 @@
 package gr.demokritos.biographs;
 
 import java.io.File;
+import java.io.FileFilter;
+
 import java.util.Map.Entry;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
@@ -87,7 +89,20 @@ public class SimilarityDatabase extends GraphDatabase {
 			}
 		}
 		else {
-			throw new UnsupportedOperationException("Not implemented yet");
+			// get all files in a list
+			File[] fileList = fPath.listFiles(new FileFilter() {
+				public boolean accept(File toFilter) {
+					return toFilter.isFile();
+				}
+			});
+
+			// add them all to the database
+			for (File f: fileList) {
+				BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(f);
+				for (BioJGraph bG: bgs) {
+					addGraph(bG);
+				}
+			}
 		}
 	}
 
