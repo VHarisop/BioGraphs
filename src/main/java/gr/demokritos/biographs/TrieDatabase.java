@@ -23,8 +23,12 @@ import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
  */
 public class TrieDatabase extends GraphDatabase {
 
-	/* Trie implementation of an index on graphs */
-	private PatriciaTrie trieIndex;
+	/**
+	 * A {@link org.apache.commons.collections4.trie.PatriciaTrie} 
+	 * that is used for indexing graphs by using the graphs'
+	 * {@link BioJGraph#getDfsCode()} as keys.
+	 */
+	protected PatriciaTrie trieIndex;
 	
 	/**
 	 * Creates a blank TrieDatabase object.

@@ -25,8 +25,16 @@ import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
  */
 public class SimilarityDatabase extends GraphDatabase {
 
+	/**
+	 * A Red-Black tree map implementation that associates biographs
+	 * with lists of FASTA strings (labels).
+	 */
 	protected TreeMap<BioJGraph, List<String>> treeIndex;
 
+	/**
+	 * A custom comparator to be used for 
+	 * {@link SimilarityDatabase#treeIndex}
+	 */
 	protected Comparator<BioJGraph> bgComp = new Comparator<BioJGraph>(){
 		@Override
 		public int compare(final BioJGraph bgA, final BioJGraph bgB) {

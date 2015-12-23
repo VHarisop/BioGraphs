@@ -17,15 +17,24 @@ import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
  */
 public abstract class GraphDatabase {
 
-	/* the path of the graph database */
+	/**
+	 * the directory of the graph database, if any 
+	 */
 	protected String path;
 
-	/* boolean variable indicating if the database
-	 * resides in RAM */
+	/** 
+	 * flag indicating if the database resides in RAM
+	 */
 	protected boolean inMem;
 
-	/* an array list of graphs to be kept in memory */
+	/** 
+	 * an array list of graphs to be kept in memory 
+	 */
 	protected ArrayList<BioJGraph> graphArray;
+
+	/**
+	 * the current index of {@link GraphDatabase#graphArray} 
+	 */
 	protected int arrayIndex;
 	
 	/**
