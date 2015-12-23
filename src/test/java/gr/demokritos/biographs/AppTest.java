@@ -68,8 +68,8 @@ public class AppTest
 
 
 	/**
-	 * Verify that {@link BioJGraph.fromFastaFile()} and
-	 * {@link BioJGraph.fastaFileToGraphs()} work properly
+	 * Verify that {@link BioJGraph#fromFastaFile()} and
+	 * {@link BioJGraph#fastaFileToGraphs()} work properly
 	 * for fasta files with one or multiple entries.
 	 *
 	 */
@@ -96,18 +96,22 @@ public class AppTest
 		catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		
 	}
 
 	/**
-	 * Verify that {@link TrieDatabase.buildIndex()} works properly
+	 * Verify that {@link TrieDatabase.buildIndex()} and 
+	 * {@link SimilarityDatabase.buildIndex()} work properly.
 	 */
 	public void testIndex() {
-		String fName = "/testFile01.fasta";
+		// String fName = "/testFile01.fasta";
+		String fName = "/files";
 		TrieDatabase gData = new TrieDatabase();
+		SimilarityDatabase gSimData = new SimilarityDatabase();
 		try {
 			File res = new File(getClass().getResource(fName).toURI());
+			System.out.println(res.isDirectory());
 			gData.buildIndex(res);
+			gSimData.buildIndex(res);
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
@@ -115,6 +119,7 @@ public class AppTest
 
 		// make sure 3 different keys exist
 		assertTrue(gData.exposeKeys().size() == 3);
+		assertTrue(gSimData.exposeKeys().size() == 3);
 	}
 
 	/**
@@ -123,8 +128,14 @@ public class AppTest
 	public void testDFSCoding() 
 	{
 		BioJGraph bgx = new BioJGraph("AGTAC");
-		System.out.println(bgx.getDfsCode());
+		
+		// this is the "correct" dfs code.
+		String code = "GTA->AGT|TAC->AGT|TAC->GTA|";
+		assertTrue(bgx.getDfsCode().equals(code));
+		
+		// this is the correct dfs code for starting at TAC
+		code = "TAC->AGT|TAC->GTA|GTA->AGT|";
+		assertTrue(bgx.getDfsCode(new NGramVertex("TAC")).equals(code));
 
-		assertTrue( true );
 	}
 }

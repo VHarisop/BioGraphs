@@ -67,13 +67,5 @@
 		<artifactId>JInsect</artifactId>
 		<version>1.1-rc</version>
 	</dependency>
-
-	<!-- project is dependent on OpenJGraph -->
-	<dependency>
-		<groupId>salvo.jesus</groupId>
-		<artifactId>OpenJGraph</artifactId>
-		<version>1.0</version>
-	</dependency>
-
   </dependencies>
 </project>
