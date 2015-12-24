@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.util.Map.Entry;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.biojava.nbio.core.sequence.DNASequence;
@@ -107,55 +108,46 @@ public class TrieDatabase extends GraphDatabase {
 		// get the dfsCode of the graph as key
 		String dfsCode = bg.getDfsCode();
 		
-		// add the graph to the in-memory array
-		arrayIndex++; graphArray.add(bg);
-
 		/* if key was not already there, initialize an array of indices 
 		 * otherwise, add an entry to the pre-existing array */
 		if (!(trieIndex.containsKey(dfsCode))) {
-			ArrayList<Integer> indices = new ArrayList();
-			indices.add(arrayIndex);
+			ArrayList<String> labels = new ArrayList();
+			labels.add(bg.bioLabel);
 			
 			// add to Trie
-			trieIndex.put(dfsCode, indices);
+			trieIndex.put(dfsCode, labels);
 		}
 		else {
-			ArrayList<Integer> indices = (ArrayList) trieIndex.get(dfsCode);
-			indices.add(arrayIndex);
+			ArrayList<String> labels = (ArrayList) trieIndex.get(dfsCode);
+			labels.add(bg.bioLabel);
 
 			// update trie with new array
-			trieIndex.put(dfsCode, indices);
+			trieIndex.put(dfsCode, labels);
 		}
 	}
 
 	/**
-	 * Obtain a list of graphs that match a given dfsCode.
-	 * @param dfsCode a <tt>String</tt> containing the query code
-	 * @return an <tt>ArrayList</tt> of BioJGraphs that match
+	 * Obtains a list of labels of graphs that match the dfs code 
+	 * of the given graph.
+	 *
+	 * @param bg the query graph
+	 * @return a list of labels 
 	 */
-	public ArrayList<BioJGraph> getGraphs(String dfsCode) {
-		ArrayList<Integer> indices = this.getGraphIndices(dfsCode);
-		ArrayList<BioJGraph> graphs = new ArrayList<BioJGraph>();
-
-		for (int i: indices) {
-			graphs.add(graphArray.get(i));
-		}
-
-		return graphs;
+	public List<String> getNodes(BioJGraph bg) {
+		return getNodes(bg.getDfsCode());
 	}
 
+
 	/**
-	 * Obtain a list of indices pointing to places at the in-memory array
-	 * that contain graphs that match the provided dfsCode. 
+	 * Obtain a list of labels of graphs that match the provided dfsCode. 
 	 * @param dfsCode a <tt>String</tt> containing the query dfs code
-	 * @return an <tt>ArrayList</tt> of integers containing the indices
-	 * 		   in the in-memory array
+	 * @return an <tt>ArrayList</tt> of labels pointing to biographs
 	 */
-	private ArrayList<Integer> getGraphIndices(String dfsCode) {
-		ArrayList<Integer> indices = new ArrayList<Integer>();
-		indices = (ArrayList) trieIndex.get(dfsCode);
+	public List<String> getNodes(String dfsCode) {
+		List<String> labels = new ArrayList<String>();
+		labels = (ArrayList) trieIndex.get(dfsCode);
 
-		return indices;
+		return labels;
 	}
 
 	/**
