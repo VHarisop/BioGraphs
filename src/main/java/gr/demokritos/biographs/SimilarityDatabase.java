@@ -3,6 +3,8 @@ package gr.demokritos.biographs;
 import java.io.File;
 import java.io.FileFilter;
 
+import java.lang.Math;
+
 import java.util.Map.Entry;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
@@ -32,23 +34,22 @@ public class SimilarityDatabase extends GraphDatabase {
 	protected TreeMap<BioJGraph, List<String>> treeIndex;
 
 	/**
-	 * A custom comparator to be used for 
-	 * {@link SimilarityDatabase#treeIndex}
+	 * A custom comparator to be used for {@link #treeIndex} that
+	 * compares graphs based on their s-similarity.
 	 */
-	protected Comparator<BioJGraph> bgComp = new Comparator<BioJGraph>(){
-		@Override
+	protected Comparator<BioJGraph> bgComp = new Comparator<BioJGraph>() {
+		@Override 
 		public int compare(final BioJGraph bgA, final BioJGraph bgB) {
-			double sSim = jutils.graphStructuralSimilarity(
-									bgA.getGraph(), bgB.getGraph());
-
-			// compare with respect to arithmetic precision
-			if (IsomorphismTester.compareDouble(sSim, 0.0))
+			double sSim = 
+				jutils.graphStructuralSimilarity(bgA.getGraph(), bgB.getGraph());
+			
+			if (eqDouble(sSim, 0.0)) {
 				return 0;
-
+			}
 			if (sSim > 0)
 				return 1;
-			else
-				return -1;						
+
+			return -1;
 		}
 	};
 
@@ -139,4 +140,19 @@ public class SimilarityDatabase extends GraphDatabase {
 	public Set<BioJGraph> exposeKeys() {
 		return treeIndex.keySet();
 	}
+
+	/**
+	 * Gets the nodes corresponding to the biograph query.
+	 * @param bg the {@link BioJGraph} key to be searched for
+	 * @return a list of labels corresponding to FASTA entries
+	 */
+	public List<String> getNodes(BioJGraph bg) {
+		return treeIndex.get(bg);
+	}
+
+	private static boolean eqDouble(double a, double b) {
+		return (Math.abs(a - b) < 0.000001);
+	}
+
+
 }
