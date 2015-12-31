@@ -69,8 +69,8 @@ public class CachedSimilarityDatabase extends GraphDatabase {
 	@Override
 	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
-			BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(fPath);
-			for (BioJGraph bG: bgs) {
+			BioGraph[] bgs = BioGraph.fastaFileToGraphs(fPath);
+			for (BioGraph bG: bgs) {
 				addGraph(bG);
 			}
 		}
@@ -84,8 +84,8 @@ public class CachedSimilarityDatabase extends GraphDatabase {
 
 			// add them all to the database
 			for (File f: fileList) {
-				BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(f);
-				for (BioJGraph bG: bgs) {
+				BioGraph[] bgs = BioGraph.fastaFileToGraphs(f);
+				for (BioGraph bG: bgs) {
 					addGraph(bG);
 				}
 			}
@@ -95,10 +95,10 @@ public class CachedSimilarityDatabase extends GraphDatabase {
 	/**
 	 * Adds a new graph to the database, updating the index as well.
 	 * 
-	 * @param bg the BioJGraph object to be indexed
+	 * @param bg the BioGraph object to be indexed
 	 */
 	@Override
-	public void addGraph(BioJGraph bg) {
+	public void addGraph(BioGraph bg) {
 		// acquire the normalized weight sum
 		double gWeight = bg.getGraph().totalNormWeight();
 
@@ -125,10 +125,10 @@ public class CachedSimilarityDatabase extends GraphDatabase {
 	/**
 	 * Gets the nodes corresponding to the biograph query, whose
 	 * similarity to the query biojgraph is 0.
-	 * @param bg the {@link BioJGraph} to be searched for
+	 * @param bg the {@link BioGraph} to be searched for
 	 * @return a list of labels corresponding to FASTA entries
 	 */
-	public List<String> getNodes(BioJGraph bg) {
+	public List<String> getNodes(BioGraph bg) {
 		double qWeight = bg.getGraph().totalNormWeight(); 
 		return treeIndex.get(qWeight);
 	}

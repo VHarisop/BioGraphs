@@ -31,15 +31,15 @@ public class SimilarityDatabase extends GraphDatabase {
 	 * A Red-Black tree map implementation that associates biographs
 	 * with lists of FASTA strings (labels).
 	 */
-	protected TreeMap<BioJGraph, List<String>> treeIndex;
+	protected TreeMap<BioGraph, List<String>> treeIndex;
 
 	/**
 	 * A custom comparator to be used for {@link #treeIndex} that
 	 * compares graphs based on their s-similarity.
 	 */
-	protected Comparator<BioJGraph> bgComp = new Comparator<BioJGraph>() {
+	protected Comparator<BioGraph> bgComp = new Comparator<BioGraph>() {
 		@Override 
-		public int compare(final BioJGraph bgA, final BioJGraph bgB) {
+		public int compare(final BioGraph bgA, final BioGraph bgB) {
 			double sSim = 
 				jutils.graphStructuralSimilarity(bgA.getGraph(), bgB.getGraph());
 			
@@ -92,8 +92,8 @@ public class SimilarityDatabase extends GraphDatabase {
 	@Override
 	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
-			BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(fPath);
-			for (BioJGraph bG: bgs) {
+			BioGraph[] bgs = BioGraph.fastaFileToGraphs(fPath);
+			for (BioGraph bG: bgs) {
 				addGraph(bG);
 			}
 		}
@@ -107,8 +107,8 @@ public class SimilarityDatabase extends GraphDatabase {
 
 			// add them all to the database
 			for (File f: fileList) {
-				BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(f);
-				for (BioJGraph bG: bgs) {
+				BioGraph[] bgs = BioGraph.fastaFileToGraphs(f);
+				for (BioGraph bG: bgs) {
 					addGraph(bG);
 				}
 			}
@@ -118,10 +118,10 @@ public class SimilarityDatabase extends GraphDatabase {
 	/**
 	 * Adds a new graph to the database, updating the index as well.
 	 * 
-	 * @param bg the BioJGraph object to be added
+	 * @param bg the BioGraph object to be added
 	 */
 	@Override
-	public void addGraph(BioJGraph bg) {
+	public void addGraph(BioGraph bg) {
 		List<String> nodeLabels = treeIndex.get(bg);
 
 		// if key was not there, initialize label array
@@ -137,17 +137,17 @@ public class SimilarityDatabase extends GraphDatabase {
 	 * 
 	 * @return a set containing all the keys of the map
 	 */
-	public Set<BioJGraph> exposeKeys() {
+	public Set<BioGraph> exposeKeys() {
 		return treeIndex.keySet();
 	}
 
 	/**
 	 * Gets the nodes corresponding to the biograph query, whose
 	 * similarity to the query biojgraph is 0.
-	 * @param bg the {@link BioJGraph} key to be searched for
+	 * @param bg the {@link BioGraph} key to be searched for
 	 * @return a list of labels corresponding to FASTA entries
 	 */
-	public List<String> getNodes(BioJGraph bg) {
+	public List<String> getNodes(BioGraph bg) {
 		return treeIndex.get(bg);
 	}
 

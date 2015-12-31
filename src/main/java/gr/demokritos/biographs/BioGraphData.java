@@ -2,14 +2,14 @@ package gr.demokritos.biographs;
 
 import java.io.File;
 
-public class BioGraphData extends BioData<BioJGraph> {
+public class BioGraphData extends BioData<BioGraph> {
 	/**
 	 * The data label, which can be used for reverse search
 	 * in the original file using the FASTA labels. 
 	 */
 	protected String label;
 
-	public BioGraphData(BioJGraph bGraph, File fPath) {
+	public BioGraphData(BioGraph bGraph, File fPath) {
 		super(bGraph, fPath);
 		label = bGraph.bioLabel;
 	}
@@ -23,7 +23,7 @@ public class BioGraphData extends BioData<BioJGraph> {
 	
 	/**
 	 * Creates an array of {@link BioData} using the 
-	 * {@link BioJGraph} representations from a given file.
+	 * {@link BioGraph} representations from a given file.
 	 *
 	 * @param fPath the path of the file
 	 * @return an array of {@link BioData} entries
@@ -32,12 +32,12 @@ public class BioGraphData extends BioData<BioJGraph> {
 	public static BioGraphData[] fromFile(File fPath)
 	throws Exception 
 	{
-		BioJGraph[] bioGraphs = BioJGraph.fastaFileToGraphs(fPath);
+		BioGraph[] bioGraphs = BioGraph.fastaFileToGraphs(fPath);
 		BioGraphData[] entries = new BioGraphData[bioGraphs.length];
 		int iCnt = 0;
 
 		// create one entry for each sequence in the file
-		for (BioJGraph bG: bioGraphs) {
+		for (BioGraph bG: bioGraphs) {
 			entries[iCnt++] = new BioGraphData(bG, fPath);
 		}
 

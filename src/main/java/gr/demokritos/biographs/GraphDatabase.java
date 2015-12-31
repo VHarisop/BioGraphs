@@ -9,7 +9,7 @@ import org.biojava.nbio.core.sequence.DNASequence;
 import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 
 /**
- * An abstract class that handles a graph database, consisting of BioJGraph
+ * An abstract class that handles a graph database, consisting of BioGraph
  * objects. Provides auxiliary methods for reading fasta files into the database,
  * checking if the database is empty, etc.
  *
@@ -30,7 +30,7 @@ public abstract class GraphDatabase {
 	/** 
 	 * an array list of graphs to be kept in memory 
 	 */
-	protected ArrayList<BioJGraph> graphArray;
+	protected ArrayList<BioGraph> graphArray;
 
 	/**
 	 * the current index of {@link GraphDatabase#graphArray} 
@@ -62,13 +62,13 @@ public abstract class GraphDatabase {
 	}
 
 	/**
-	 * Gets the BioJGraph located at a given index in the graph array.
+	 * Gets the BioGraph located at a given index in the graph array.
 	 * If the index is larger than the current array size, returns null instead.
 	 *
 	 * @param graphIndex the index of the graph we want to retrieve
 	 * @return the biograph at the given index, or null if no such graph exists.
 	 */
-	public BioJGraph getGraph(int graphIndex) {
+	public BioGraph getGraph(int graphIndex) {
 		if (arrayIndex > graphIndex) 
 			return null;
 
@@ -103,9 +103,9 @@ public abstract class GraphDatabase {
 	/**
 	 * Adds a new graph to the database, updating the index as well.
 	 * 
-	 * @param bg the BioJGraph object to be added
+	 * @param bg the BioGraph object to be added
 	 */
-	public abstract void addGraph(BioJGraph bg);
+	public abstract void addGraph(BioGraph bg);
 
 	/**
 	 * A wrapper method that reads DNA sequences from a file, given its pathname.

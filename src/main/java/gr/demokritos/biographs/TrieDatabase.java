@@ -27,7 +27,7 @@ public class TrieDatabase extends GraphDatabase {
 	/**
 	 * A {@link org.apache.commons.collections4.trie.PatriciaTrie} 
 	 * that is used for indexing graphs by using the graphs'
-	 * {@link BioJGraph#getDfsCode()} as keys.
+	 * {@link BioGraph#getDfsCode()} as keys.
 	 */
 	protected PatriciaTrie trieIndex;
 	
@@ -74,8 +74,8 @@ public class TrieDatabase extends GraphDatabase {
 	throws Exception 
 	{
 		if (!fPath.isDirectory()) {
-			BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(fPath);
-			for (BioJGraph bG: bgs) {
+			BioGraph[] bgs = BioGraph.fastaFileToGraphs(fPath);
+			for (BioGraph bG: bgs) {
 				addGraph(bG);
 			}
 		}
@@ -89,8 +89,8 @@ public class TrieDatabase extends GraphDatabase {
 
 			// add the graphs of each file to the database
 			for (File f: fileList) {
-				BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(f);
-				for (BioJGraph bG: bgs) {
+				BioGraph[] bgs = BioGraph.fastaFileToGraphs(f);
+				for (BioGraph bG: bgs) {
 					addGraph(bG);
 				}
 			}
@@ -101,10 +101,10 @@ public class TrieDatabase extends GraphDatabase {
 	/**
 	 * Add a new graph to the graph database, updating
 	 * the index on the trie as well. 
-	 * @param bg the BioJGraph to be added
+	 * @param bg the BioGraph to be added
 	 */
 	@Override
-	public void addGraph(BioJGraph bg) {
+	public void addGraph(BioGraph bg) {
 		// get the dfsCode of the graph as key
 		String dfsCode = bg.getDfsCode();
 		
@@ -133,7 +133,7 @@ public class TrieDatabase extends GraphDatabase {
 	 * @param bg the query graph
 	 * @return a list of labels 
 	 */
-	public List<String> getNodes(BioJGraph bg) {
+	public List<String> getNodes(BioGraph bg) {
 		return getNodes(bg.getDfsCode());
 	}
 

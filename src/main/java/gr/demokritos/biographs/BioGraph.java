@@ -21,41 +21,41 @@ import java.util.LinkedHashMap;
 
 /**
  * A class for representing N-Gram Graphs for biological sequences.
- * <tt>BioJGraph</tt> builds heavily on NGramJGraph.
+ * <tt>BioGraph</tt> builds heavily on NGramJGraph.
  *
- * A BioJGraph is an N-Gram Graph of single order N.
+ * A BioGraph is an N-Gram Graph of single order N.
  *
  * @author VHarisop
  */
-public class BioJGraph extends NGramJGraph {
+public class BioGraph extends NGramJGraph {
 
 	// the label of the dataset this graph represents
 	protected String bioLabel = null;
 
 	/**
-	 * Creates a BioJGraph object to represent a given string.
+	 * Creates a BioGraph object to represent a given string.
 	 * This method invokes the default NGramJGraph constructor.
 	 *
 	 * @param data the string to be represented
 	 */
-	public BioJGraph(String data) {
+	public BioGraph(String data) {
 		super(data);
 	}
 
 	/**
-	 * Creates a BioJGraph object to represent a given data string
+	 * Creates a BioGraph object to represent a given data string
 	 * with an associated label. 
 	 *
 	 * @param data the string to be represented
 	 * @param label the label of the data to be represented
 	 */
-	public BioJGraph(String data, String label) {
+	public BioGraph(String data, String label) {
 		super(data);
 		bioLabel = label;
 	}
 
 	/**
-	 * Creates a BioJGraph object to represent a given data string
+	 * Creates a BioGraph object to represent a given data string
 	 * with an associated label using a given order for the n-grams 
 	 * and a given correlation  window for calculating n-gram co-occurences.
 	 *
@@ -64,59 +64,59 @@ public class BioJGraph extends NGramJGraph {
 	 * @param order the order of the n-grams
 	 * @param correlationWindow the length of the correlation window
 	 */
-	public BioJGraph(String data, String label, int order, int correlationWindow) {
+	public BioGraph(String data, String label, int order, int correlationWindow) {
 		super(data, order, order, correlationWindow);
 		bioLabel = label;
 	}
 
 	/**
-	 * Creates a BioJGraph object to represent a given string, using
+	 * Creates a BioGraph object to represent a given string, using
 	 * the order specified for the N-grams and the given correlation
 	 * window for calculating N-gram co-occurences.
 	 * @param data the string to be represented
 	 * @param order the order of the n-grams
 	 * @param correlationWindow the length of the correlation window
 	 */
-	public BioJGraph(String data, int order, int correlationWindow) {
+	public BioGraph(String data, int order, int correlationWindow) {
 		super(data, order, order, correlationWindow);
 	}
 
 	/**
-	 * Creates a BioJGraph object to represent a given 
+	 * Creates a BioGraph object to represent a given 
 	 * {@link org.biojava.nbio.core.sequence.DNASequence}
 	 *
 	 * @param dnaSeq a <tt>DNASequence</tt> object 
-	 * @return a <tt>BioJGraph</tt> object to represent the sequence
+	 * @return a <tt>BioGraph</tt> object to represent the sequence
 	 */
-	public static BioJGraph fromSequence(DNASequence dnaSeq) {
-		return new BioJGraph(dnaSeq.getSequenceAsString());
+	public static BioGraph fromSequence(DNASequence dnaSeq) {
+		return new BioGraph(dnaSeq.getSequenceAsString());
 	}
 
 	/**
-	 * Creates a BioJGraph object to represent a given
+	 * Creates a BioGraph object to represent a given
 	 * {@link org.biojava.nbio.core.sequence.DNASequence} 
 	 * with an associated label.
 	 *
 	 * @param dnaSeq a DNASequence object
 	 * @param label the associated label
-	 * @return a BioJGraph object that represents the sequence
+	 * @return a BioGraph object that represents the sequence
 	 */
-	public static BioJGraph fromSequence(DNASequence dnaSeq, String label) {
-		return new BioJGraph(dnaSeq.getSequenceAsString(), label);
+	public static BioGraph fromSequence(DNASequence dnaSeq, String label) {
+		return new BioGraph(dnaSeq.getSequenceAsString(), label);
 	}
 
 	/**
-	 * Creates a BioJGraph object to represent a 
+	 * Creates a BioGraph object to represent a 
 	 * {@link org.biojava.nbio.core.sequence.DNASequence} 
 	 * that is provided in a given FASTA File.
 	 * @param inFile the <tt>File</tt> which contains the sequence 
-	 * @return a <tt>BioJGraph</tt> object to represent the sequence 
+	 * @return a <tt>BioGraph</tt> object to represent the sequence 
 	 * @throws Exception if something is wrong with the file
 	 */
-	public static BioJGraph fromFastaFile(File inFile) 
+	public static BioGraph fromFastaFile(File inFile) 
 	throws Exception
 	{
-		BioJGraph bGraph = null;
+		BioGraph bGraph = null;
 		LinkedHashMap<String, DNASequence> entries = 
 			GraphDatabase.readFastaFile(inFile);
 		/* try reading the first dna sequence from the file */
@@ -129,17 +129,17 @@ public class BioJGraph extends NGramJGraph {
 	}
 	
 	/**
-	 * Creates a BioJGraph object to represent a 
+	 * Creates a BioGraph object to represent a 
 	 * {@link org.biojava.nbio.core.sequence.DNASequence} 
 	 * that is provided in a FASTA file with a given path.
 	 * @param fName a <tt>String</tt> containing the path of the file.
-	 * @return a <tt>BioJGraph</tt> object to represent the sequence 
+	 * @return a <tt>BioGraph</tt> object to represent the sequence 
 	 * @throws Exception if something is wrong with the file
 	 */
-	public static BioJGraph fromFastaFile(String fName) 
+	public static BioGraph fromFastaFile(String fName) 
 	throws Exception 
 	{
-		BioJGraph bGraph = null;
+		BioGraph bGraph = null;
 		LinkedHashMap<String, DNASequence> entries = 
 			GraphDatabase.readFastaFile(fName);
 		/* try reading the first dna sequence from the file */
@@ -152,23 +152,23 @@ public class BioJGraph extends NGramJGraph {
 	}
 
 	/**
-	 * Creates an array of BioJGraph objects to represent a series of
+	 * Creates an array of BioGraph objects to represent a series of
 	 * {@link org.biojava.nbio.core.sequence.DNASequence} that are provided
 	 * in a FASTA file at a given path.
 	 *
 	 * @param fName the file containing the sequences
-	 * @return an array of BioJGraph objects to represent the sequences
+	 * @return an array of BioGraph objects to represent the sequences
 	 * @throws Exception if something is wrong with the file 
 	 */
-	public static BioJGraph[] fastaFileToGraphs(File fName) 
+	public static BioGraph[] fastaFileToGraphs(File fName) 
 	throws Exception 
 	{
-		BioJGraph[] bGraphs; 
+		BioGraph[] bGraphs; 
 		LinkedHashMap<String, DNASequence> entries = 
 			GraphDatabase.readFastaFile(fName);
 
 		// allocate space for each entry
-		bGraphs = new BioJGraph[entries.size()];
+		bGraphs = new BioGraph[entries.size()];
 		int bCnt = 0;
 
 		for (Entry<String, DNASequence> entry: entries.entrySet()) {
@@ -190,7 +190,7 @@ public class BioJGraph extends NGramJGraph {
 
 	/**
 	 * Return the underlying label-vertex map of the graph implementing
-	 * the BioJGraph object.
+	 * the BioGraph object.
 	 * @return a HashMap object of String - JVertex pairs.
 	 */
 	public HashMap<String, JVertex> getVertexMap() {

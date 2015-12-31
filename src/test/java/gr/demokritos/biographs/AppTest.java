@@ -42,14 +42,22 @@ public class AppTest
     {
         return new TestSuite( AppTest.class );
     }
+	
+	// similarity databases to be shared amongst tests
+	static SimilarityDatabase nfrData;
+	static SimilarityDatabase nclData;
+
+	// cached similarity databases to be shared amongst tests
+	static CachedSimilarityDatabase nfrCache;
+	static CachedSimilarityDatabase nclCache;
 
 	/**
 	 * Verify that subgraph isomorphism test works
-	 * for comparing BioJGraphs.
+	 * for comparing BioGraphs.
 	 */
 	public void testIso() {
-		BioJGraph bgx = new BioJGraph("ACTA");
-		BioJGraph bgy = new BioJGraph("ACTAG");
+		BioGraph bgx = new BioGraph("ACTA");
+		BioGraph bgy = new BioGraph("ACTAG");
 
 		boolean res = IsomorphismTester.subgraphIsomorphic(bgx, bgy);
 		assertTrue(res);
@@ -72,8 +80,8 @@ public class AppTest
 
 
 	/**
-	 * Verify that {@link BioJGraph#fromFastaFile()} and
-	 * {@link BioJGraph#fastaFileToGraphs()} work properly
+	 * Verify that {@link BioGraph#fromFastaFile()} and
+	 * {@link BioGraph#fastaFileToGraphs()} work properly
 	 * for fasta files with one or multiple entries.
 	 *
 	 */
@@ -87,10 +95,10 @@ public class AppTest
 
 		try {
 			File res = new File(getClass().getResource(fName).toURI());
-			BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(res);
+			BioGraph[] bgs = BioGraph.fastaFileToGraphs(res);
 			int labelCnt = 0;
 			
-			for (BioJGraph b: bgs) {
+			for (BioGraph b: bgs) {
 				assertNotNull(b);
 				assertNotNull(b.bioLabel);
 				assertTrue(b.bioLabel.equals(labels[labelCnt++]));
@@ -105,11 +113,11 @@ public class AppTest
 
 		try {
 			File res = new File(getClass().getResource(fName).toURI());
-			BioJGraph[] bgs = BioJGraph.fastaFileToGraphs(res);
+			BioGraph[] bgs = BioGraph.fastaFileToGraphs(res);
 
 			// assert that all graphs have been read
 			assertTrue(bgs.length == 1099);
-			for (BioJGraph b: bgs) {
+			for (BioGraph b: bgs) {
 				assertNotNull(b);
 				assertNotNull(b.bioLabel);
 			}
@@ -147,12 +155,53 @@ public class AppTest
 		assertTrue(gSimData.exposeKeys().size() == 3);
 	}
 
+	public void testCreateSimIndex() {
+		String nfrIndex = "/1099_consistent_NFR.fa";
+		String nclIndex = "/3061_consistent_nucleosomes.fa";
+		try {
+			// build database index 
+			File resNFR = new File(getClass().getResource(nfrIndex).toURI());
+			File resNCL = new File(getClass().getResource(nclIndex).toURI());
+			
+			nfrData = new SimilarityDatabase();
+			nclData = new SimilarityDatabase();
+
+			nfrData.buildIndex(resNFR);
+			nclData.buildIndex(resNCL);
+			assertTrue(true); // succeed
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			assertTrue(false); // fail
+		}
+	}
+
+	public void testCreateCachedSimIndex() {
+		String nfrIndex = "/1099_consistent_NFR.fa";
+		String nclIndex = "/3061_consistent_nucleosomes.fa";
+		try {
+			// build database index 
+			File resNFR = new File(getClass().getResource(nfrIndex).toURI());
+			File resNCL = new File(getClass().getResource(nclIndex).toURI());
+
+			nfrCache = new CachedSimilarityDatabase();
+			nclCache = new CachedSimilarityDatabase();
+
+			nfrCache.buildIndex(resNFR);
+			nclCache.buildIndex(resNCL);
+			assertTrue(true); // succeed
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			assertTrue(false); // fail
+		}
+	}
+
 	/**
 	 * Test that index building and retrieval works properly
 	 * for {@link SimilarityDatabase} classes.
 	 */
-	public void testRetrieval() {
+	public void testReadSimIndex() {
 		String sTest = "/testFile01.fasta";
+		/*
 		String nfrIndex = "/1099_consistent_NFR.fa";
 		String nclIndex = "/3061_consistent_nucleosomes.fa";
 
@@ -160,7 +209,7 @@ public class AppTest
 
 		SimilarityDatabase nfrData = new SimilarityDatabase();
 		SimilarityDatabase nclData = new SimilarityDatabase();
-
+		
 		try {
 			// build database index 
 			File resNFR = new File(getClass().getResource(nfrIndex).toURI());
@@ -168,15 +217,64 @@ public class AppTest
 			
 			nfrData.buildIndex(resNFR);
 			nclData.buildIndex(resNCL);
-
+		*/
+		try {
 			// build the test graph
 			File res = new File(getClass().getResource(sTest).toURI());
-			BioJGraph bgTest = BioJGraph.fromFastaFile(res);
+			BioGraph bgTest = BioGraph.fromFastaFile(res);
 
 			// assert that querying an existing graph gives non-null labels
 			List<String> labels = nfrData.treeIndex.get(bgTest);
 			assertNotNull(labels); 
 			
+			// assert that the existing graph is found in the returned list
+			boolean found = false;
+			for (String s: labels) {
+				if (s.equals("chr1:39666-39676")) {
+					found = true;
+					break;
+				}
+			}
+			assertTrue(found);
+
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Test that index building and retrieval works properly
+	 * for {@link CachedSimilarityDatabase} classes.
+	 */
+	public void testReadCachedSimIndex() {
+		String sTest = "/testFile01.fasta";
+		/*
+		String nfrIndex = "/1099_consistent_NFR.fa";
+		String nclIndex = "/3061_consistent_nucleosomes.fa";
+
+		// String sIndex = "/testFile02.fasta";
+
+		CachedSimilarityDatabase nfrData = new CachedSimilarityDatabase();
+		CachedSimilarityDatabase nclData = new CachedSimilarityDatabase();
+
+		try {
+			// build database index 
+			File resNFR = new File(getClass().getResource(nfrIndex).toURI());
+			File resNCL = new File(getClass().getResource(nclIndex).toURI());
+
+			nfrData.buildIndex(resNFR);
+			nclData.buildIndex(resNCL);
+		*/
+		try {
+			// build the test graph
+			File res = new File(getClass().getResource(sTest).toURI());
+			BioGraph bgTest = BioGraph.fromFastaFile(res);
+
+			// assert that querying an existing graph gives non-null labels
+			List<String> labels = nfrData.treeIndex.get(bgTest);
+			assertNotNull(labels); 
+
 			// assert that the existing graph is found in the returned list
 			boolean found = false;
 			for (String s: labels) {
@@ -198,7 +296,7 @@ public class AppTest
 	 */
 	public void testDFSCoding() 
 	{
-		BioJGraph bgx = new BioJGraph("AGTAC");
+		BioGraph bgx = new BioGraph("AGTAC");
 		
 		// this is the "correct" dfs code.
 		String code = "GTA->AGT|TAC->AGT|TAC->GTA|";
