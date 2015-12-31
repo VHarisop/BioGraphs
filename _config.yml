@@ -13,4 +13,4 @@ baseurl: "/BioGraphs" # the subpath of your site, e.g. /blog
 github_username:  vharisop
 
 # Build settings
-markdown: redcarpet
+markdown: kramdown

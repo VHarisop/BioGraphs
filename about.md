@@ -4,6 +4,11 @@ title: About
 permalink: /about/
 ---
 
+Mathjax:
+
+$$ x_n = \sin^2 n $$
+
+
 BioGraphs builds heavily on [Jinsect][jinsect] and [JGraphT][jgrapht]. It released under the GPLv3 license.
 
 You can find the source code for BioGraphs
