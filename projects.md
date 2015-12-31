@@ -8,9 +8,9 @@ Mathjax test:
 
 {% raw %}
 $$ x\_{n} = \\frac{1}{x^n} $$
-{% raw %}
+{% endraw %}
 
-$$ x\_{n} = \\sin^2 n $$
+$ x\_{n} = \\sin^2 n $
 
 $$ x\_{n} = \sin^2 n $$
 
