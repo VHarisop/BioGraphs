@@ -5,6 +5,7 @@ permalink: /projects/
 ---
 
 Mathjax test: 
+
 $$ x\_{n} = \\frac{1}{x^n} $$
 
 This is a list of projects I am currently working on. For more info, you can check out my [github](https://github.com/VHarisop) account.
