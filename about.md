@@ -6,7 +6,7 @@ permalink: /about/
 
 Mathjax Test: $ x = 5 $
 
-$$ x\_n = \sin x $$
+$$ x_n = \sin x $$
 
 BioGraphs builds heavily on [Jinsect][jinsect] and [JGraphT][jgrapht]. It released under the GPLv3 license.
 
