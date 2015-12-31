@@ -6,7 +6,7 @@ permalink: /about/
 
 Mathjax:
 
-$$ x_n = \sin^2 n $$
+$x\_n = \sin^2 n$
 
 
 BioGraphs builds heavily on [Jinsect][jinsect] and [JGraphT][jgrapht]. It released under the GPLv3 license.
