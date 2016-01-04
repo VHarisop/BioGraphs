@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 /**
  * Unit test for simple App.
  */
-public class AppTest 
+public class GeneralTest 
     extends TestCase
 {
     /**
@@ -30,7 +30,7 @@ public class AppTest
      *
      * @param testName name of the test case
      */
-    public AppTest( String testName )
+    public GeneralTest( String testName )
     {
         super( testName );
     }
@@ -40,7 +40,7 @@ public class AppTest
      */
     public static Test suite()
     {
-        return new TestSuite( AppTest.class );
+        return new TestSuite( GeneralTest.class );
     }
 	
 	// similarity databases to be shared amongst tests
@@ -50,6 +50,10 @@ public class AppTest
 	// cached similarity databases to be shared amongst tests
 	static CachedSimilarityDatabase nfrCache;
 	static CachedSimilarityDatabase nclCache;
+
+	// in-memory similarity databases
+	static MemSimilarityDatabase nfrMem;
+	static MemSimilarityDatabase nclMem;
 
 	/**
 	 * Verify that subgraph isomorphism test works
@@ -175,6 +179,27 @@ public class AppTest
 		}
 	}
 
+	public void testCreateMemSimIndex() {
+		String nfrIndex = "/1099_consistent_NFR.fa";
+		String nclIndex = "/3061_consistent_nucleosomes.fa";
+		try {
+			// build database index 
+			File resNFR = new File(getClass().getResource(nfrIndex).toURI());
+			File resNCL = new File(getClass().getResource(nclIndex).toURI());
+
+			nfrMem = new MemSimilarityDatabase();
+			nclMem = new MemSimilarityDatabase();
+
+			nfrMem.buildIndex(resNFR);
+			nclMem.buildIndex(resNCL);
+
+			assertTrue(true); // succeed
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			assertTrue(false); // fail
+		}
+	}
+
 	public void testCreateCachedSimIndex() {
 		String nfrIndex = "/1099_consistent_NFR.fa";
 		String nclIndex = "/3061_consistent_nucleosomes.fa";
@@ -201,23 +226,6 @@ public class AppTest
 	 */
 	public void testReadSimIndex() {
 		String sTest = "/testFile01.fasta";
-		/*
-		String nfrIndex = "/1099_consistent_NFR.fa";
-		String nclIndex = "/3061_consistent_nucleosomes.fa";
-
-		// String sIndex = "/testFile02.fasta";
-
-		SimilarityDatabase nfrData = new SimilarityDatabase();
-		SimilarityDatabase nclData = new SimilarityDatabase();
-		
-		try {
-			// build database index 
-			File resNFR = new File(getClass().getResource(nfrIndex).toURI());
-			File resNCL = new File(getClass().getResource(nclIndex).toURI());
-			
-			nfrData.buildIndex(resNFR);
-			nclData.buildIndex(resNCL);
-		*/
 		try {
 			// build the test graph
 			File res = new File(getClass().getResource(sTest).toURI());
@@ -249,23 +257,6 @@ public class AppTest
 	 */
 	public void testReadCachedSimIndex() {
 		String sTest = "/testFile01.fasta";
-		/*
-		String nfrIndex = "/1099_consistent_NFR.fa";
-		String nclIndex = "/3061_consistent_nucleosomes.fa";
-
-		// String sIndex = "/testFile02.fasta";
-
-		CachedSimilarityDatabase nfrData = new CachedSimilarityDatabase();
-		CachedSimilarityDatabase nclData = new CachedSimilarityDatabase();
-
-		try {
-			// build database index 
-			File resNFR = new File(getClass().getResource(nfrIndex).toURI());
-			File resNCL = new File(getClass().getResource(nclIndex).toURI());
-
-			nfrData.buildIndex(resNFR);
-			nclData.buildIndex(resNCL);
-		*/
 		try {
 			// build the test graph
 			File res = new File(getClass().getResource(sTest).toURI());
@@ -279,6 +270,37 @@ public class AppTest
 			boolean found = false;
 			for (String s: labels) {
 				if (s.equals("chr1:39666-39676")) {
+					found = true;
+					break;
+				}
+			}
+			assertTrue(found);
+
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Test that index building and retrieval works properly
+	 * for {@link MemSimilarityDatabase} classes.
+	 */
+	public void testReadMemSimIndex() {
+		String sTest = "/testFile01.fasta";
+		try {
+			// build the test graph
+			File res = new File(getClass().getResource(sTest).toURI());
+			BioGraph bgTest = BioGraph.fromFastaFile(res);
+
+			// assert that querying an existing graph gives non-null labels
+			List<BioGraph> nodes = nfrMem.treeIndex.get(bgTest);
+			assertNotNull(nodes); 
+
+			// assert that the existing graph is found in the returned list
+			boolean found = false;
+			for (BioGraph b: nodes) {
+				if (b.bioLabel.equals("chr1:39666-39676")) {
 					found = true;
 					break;
 				}
