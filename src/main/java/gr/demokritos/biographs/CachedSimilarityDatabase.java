@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import gr.demokritos.iit.jinsect.jutils;
 
@@ -132,4 +133,52 @@ public class CachedSimilarityDatabase extends GraphDatabase {
 		double qWeight = bg.getGraph().totalNormWeight(); 
 		return treeIndex.get(qWeight);
 	}
+
+	/**
+	 * Gets the nodes corresponding to the list of query biographs, and
+	 * returns them in an array of {@link java.util.Map.Entry} objects.
+	 *
+	 * @param bGraphs the {@link BioGraph} array of query graphs
+	 * @return the list of Entries that map biographs to nodes
+	 */
+	public Entry<BioGraph, List<String>>[] getNodes(BioGraph[] bGraphs) {
+		Entry<BioGraph, List<String>>[] results = new IndexEntry[bGraphs.length];
+		for (int iCnt = 0; iCnt < bGraphs.length; ++iCnt) {
+			results[iCnt] = 
+				new IndexEntry(bGraphs[iCnt], getNodes(bGraphs[iCnt]));
+		}
+
+		return results;
+	}
+}
+
+/**
+ * Utility class that implements Map.Entry for specific types 
+ */
+final class IndexEntry implements Entry<BioGraph, List<String>> {
+	private final BioGraph key;
+	private List<String> value;
+
+	public IndexEntry(BioGraph bKey, List<String> listValues) {
+		key = bKey;
+		value = listValues;
+	}
+
+	@Override
+		public BioGraph getKey() {
+			return key;
+		}
+
+	@Override
+		public List<String> getValue() {
+			return value;
+		}
+
+	@Override
+		public List<String> setValue(List<String> newValues) {
+			List<String> old = value;
+			value = newValues;
+			return old;
+		}
+
 }
