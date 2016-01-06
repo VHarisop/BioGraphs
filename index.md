@@ -7,7 +7,10 @@ date:   2015-12-30 20:21:23 +0200
 BioGraphs is a Java library that uses n-gram graphs to index, analyze and classify biological sequence data. It is efficient and simple to use:
 
 {% highlight java %}
+// DNA string: ACTAGTACTA
 BioJGraph bGraph = new BioJGraph("ACTAGTACTA");
+
+// output graph to DOT format
 System.out.println(bGraph.toDot());
 {% endhighlight %}
 

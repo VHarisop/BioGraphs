@@ -8,8 +8,14 @@
       <div class="footer-col footer-col-1">
         <ul class="contact-list">
           <li>{{ site.title }}</li>
+		  {% if site.email %}
           <li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>
+		  {% endif %}
         </ul>
+		<!-- include the site's disclaimer in first column -->
+		{% if site.disclaimer %}
+		<p>{{ site.disclaimer }}</p>
+		{% endif %}
       </div>
 
       <div class="footer-col footer-col-2">
@@ -26,6 +32,7 @@
           </li>
           {% endif %}
         </ul>
+		
       </div>
 
       <div class="footer-col footer-col-3">

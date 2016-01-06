@@ -11,6 +11,5 @@ description: > # this means to ignore newlines until "baseurl:"
   This is the offical Github page of the BioGraphs project.
 baseurl: "/BioGraphs" # the subpath of your site, e.g. /blog
 github_username:  vharisop
-
 # Build settings
-markdown: redcarpet
+markdown: kramdown
