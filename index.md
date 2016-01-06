@@ -11,6 +11,7 @@ BioGraphs is a Java library that uses n-gram graphs to index, analyze and classi
 BioJGraph bGraph = new BioJGraph("ACTAGTACTA");
 
 // output graph to DOT format
+BioGraph bGraph = new BioGraph("ACTAGTACTA");
 System.out.println(bGraph.toDot());
 {% endhighlight %}
 

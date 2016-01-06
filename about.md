@@ -4,9 +4,15 @@ title: About
 permalink: /about/
 ---
 
-BioGraphs builds heavily on [Jinsect][jinsect] and [JGraphT][jgrapht]. It released under the GPLv3 license. A package containing the core part of JInsect can be downloaded from [here]({{ site.url }}/assets/jinsect-core-1.0a.jar).
+BioGraphs builds heavily on [Jinsect][jinsect] and [JGraphT][jgrapht]. It released under the GPLv3 license.
 
-You can find the source code for BioGraphs here: 
+#### Requirements
+* Apache Commons v4.0
+* JGraphT v0.9.1
+* BioJava v4.0.0
+* JInsect v1.0 (a release can be found [here]({{ site.url }}/assets/jinsect-core-1.0a.jar)).
+
+You can find the source code for BioGraphs
 {% include icon-github.html username="VHarisop" %} /
 [BioGraphs](https://github.com/VHarisop/BioGraphs). 
 
