@@ -131,7 +131,31 @@ public class GeneralTest
 			ex.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Verify that {@link TrieDatabase.getGraphCode()} can be overriden.
+	 */
+	public void testOverrideIndex() {
+		// String fName = "/testFile01.fasta";
+		String fName = "/files";
+		TrieDatabase gData = new TrieDatabase() { 
+				@Override
+				protected String getGraphCode(BioGraph bG) {
+					return bG.getCanonicalCode();
+				}
+			};
 
+		try {
+			File res = new File(getClass().getResource(fName).toURI());
+			gData.buildIndex(res);
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		// make sure 3 different keys exist
+		assertTrue(gData.exposeKeys().size() == 3);
+	}
 	/**
 	 * Verify that {@link TrieDatabase.buildIndex()} and 
 	 * {@link SimilarityDatabase.buildIndex()} work properly.

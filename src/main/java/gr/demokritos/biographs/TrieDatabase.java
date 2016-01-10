@@ -18,7 +18,7 @@ import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 
 /**
  * A class that extends {@link GraphDatabase}, using a PatriciaTrie as an index
- * that uses the DFS codes of the graphs as keys.
+ * that uses the DFS or Canonical codes of the graphs as keys.
  *
  * @author VHarisop
  */
@@ -27,7 +27,8 @@ public class TrieDatabase extends GraphDatabase {
 	/**
 	 * A {@link org.apache.commons.collections4.trie.PatriciaTrie} 
 	 * that is used for indexing graphs by using the graphs'
-	 * {@link BioGraph#getDfsCode()} as keys.
+	 * {@link BioGraph#getDfsCode()} or {@link BioGraph#getCanonicalCode()}
+	 * as keys.
 	 */
 	protected PatriciaTrie trieIndex;
 	
@@ -105,25 +106,38 @@ public class TrieDatabase extends GraphDatabase {
 	 */
 	@Override
 	public void addGraph(BioGraph bg) {
-		// get the dfsCode of the graph as key
-		String dfsCode = bg.getDfsCode();
+		// get the code of the graph as key
+		String code = getGraphCode(bg);
 		
 		/* if key was not already there, initialize an array of indices 
 		 * otherwise, add an entry to the pre-existing array */
-		if (!(trieIndex.containsKey(dfsCode))) {
+		if (!(trieIndex.containsKey(code))) {
 			ArrayList<String> labels = new ArrayList();
 			labels.add(bg.bioLabel);
 			
 			// add to Trie
-			trieIndex.put(dfsCode, labels);
+			trieIndex.put(code, labels);
 		}
 		else {
-			ArrayList<String> labels = (ArrayList) trieIndex.get(dfsCode);
+			ArrayList<String> labels = (ArrayList) trieIndex.get(code);
 			labels.add(bg.bioLabel);
 
 			// update trie with new array
-			trieIndex.put(dfsCode, labels);
+			trieIndex.put(code, labels);
 		}
+	}
+
+	/**
+	 * Helper function that defines how a string representation
+	 * is acquired from a {@link BioGraph} object. This method can
+	 * and should be overriden for subclasses that want to use a
+	 * different encoder / string representation.
+	 *
+	 * @param bGraph the biograph object
+	 * @return a String representation of the biograph
+	 */
+	protected String getGraphCode(BioGraph bGraph) {
+		return bGraph.getDfsCode();
 	}
 
 	/**
@@ -134,18 +148,17 @@ public class TrieDatabase extends GraphDatabase {
 	 * @return a list of labels 
 	 */
 	public List<String> getNodes(BioGraph bg) {
-		return getNodes(bg.getDfsCode());
+		return getNodes(getGraphCode(bg));
 	}
 
-
 	/**
-	 * Obtain a list of labels of graphs that match the provided dfsCode. 
-	 * @param dfsCode a <tt>String</tt> containing the query dfs code
+	 * Obtain a list of labels of graphs that match the provided code. 
+	 * @param dfsCode a <tt>String</tt> containing the query graph code
 	 * @return an <tt>ArrayList</tt> of labels pointing to biographs
 	 */
-	public List<String> getNodes(String dfsCode) {
+	public List<String> getNodes(String code) {
 		List<String> labels = new ArrayList<String>();
-		labels = (ArrayList) trieIndex.get(dfsCode);
+		labels = (ArrayList) trieIndex.get(code);
 
 		return labels;
 	}
