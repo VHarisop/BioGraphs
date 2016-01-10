@@ -58,27 +58,24 @@ public class GeneralTest
 	 * Verify that subgraph isomorphism test works
 	 * for comparing BioGraphs.
 	 */
-	public void testIso() {
+	public void testIsomorphism() {
 		BioGraph bgx = new BioGraph("ACTA");
 		BioGraph bgy = new BioGraph("ACTAG");
+		IsomorphismComparator iCmp = new IsomorphismComparator();
 
-		boolean res = IsomorphismTester.subgraphIsomorphic(bgx, bgy);
-		assertTrue(res);
+		// bgx is initially subgraph isomorphic but not graph isomorphic
+		assertTrue(iCmp.subgraphIsomorphic(bgx, bgy));
+		assertFalse(iCmp.graphIsomorphic(bgx, bgy));
 
-		res = IsomorphismTester.graphIsomorphic(bgx, bgy);
-		assertTrue(!res);
-
+		// make the two graphs non-isomorphic
 		bgx.setDataString("AGTA");
-		res = IsomorphismTester.subgraphIsomorphic(bgx, bgy);
-		assertTrue(!res);
-		res = IsomorphismTester.graphIsomorphic(bgx, bgy);
-		assertTrue(!res);
+		assertFalse(iCmp.subgraphIsomorphic(bgx, bgy));
+		assertFalse(iCmp.graphIsomorphic(bgx, bgy));
 
+		// now the two are completely isomorphic
 		bgx.setDataString("ACTAG");
-		res = IsomorphismTester.graphIsomorphic(bgx, bgy);
-		assertTrue(res);
-		res = IsomorphismTester.subgraphIsomorphic(bgx, bgy);
-		assertTrue(res);
+		assertTrue(iCmp.graphIsomorphic(bgx, bgy));
+		assertTrue(iCmp.subgraphIsomorphic(bgx, bgy));
 	}
 
 
