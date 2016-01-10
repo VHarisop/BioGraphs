@@ -5,7 +5,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import gr.demokritos.iit.jinsect.documentModel.representations.NGramJGraph;
-import gr.demokritos.iit.jinsect.documentModel.representations.DocumentNGramGraph;
 import gr.demokritos.iit.jinsect.structs.Edge;
 import gr.demokritos.iit.jinsect.structs.JVertex;
 import gr.demokritos.iit.jinsect.structs.NGramVertex;

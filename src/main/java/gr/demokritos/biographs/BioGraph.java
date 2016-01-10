@@ -5,7 +5,8 @@ import gr.demokritos.iit.jinsect.structs.JVertex;
 import gr.demokritos.iit.jinsect.structs.Edge;
 import gr.demokritos.iit.jinsect.structs.NGramVertex;
 import gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph;
-import gr.demokritos.iit.jinsect.structs.DepthFirstEncoder;
+import gr.demokritos.iit.jinsect.encoders.DepthFirstEncoder;
+import gr.demokritos.iit.jinsect.encoders.CanonicalCoder;
 import gr.demokritos.iit.jinsect.utils;
 import gr.demokritos.iit.jinsect.jutils;
 
@@ -189,6 +190,17 @@ public class BioGraph extends NGramJGraph {
 	}
 
 	/**
+	 * Returns the sum of normalized edge weights of the underlying 
+	 * {@link gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph} 
+	 * object, which is a positive double value.
+	 *
+	 * @return the sum of normalized edge weights
+	 */
+	public double getTotalNormWeight() {
+		return getGraph().totalNormWeight();
+	}
+
+	/**
 	 * Return the underlying label-vertex map of the graph implementing
 	 * the BioGraph object.
 	 * @return a HashMap object of String - JVertex pairs.
@@ -208,9 +220,9 @@ public class BioGraph extends NGramJGraph {
 	}
 
 	/**
-	 * Returns the label produced by the DFS encoding of the
+	 * Returns the string produced by the DFS encoding of the
 	 * underlying graph. 
-	 * @see gr.demokritos.iit.jinsect.structs.DepthFirstEncoder#getEncoding()
+	 * @see gr.demokritos.iit.jinsect.encoders.DepthFirstEncoder#getEncoding()
 	 * for label ordering and implementation. The simple encode() method
 	 * should be used by default, since indexing N-gram graphs has not
 	 * yet been tried using frequent fragments.
@@ -218,6 +230,18 @@ public class BioGraph extends NGramJGraph {
 	 */
 	public String getDfsCode() {
 		return (new DepthFirstEncoder(getGraph())).getEncoding();
+	}
+
+	/**
+	 * Returns the string representation produced by the canonical coding
+	 * of the underlying graph. 
+	 * @see gr.demokritos.iit.jinsect.encoders.CanonicalCoder 
+	 * for implementation and details.
+	 *
+	 * @return the canonical code of the graph
+	 */
+	public String getCanonicalCode() {
+		return (new CanonicalCoder(getGraph())).getEncoding();
 	}
 
 	/**

@@ -28,8 +28,8 @@ import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 public class MemSimilarityDatabase extends GraphDatabase {
 
 	/**
-	 * A Red-Black tree map implementation that associates biograph normalized
-	 * weight sums with lists of FASTA strings (labels).
+	 * A Red-Black tree map implementation that associates biographs
+	 * with lists of their s-similar biographs.
 	 */
 	protected TreeMap<BioGraph, List<BioGraph>> treeIndex;
 	

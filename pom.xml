@@ -64,8 +64,8 @@
 	<!-- project is dependent on JInsect -->
 	<dependency>
 		<groupId>gr.demokritos.iit.jinsect</groupId>
-		<artifactId>JInsect</artifactId>
-		<version>1.1-rc</version>
+		<artifactId>jinsect-core</artifactId>
+		<version>1.0a</version>
 	</dependency>
   </dependencies>
 </project>

@@ -1,15 +1,18 @@
 package gr.demokritos.biographs;
 
 import java.io.File;
+import java.util.Map.Entry;
 
 /**
  * An abstract class representing a database entry to be used in
- * {@link GraphDatabase} objects.
+ * {@link GraphDatabase} objects. It implements the 
+ * {@link java.util.Map.Entry} interface.
  *
  * @author VHarisop
  */
-public abstract class BioData<K> {
-
+public abstract class BioData<K> 
+implements Entry<K, File> 
+{
 	/**
 	 * The path of the file containing the data
 	 */
@@ -34,6 +37,7 @@ public abstract class BioData<K> {
 	/**
 	 * {@link BioData#key}
 	 */
+	@Override
 	public K getKey() {
 		return key;
 	}
@@ -41,7 +45,15 @@ public abstract class BioData<K> {
 	/**
 	 * {@link BioData#file}
 	 */
-	public File getFile() {
+	@Override
+	public File getValue() {
 		return file;
+	}
+
+	@Override
+	public File setValue(File toSet) {
+		File oldVal = file;
+		file = toSet;
+		return oldVal;
 	}
 }
