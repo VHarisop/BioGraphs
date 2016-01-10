@@ -1,7 +1,6 @@
 package gr.demokritos.biographs;
 
 public interface IIsomorphism<E> {
-
 	/**
 	 * template for subgraphIsomorphic function
 	 * that checks whether graphA is subgraph-isomorphic
@@ -12,7 +11,6 @@ public interface IIsomorphism<E> {
 	 * 		   to graphB, else false
 	 */
 	public boolean subgraphIsomorphic(E graphA, E graphB);
-
 
 	/**
 	 * template for graphIsomorphic function that checks

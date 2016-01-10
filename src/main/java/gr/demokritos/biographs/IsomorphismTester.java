@@ -42,11 +42,10 @@ public class IsomorphismTester {
 	}
 
 	/**
-	 * Checks two undirected document n-gram graphs for
-	 * subgraph isomorphism. Checking is done based on 
-	 * vertex labels, meaning that edges of different weights
-	 * that connect two vertices with the same labels are 
-	 * considered part of an isomorphism.
+	 * Checks two {@link NGramJGraph}s for subgraph isomorphism. 
+	 * Checking is done based on  vertex labels, meaning that edges 
+	 * of different weights that connect two vertices with the same 
+	 * labels are considered compatible for isomorphism.
 	 * @param dngA the first graph
 	 * @param dngB the second graph
 	 * @return true if dngA is subgraph isomorphic to dngB
@@ -76,6 +75,16 @@ public class IsomorphismTester {
 		return true;
 	}
 
+	/**
+	 * Checks two {@link NGramJGraph}s for graph isomorphism.
+	 * Two graphs will be considered isomorphic if they share the same
+	 * set of vertices and edges and their edge weights differ no more than
+	 * a very small numerical threshold.
+	 *
+	 * @param dngA the first graph
+	 * @param dngB the second graph
+	 * @return true if the graphs are isomorphic, else false
+	 */
 	public static boolean graphIsomorphic
 	(NGramJGraph dngA, NGramJGraph dngB)
 	{
