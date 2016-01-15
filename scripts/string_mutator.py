@@ -82,11 +82,11 @@ if __name__ == "__main__":
 	# add mutually exclusive options (change / swap)
 	action = parser.add_mutually_exclusive_group(required=True)
 	action.add_argument('-c', '--change', 
-						action='store_true',
-						help='Change random symbols in the strings')
+                             action='store_true',
+                             help='Change random symbols in the strings')
 	action.add_argument('-s', '--swap',
-						action='store_true',
-						help='Swap pairs of symbols in the strings')
+                            action='store_true',
+                            help='Swap pairs of symbols in the strings')
 
 	parser.add_argument('-n', '--number', type=int, help='number of changes/swaps')
 	args = vars(parser.parse_args())
