@@ -27,6 +27,7 @@ import gr.demokritos.iit.jinsect.utils;
 import gr.demokritos.iit.jinsect.jutils;
 
 import org.biojava.nbio.core.sequence.DNASequence;
+import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 
 import java.io.File;
 
@@ -134,8 +135,7 @@ public class BioGraph extends NGramJGraph {
 	throws Exception
 	{
 		BioGraph bGraph = null;
-		LinkedHashMap<String, DNASequence> entries = 
-			GraphDatabase.readFastaFile(inFile);
+		LinkedHashMap<String, DNASequence> entries = readFastaFile(inFile);
 		/* try reading the first dna sequence from the file */
 		for (Entry<String, DNASequence> entry: entries.entrySet()) {
 			bGraph = fromSequence(entry.getValue(), entry.getKey());
@@ -157,8 +157,7 @@ public class BioGraph extends NGramJGraph {
 	throws Exception 
 	{
 		BioGraph bGraph = null;
-		LinkedHashMap<String, DNASequence> entries = 
-			GraphDatabase.readFastaFile(fName);
+		LinkedHashMap<String, DNASequence> entries = readFastaFile(fName);
 		/* try reading the first dna sequence from the file */
 		for (Entry<String, DNASequence> entry : entries.entrySet()) {
 			bGraph = fromSequence(entry.getValue(), entry.getKey());
@@ -181,8 +180,7 @@ public class BioGraph extends NGramJGraph {
 	throws Exception 
 	{
 		BioGraph[] bGraphs; 
-		LinkedHashMap<String, DNASequence> entries = 
-			GraphDatabase.readFastaFile(fName);
+		LinkedHashMap<String, DNASequence> entries = readFastaFile(fName);
 
 		// allocate space for each entry
 		bGraphs = new BioGraph[entries.size()];
@@ -226,6 +224,15 @@ public class BioGraph extends NGramJGraph {
 	}
 
 	/**
+	 * Simple getter for {@link bioLabel}.
+	 *
+	 * @return the graph's bioLabel
+	 */
+	public String getLabel() {
+		return bioLabel;
+	}
+
+	/**
 	 * Return a String representation of the graph in DOT format. The 
 	 * representation is a directed graph.
 	 *
@@ -247,7 +254,19 @@ public class BioGraph extends NGramJGraph {
 	public String getDfsCode() {
 		return (new DepthFirstEncoder(getGraph())).getEncoding();
 	}
-
+	
+	/**
+	 * Returns the label produced by the DFS encoding of the underlying graph.
+	 * @see gr.demokritos.iit.jinsect.structs.DepthFirstEncoder#getEncoding()
+	 * for label ordering and implementation.
+	 *
+	 * @param vFrom the starting node
+	 * @return the dfs label
+	 */
+	public String getDfsCode(JVertex vFrom) {
+		return (new DepthFirstEncoder(getGraph(), vFrom)).getEncoding();
+	}
+	
 	/**
 	 * Returns the string representation produced by the canonical coding
 	 * of the underlying graph. 
@@ -261,15 +280,30 @@ public class BioGraph extends NGramJGraph {
 	}
 
 	/**
-	 * Returns the label produced by the DFS encoding of the underlying graph.
-	 * @see gr.demokritos.iit.jinsect.structs.DepthFirstEncoder#getEncoding()
-	 * for label ordering and implementation.
+	 * A wrapper method that reads DNA sequences from a file, given its path.
 	 *
-	 * @param vFrom the starting node
-	 * @return the dfs label
+	 * @param fName a string containing the path of the file
+	 * @return a map of string/sequence pairs 
 	 */
-	public String getDfsCode(JVertex vFrom) {
-		return (new DepthFirstEncoder(getGraph(), vFrom)).getEncoding();
+	public static LinkedHashMap<String, DNASequence> readFastaFile(String fName) 
+	throws Exception 
+	{
+		return readFastaFile(new File(fName));
+	}
+
+	/**
+	 * A wrapper method around 
+	 * {@link org.biojava.nbio.core.sequence.io.FastaReaderHelper}'s 
+	 * <tt>readFastaDNASequence</tt> in order to facilicate reading DNA 
+	 * sequences from FASTA files. 
+	 *
+	 * @param inFile the file from which to read the sequences
+	 * @return a hash map of String/Sequence pairs.
+	 */
+	public static LinkedHashMap<String, DNASequence> readFastaFile(File inFile) 
+	throws Exception 
+	{
+		return FastaReaderHelper.readFastaDNASequence(inFile);
 	}
 }
 

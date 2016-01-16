@@ -14,9 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
 
-package gr.demokritos.biographs;
+package gr.demokritos.biographs.indexing;
 
 import java.util.Comparator;
+
+import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.iit.jinsect.jutils;
 
 /**

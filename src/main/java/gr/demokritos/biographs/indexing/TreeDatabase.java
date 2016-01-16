@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
 
-package gr.demokritos.biographs;
+package gr.demokritos.biographs.indexing;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -30,25 +30,28 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.Comparator;
 
+import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.iit.jinsect.jutils;
 
 import org.biojava.nbio.core.sequence.DNASequence;
 import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 
 /**
- * A class that implements a graph database using the graphs's similarity measure.
- * Here, the similarity measure used is the graph's structural similarity, as is
- * implemented in {@link gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph}.
+ * An abstract class that implements a graph database using graph similarity.
+ * Here, the similarity measure used is the graphs' structural similarity, as is
+ * implemented in {@link gr.demokritos.iit.jinsect.jutils}
  *
  * @author VHarisop
  */
-public class SimilarityDatabase extends GraphDatabase {
+public abstract class TreeDatabase<V> extends GraphDatabase {
 
 	/**
 	 * A Red-Black tree map implementation that associates biographs
-	 * with lists of FASTA strings (labels).
+	 * with lists of value types, which can be any type of feature able
+	 * to be extracted from a BioGraph. 
+	 * @see #getGraphFeature
 	 */
-	protected TreeMap<BioGraph, List<String>> treeIndex;
+	protected TreeMap<BioGraph, List<V>> treeIndex;
 
 	/**
 	 * A custom comparator to be used for {@link #treeIndex} that
@@ -57,19 +60,19 @@ public class SimilarityDatabase extends GraphDatabase {
 	protected Comparator<BioGraph> bgComp = new SimilarityComparator();
 
 	/**
-	 * Creates a blank SimilarityDatabase object.
+	 * Creates a blank TreeDatabase object.
 	 */
-	public SimilarityDatabase() { 
+	public TreeDatabase() { 
 		super();
 		treeIndex = new TreeMap(bgComp);
 	}
 
 	/**
-	 * Creates a new SimilarityDatabase object for maintaining
+	 * Creates a new TreeDatabase object for maintaining
 	 * a database in a given directory.
 	 * @param path the directory in which the database resides
 	 */
-	public SimilarityDatabase(String path) {
+	public TreeDatabase(String path) {
 		super(path);
 		treeIndex = new TreeMap(bgComp);
 	}
@@ -125,14 +128,14 @@ public class SimilarityDatabase extends GraphDatabase {
 	 */
 	@Override
 	public void addGraph(BioGraph bg) {
-		List<String> nodeLabels = treeIndex.get(bg);
+		List<V> nodeValues = treeIndex.get(bg);
 
 		// if key was not there, initialize label array
-		if (nodeLabels == null) {
-			nodeLabels = new ArrayList<String>();
+		if (nodeValues == null) {
+			nodeValues = new ArrayList<V>();
 		}
-		nodeLabels.add(bg.bioLabel);
-		treeIndex.put(bg, nodeLabels);
+		nodeValues.add(getGraphFeature(bg));
+		treeIndex.put(bg, nodeValues);
 	}
 
 	/**
@@ -148,9 +151,9 @@ public class SimilarityDatabase extends GraphDatabase {
 	 * Gets the nodes corresponding to the biograph query, whose
 	 * similarity to the query biojgraph is 0.
 	 * @param bg the {@link BioGraph} key to be searched for
-	 * @return a list of labels corresponding to FASTA entries
+	 * @return a list of node values
 	 */
-	public List<String> getNodes(BioGraph bg) {
+	public List<V> getNodes(BioGraph bg) {
 		return treeIndex.get(bg);
 	}
 
@@ -160,26 +163,36 @@ public class SimilarityDatabase extends GraphDatabase {
 	 * @param bGraphs the {@link BioGraph} array of query graphs
 	 * @return a list of Entries that map biographs to their resulting nodes
 	 */
-	public Entry<BioGraph, List<String>>[] getNodes(BioGraph[] bGraphs) {
-		Entry<BioGraph, List<String>>[] results = new IndEntry[bGraphs.length];
+	public Entry<BioGraph, List<V>>[] getNodes(BioGraph[] bGraphs) {
+		Entry<BioGraph, List<V>>[] results = new VEntry[bGraphs.length];
 		int iCnt;
 		for (iCnt = 0; iCnt < bGraphs.length; ++iCnt) {
 			results[iCnt] = 
-				new IndEntry(bGraphs[iCnt], getNodes(bGraphs[iCnt]));
+				new VEntry<V>(bGraphs[iCnt], getNodes(bGraphs[iCnt]));
 		}
 
 		return results;
 	}
+
+	/**
+	 * Returns a feature from a given biograph to be stored in the list
+	 * of values kept at each node of the database tree. 
+	 * Classes extending TreeDatabase must override this method.
+	 *
+	 * @param bg the graph from which to extract the feature
+	 * @return a graph feature
+	 */
+	public abstract V getGraphFeature(BioGraph bg);
 }
 
 /**
  * Utility class that implements Map.Entry for specific types 
  */
-final class IndEntry implements Entry<BioGraph, List<String>> {
+final class VEntry<V> implements Entry<BioGraph, List<V>> {
 	private final BioGraph key;
-	private List<String> value;
+	private List<V> value;
 
-	public IndEntry(BioGraph bKey, List<String> listValues) {
+	public VEntry(BioGraph bKey, List<V> listValues) {
 		key = bKey;
 		value = listValues;
 	}
@@ -190,13 +203,13 @@ final class IndEntry implements Entry<BioGraph, List<String>> {
 	}
 
 	@Override
-	public List<String> getValue() {
+	public List<V> getValue() {
 		return value;
 	}
 
 	@Override
-	public List<String> setValue(List<String> newValues) {
-		List<String> old = value;
+	public List<V> setValue(List<V> newValues) {
+		List<V> old = value;
 		value = newValues;
 		return old;
 	}

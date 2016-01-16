@@ -4,6 +4,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import gr.demokritos.biographs.indexing.*;
+
 import gr.demokritos.iit.jinsect.documentModel.representations.NGramJGraph;
 import gr.demokritos.iit.jinsect.structs.Edge;
 import gr.demokritos.iit.jinsect.structs.JVertex;

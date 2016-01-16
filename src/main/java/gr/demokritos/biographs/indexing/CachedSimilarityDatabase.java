@@ -14,12 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
 
-package gr.demokritos.biographs;
+package gr.demokritos.biographs.indexing;
 
 import java.io.File;
 import java.io.FileFilter;
 
-import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.List;
@@ -27,6 +26,7 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import gr.demokritos.iit.jinsect.jutils;
+import gr.demokritos.biographs.BioGraph;
 
 import org.biojava.nbio.core.sequence.DNASequence;
 import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
@@ -36,41 +36,34 @@ import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
  * Here, the similarity measure used is the graph's structural similarity, as is
  * implemented in {@link gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph}. This
  * version of similarity database doesn't store the whole graph as key, but stores
- * the graph's sum of normalized edge weights instead. The values stored here are
- * the complete {@link BioGraph} objects.
+ * the graph's sum of normalized edge weights instead.
  *
  * @author VHarisop
  */
-public class MemSimilarityDatabase extends GraphDatabase {
+public class CachedSimilarityDatabase extends GraphDatabase {
 
 	/**
-	 * A Red-Black tree map implementation that associates biographs
-	 * with lists of their s-similar biographs.
+	 * A Red-Black tree map implementation that associates biograph normalized
+	 * weight sums with lists of FASTA strings (labels).
 	 */
-	protected TreeMap<BioGraph, List<BioGraph>> treeIndex;
-	
-	/**
-	 * A custom comparator to be used for {@link #treeIndex} that
-	 * compares graphs based on their s-similarity.
-	 */
-	protected Comparator<BioGraph> bgComp = new SimilarityComparator();
+	protected TreeMap<Double, List<String>> treeIndex;
 
 	/**
-	 * Creates a blank MemSimilarityDatabase object.
+	 * Creates a blank CachedSimilarityDatabase object.
 	 */
-	public MemSimilarityDatabase() { 
+	public CachedSimilarityDatabase() { 
 		super();
-		treeIndex = new TreeMap(bgComp);
+		treeIndex = new TreeMap();
 	}
 
 	/**
-	 * Creates a new MemSimilarityDatabase object for maintaining
+	 * Creates a new CachedSimilarityDatabase object for maintaining
 	 * a database in a given directory.
 	 * @param path the directory in which the database resides
 	 */
-	public MemSimilarityDatabase(String path) {
+	public CachedSimilarityDatabase(String path) {
 		super(path);
-		treeIndex = new TreeMap(bgComp);
+		treeIndex = new TreeMap();
 	}
 
 	/**
@@ -124,15 +117,18 @@ public class MemSimilarityDatabase extends GraphDatabase {
 	 */
 	@Override
 	public void addGraph(BioGraph bg) {
-		List<BioGraph> nodes = treeIndex.get(bg);
+		// acquire the normalized weight sum
+		double gWeight = bg.getGraph().totalNormWeight();
+
+		List<String> nodeLabels = treeIndex.get(gWeight);
 		
 		// if key was not there, initialize label array
-		if (nodes == null) {
-			nodes = new ArrayList<BioGraph>();
+		if (nodeLabels == null) {
+			nodeLabels = new ArrayList<String>();
 		}
 
-		nodes.add(bg);
-		treeIndex.put(bg, nodes);
+		nodeLabels.add(bg.getLabel());
+		treeIndex.put(gWeight, nodeLabels);
 	}
 
 	/**
@@ -140,7 +136,7 @@ public class MemSimilarityDatabase extends GraphDatabase {
 	 * 
 	 * @return a set containing all the keys of the map
 	 */
-	public Set<BioGraph> exposeKeys() {
+	public Set<Double> exposeKeys() {
 		return treeIndex.keySet();
 	}
 
@@ -150,8 +146,9 @@ public class MemSimilarityDatabase extends GraphDatabase {
 	 * @param bg the {@link BioGraph} to be searched for
 	 * @return a list of labels corresponding to FASTA entries
 	 */
-	public List<BioGraph> getNodes(BioGraph bg) {
-		return treeIndex.get(bg);
+	public List<String> getNodes(BioGraph bg) {
+		double qWeight = bg.getGraph().totalNormWeight(); 
+		return treeIndex.get(qWeight);
 	}
 
 	/**
@@ -161,11 +158,11 @@ public class MemSimilarityDatabase extends GraphDatabase {
 	 * @param bGraphs the {@link BioGraph} array of query graphs
 	 * @return the list of Entries that map biographs to nodes
 	 */
-	public Entry<BioGraph, List<BioGraph>>[] getNodes(BioGraph[] bGraphs) {
-		Entry<BioGraph, List<BioGraph>>[] results = new MemEntry[bGraphs.length];
+	public Entry<BioGraph, List<String>>[] getNodes(BioGraph[] bGraphs) {
+		Entry<BioGraph, List<String>>[] results = new IndexEntry[bGraphs.length];
 		for (int iCnt = 0; iCnt < bGraphs.length; ++iCnt) {
 			results[iCnt] = 
-				new MemEntry(bGraphs[iCnt], getNodes(bGraphs[iCnt]));
+				new IndexEntry(bGraphs[iCnt], getNodes(bGraphs[iCnt]));
 		}
 
 		return results;
@@ -175,11 +172,11 @@ public class MemSimilarityDatabase extends GraphDatabase {
 /**
  * Utility class that implements Map.Entry for specific types 
  */
-final class MemEntry implements Entry<BioGraph, List<BioGraph>> {
+final class IndexEntry implements Entry<BioGraph, List<String>> {
 	private final BioGraph key;
-	private List<BioGraph> value;
+	private List<String> value;
 
-	public MemEntry(BioGraph bKey, List<BioGraph> listValues) {
+	public IndexEntry(BioGraph bKey, List<String> listValues) {
 		key = bKey;
 		value = listValues;
 	}
@@ -190,14 +187,15 @@ final class MemEntry implements Entry<BioGraph, List<BioGraph>> {
 	}
 
 	@Override
-	public List<BioGraph> getValue() {
+	public List<String> getValue() {
 		return value;
 	}
 
 	@Override
-	public List<BioGraph> setValue(List<BioGraph> newValues) {
-		List<BioGraph> old = value;
+	public List<String> setValue(List<String> newValues) {
+		List<String> old = value;
 		value = newValues;
 		return old;
 	}
+
 }

@@ -14,10 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
 
-package gr.demokritos.biographs;
+package gr.demokritos.biographs.indexing;
 
 import org.apache.commons.collections4.trie.PatriciaTrie;
-
 import java.lang.UnsupportedOperationException;
 
 import java.io.File;
@@ -28,6 +27,8 @@ import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import gr.demokritos.biographs.BioGraph;
 
 import org.biojava.nbio.core.sequence.DNASequence;
 import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
@@ -129,14 +130,14 @@ public class TrieDatabase extends GraphDatabase {
 		 * otherwise, add an entry to the pre-existing array */
 		if (!(trieIndex.containsKey(code))) {
 			ArrayList<String> labels = new ArrayList();
-			labels.add(bg.bioLabel);
+			labels.add(bg.getLabel());
 			
 			// add to Trie
 			trieIndex.put(code, labels);
 		}
 		else {
 			ArrayList<String> labels = (ArrayList) trieIndex.get(code);
-			labels.add(bg.bioLabel);
+			labels.add(bg.getLabel());
 
 			// update trie with new array
 			trieIndex.put(code, labels);
