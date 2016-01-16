@@ -254,7 +254,7 @@ public class GeneralTest
 			BioGraph bgTest = BioGraph.fromFastaFile(res);
 
 			// assert that querying an existing graph gives non-null labels
-			List<String> labels = nfrData.treeIndex.get(bgTest);
+			List<String> labels = nfrData.getNodes(bgTest);
 			assertNotNull(labels); 
 			
 			// assert that the existing graph is found in the returned list
@@ -285,7 +285,7 @@ public class GeneralTest
 			BioGraph bgTest = BioGraph.fromFastaFile(res);
 
 			// assert that querying an existing graph gives non-null labels
-			List<String> labels = nfrData.treeIndex.get(bgTest);
+			List<String> labels = nfrData.getNodes(bgTest);
 			assertNotNull(labels); 
 
 			// assert that the existing graph is found in the returned list
@@ -316,7 +316,7 @@ public class GeneralTest
 			BioGraph bgTest = BioGraph.fromFastaFile(res);
 
 			// assert that querying an existing graph gives non-null labels
-			List<BioGraph> nodes = nfrMem.treeIndex.get(bgTest);
+			List<BioGraph> nodes = nfrMem.getNodes(bgTest);
 			assertNotNull(nodes); 
 
 			// assert that the existing graph is found in the returned list

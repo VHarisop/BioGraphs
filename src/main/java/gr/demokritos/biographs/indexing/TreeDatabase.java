@@ -22,12 +22,14 @@ import java.io.FileFilter;
 import java.lang.Math;
 import java.lang.Double;
 
+import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.NavigableMap;
 import java.util.Comparator;
 
 import gr.demokritos.biographs.BioGraph;
@@ -172,6 +174,170 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 		}
 
 		return results;
+	}
+
+	/**
+	 * Gets the node list corresponding to the nearest key to the query
+	 * graph, including exact matches if an inclusive search is desired.
+	 *
+	 * @param bQuery the query graph
+	 * @param include a flag indicating if exact matches should be included
+	 * @return the unmodifiable node list of the nearest neighbouring key
+	 */
+	public List<V> getNearestNeighbours(BioGraph bQuery, boolean include) {
+		if (include) {
+			/* if an exact match exists, return it */
+			List<V> matches = getNodes(bQuery);
+			if (matches != null) {
+				return Collections.unmodifiableList(matches);
+			}
+		}
+		BioGraph lower = treeIndex.lowerKey(bQuery);
+		BioGraph higher = treeIndex.higherKey(bQuery);
+
+		if (lower == null && higher == null) {
+			return null;
+		}
+
+		if (higher == null) 
+			return Collections.unmodifiableList(getNodes(lower));
+		
+		if (lower == null)
+			return Collections.unmodifiableList(getNodes(higher));
+		
+		/* get the distance of similarities of both the lower and
+		 * higher keys */
+		double distLo = 
+			Math.abs(jutils.graphStructuralSimilarity(
+						bQuery.getGraph(),
+						lower.getGraph()));
+		double distHi = 
+			Math.abs(jutils.graphStructuralSimilarity(
+						bQuery.getGraph(), 
+						higher.getGraph()));
+
+
+		/* return the nodes of the "closest" distance, or both if the
+		 * distances are equal */
+		if (compareDouble(distLo, distHi)) {
+			ArrayList<V> nodes = new ArrayList<V>();
+			nodes.addAll(getNodes(lower));
+			nodes.addAll(getNodes(higher));
+			return Collections.unmodifiableList(nodes);
+		}
+		else if (distLo < distHi) {
+			return Collections.unmodifiableList(getNodes(lower));
+		}
+		else /* if (distLo > distHi) */ {
+			return Collections.unmodifiableList(getNodes(higher));
+		}
+	}
+	
+	/**
+	 * Gets the node list corresponding to the K keys nearest to the query
+	 * graph, including exact matches if an inclusive search is desired.
+	 *
+	 * @param bQuery the query graph
+	 * @param include a flag indicating if exact matches should be included
+	 * @param K the order of nearest neighbours
+	 * @return the unmodifiable node list of the K nearest neighbouring keys
+	 */
+	public List<V> getKNearestNeighbours(BioGraph bQuery, boolean include, int K) {
+		int retCnt = 0;
+		ArrayList<V> nodes = new ArrayList();
+
+		// return up to min(size, K) neighbouring keys
+		K = (K > treeIndex.size()) ? treeIndex.size() : K;
+
+		if (include) {	
+			/* if an exact match exists, add it 
+			 * to the list of nodes to return */
+			List<V> matches = getNodes(bQuery);
+			if (matches != null) {
+				nodes.addAll(matches);
+				retCnt += 1;
+			}
+		}
+
+		if (retCnt == K) {
+			return Collections.unmodifiableList(nodes);
+		}
+
+		/* get tail and head views. The head view should be accessed in reverse
+		 * order, since it contains entries with keys "less" than the query */
+		NavigableMap<BioGraph, List<V>> tail = 
+			treeIndex.tailMap(bQuery, false);
+		NavigableMap<BioGraph, List<V>> head = 
+			treeIndex.headMap(bQuery, false);
+
+		// lower values should be polled in reverse order
+		Entry<BioGraph, List<V>> high = tail.pollFirstEntry();
+		Entry<BioGraph, List<V>> low = head.pollLastEntry();
+		double distLo, distHi;
+
+		/* if stuff remains, loop */
+		while (retCnt < K) {
+		
+			/* handle cases where either both maps have been depleted
+			 * or one of them has been depleted */
+
+			if (low == null && high == null) {
+				// nothing remains, return
+				return Collections.unmodifiableList(nodes);
+			}
+
+			/* add high entry to nodes, update entry as well */
+			if (low == null) {
+				nodes.addAll(high.getValue());
+				high = tail.pollFirstEntry();
+				retCnt++;
+			}
+
+			/* add low entry to nodes, update entry as well */
+			if (high == null) {
+				nodes.addAll(low.getValue());
+				low = head.pollLastEntry();
+				retCnt++;
+			}
+
+			/* if none of the maps is depleted yet, 
+			 * we must compare at each step */
+			distLo = Math.abs(jutils.graphStructuralSimilarity(
+						bQuery.getGraph(),
+						low.getKey().getGraph()));
+
+			distHi = Math.abs(jutils.graphStructuralSimilarity(
+						bQuery.getGraph(),
+						high.getKey().getGraph()));
+
+			/* Compare similarity difference and return the values of the
+			 * key with the minimum difference */
+			if (compareDouble(distLo, distHi)) {
+				nodes.addAll(low.getValue());
+				nodes.addAll(high.getValue());
+				low = head.pollLastEntry();
+				high = tail.pollFirstEntry();
+				retCnt += 2;
+			}
+			else if (distLo < distHi) {
+				nodes.addAll(low.getValue());
+				low = head.pollLastEntry();
+				retCnt++;
+			}
+			else if (distLo > distHi) {
+				nodes.addAll(high.getValue());
+				high = tail.pollFirstEntry();
+				retCnt++;
+			}
+		} 
+		return Collections.unmodifiableList(nodes);
+	}
+
+	/**
+	 * Utility function that checks double equality up to a numerical threshold
+	 */
+	protected static boolean compareDouble(double a, double b) {
+		return (Math.abs(a - b) < 0.0000001);
 	}
 
 	/**

@@ -1,12 +1,14 @@
 package gr.demokritos.biographs;
 
+import gr.demokritos.biographs.indexing.TreeDatabase;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
  * Unit test for BioGraphs' facilities that employ generics, like
- * the TreeDatabase class..
+ * the TreeDatabase class.
  */
 public class GenericsTest 
     extends TestCase
