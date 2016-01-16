@@ -1,4 +1,10 @@
+# ignore target and resources
 target/
 src/test/resources/
+
+# ignore swap and log files
 *.swp
 *.log
+
+# ignore pycache for python scripts
+__pycache__/
