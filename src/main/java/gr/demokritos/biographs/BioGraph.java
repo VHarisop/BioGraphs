@@ -26,6 +26,8 @@ import gr.demokritos.iit.jinsect.encoders.CanonicalCoder;
 import gr.demokritos.iit.jinsect.utils;
 import gr.demokritos.iit.jinsect.jutils;
 
+import gr.demokritos.iit.jinsect.io.LineReader;
+
 import org.biojava.nbio.core.sequence.DNASequence;
 import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 
@@ -277,6 +279,41 @@ public class BioGraph extends NGramJGraph {
 	 */
 	public String getCanonicalCode() {
 		return (new CanonicalCoder(getGraph())).getEncoding();
+	}
+
+	/**
+	 * This method is a proxy to {@link #fromFileLines(File)} 
+	 *
+	 * @param filePath the string containing the file path
+	 * @return an array of {@link BioGraph} objects
+	 */
+	public static BioGraph[] fromWordFile(String filePath) 
+	throws Exception
+	{
+		return fromWordFile(new File(filePath));
+	}
+
+	/**
+	 * Creates an array of BioGraph objects, each of which is built 
+	 * using a line from a given file as a data string, which also
+	 * becomes the graph's bioLabel.
+	 *
+	 * @param path the file from which to read the lines
+	 * @return an array of BioGraph objects
+	 */
+	public static BioGraph[] fromWordFile(File path) 
+	throws Exception 
+	{
+		/* read lines, allocate array */
+		String[] lines = new LineReader().getLines(path);
+		BioGraph[] bGs = new BioGraph[lines.length];
+
+		for (int i = 0; i < lines.length; ++i) {
+			// the raw data string becomes the label
+			bGs[i] = new BioGraph(lines[i], lines[i]);
+		}
+
+		return bGs;
 	}
 
 	/**
