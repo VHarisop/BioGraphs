@@ -75,35 +75,35 @@ def swap(word, num):
 
 if __name__ == "__main__":
 
-	# create a parser for command line arguments
-	parser = argparse.ArgumentParser(description='A utility that mutates strings')
-	parser.add_argument('strings', nargs = '+')
+    # create a parser for command line arguments
+    parser = argparse.ArgumentParser(description='A utility that mutates strings')
+    parser.add_argument('strings', nargs = '+')
 
-	# add mutually exclusive options (change / swap)
-	action = parser.add_mutually_exclusive_group(required=True)
-	action.add_argument('-c', '--change', 
-                             action='store_true',
-                             help='Change random symbols in the strings')
-	action.add_argument('-s', '--swap',
-                            action='store_true',
-                            help='Swap pairs of symbols in the strings')
+    # add mutually exclusive options (change / swap)
+    action = parser.add_mutually_exclusive_group(required=True)
+    action.add_argument('-c', '--change',
+                         action='store_true',
+                         help='Change random symbols in the strings')
+    action.add_argument('-s', '--swap',
+                        action='store_true',
+                        help='Swap pairs of symbols in the strings')
 
-	parser.add_argument('-n', '--number', type=int, help='number of changes/swaps')
-	args = vars(parser.parse_args())
+    parser.add_argument('-n', '--number', type=int, help='number of changes/swaps')
+    args = vars(parser.parse_args())
 
-	# get set of symbols in the strings
-	symbol_set = set.union(*(set(i) for i in args['strings']))
+    # get set of symbols in the strings
+    symbol_set = set.union(*(set(i) for i in args['strings']))
 
-	mutated_strings = []
+    mutated_strings = []
 
-	# mutate strings according to provided flag
-	if args['change']:
-		for word_syms in map(list, args['strings']):
-			mutated_strings.append(change(word_syms, args['number'], symbol_set))
-	elif args['swap']:
-		for word_syms in map(list, args['strings']):
-			mutated_strings.append(swap(word_syms, args['number']))
+    # mutate strings according to provided flag
+    if args['change']:
+        for word_syms in map(list, args['strings']):
+            mutated_strings.append(change(word_syms, args['number'], symbol_set))
+    elif args['swap']:
+        for word_syms in map(list, args['strings']):
+            mutated_strings.append(swap(word_syms, args['number']))
 
-	# print them all to stdout
-	for (word_syms, _) in mutated_strings:
-		print(''.join(word_syms))
+    # print them all to stdout
+    for (word_syms, num) in mutated_strings:
+        print('{0}: {1}'.format(str(num), ''.join(word_syms)))
