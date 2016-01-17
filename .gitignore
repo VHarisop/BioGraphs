@@ -2,6 +2,13 @@
 target/
 src/test/resources/
 
+# ignore .classpath and .project files
+.classpath
+.project
+
+# ignore eclim .settings
+.settings
+
 # ignore swap and log files
 *.swp
 *.log
