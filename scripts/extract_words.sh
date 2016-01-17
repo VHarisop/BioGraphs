@@ -34,5 +34,8 @@ case $number in
 	*) ;;
 esac
 
+# if file doesn't exist, exit gracefully
+[[ ! -f $infile ]] && echo "${infile}: no such file!" && exit 
+
 # output words to stdout
-[[ -f $infile ]] && cat $infile | grep -v "'s" | shuf -n $number | sort
+cat $infile | grep -v "'s" | shuf -n $number | sort
