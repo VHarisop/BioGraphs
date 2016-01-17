@@ -20,11 +20,9 @@ import java.io.File;
 import java.io.FileFilter;
 
 import java.lang.Math;
-import java.lang.Double;
 
 import java.util.Collections;
 import java.util.Map.Entry;
-import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.List;
@@ -35,8 +33,6 @@ import java.util.Comparator;
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.iit.jinsect.jutils;
 
-import org.biojava.nbio.core.sequence.DNASequence;
-import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 
 /**
  * An abstract class that implements a graph database using graph similarity.
@@ -59,13 +55,14 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * A custom comparator to be used for {@link #treeIndex} that
 	 * compares graphs based on their s-similarity.
 	 */
-	protected Comparator<BioGraph> bgComp = new SimilarityComparator();
+	protected Comparator<BioGraph> bgComp;
 
 	/**
 	 * Creates a blank TreeDatabase object.
 	 */
 	public TreeDatabase() { 
 		super();
+		bgComp = new SimilarityComparator();
 		treeIndex = new TreeMap(bgComp);
 	}
 
@@ -76,6 +73,32 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 */
 	public TreeDatabase(String path) {
 		super(path);
+		bgComp = new SimilarityComparator();
+		treeIndex = new TreeMap(bgComp);
+	}
+
+	/**
+	 * Creates a blank TreeDatabase object using a custom provided
+	 * comparator.
+	 * 
+	 * @param bgC the custom comparator to be used 
+	 */
+	public TreeDatabase(Comparator<BioGraph> bgC) {
+		super();
+		bgComp = bgC;
+		treeIndex = new TreeMap(bgComp);
+	}
+
+	/**
+	 * Creates a new TreeDatabase object for maintaining a database
+	 * in a given directory using a custom comparator.
+	 *
+	 * @param path the directory in which the database resides
+	 * @param bgC the custom comparator to be used
+	 */
+	public TreeDatabase(String path, Comparator<BioGraph> bgC) {
+		super(path);
+		bgComp = bgC;
 		treeIndex = new TreeMap(bgComp);
 	}
 
@@ -323,6 +346,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 				nodes.addAll(high.getValue());
 				high = tail.pollFirstEntry();
 				retCnt++;
+				continue;
 			}
 
 			/* add low entry to nodes, update entry as well */
@@ -330,6 +354,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 				nodes.addAll(low.getValue());
 				low = head.pollLastEntry();
 				retCnt++;
+				continue;
 			}
 
 			/* if none of the maps is depleted yet, 
