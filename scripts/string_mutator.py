@@ -105,5 +105,5 @@ if __name__ == "__main__":
             mutated_strings.append(swap(word_syms, args['number']))
 
     # print them all to stdout
-    for (word_syms, num) in mutated_strings:
-        print('{0}: {1}'.format(str(num), ''.join(word_syms)))
+    for (word_syms, _) in mutated_strings:
+        print(''.join(word_syms))
