@@ -124,6 +124,38 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	}
 
 	/**
+	 * Builds a graph database index from a given file or directory 
+	 * of files which contain words without extra labels, as in the
+	 * case of FASTA files.
+	 *
+	 * @param fPath a path pointing to a file or directory 
+	 */
+	public void buildWordIndex(File fPath) throws Exception {
+		if (!fPath.isDirectory()) {
+			BioGraph[] bgs = BioGraph.fromWordFile(fPath);
+			for (BioGraph bG: bgs) {
+				addGraph(bG);
+			}
+		}
+		else {
+			// get all files in a list
+			File[] fileList = fPath.listFiles(new FileFilter() {
+				public boolean accept(File toFilter) {
+					return toFilter.isFile();
+				}
+			});
+
+			// add them all to the database
+			for (File f: fileList) {
+				BioGraph[] bgs = BioGraph.fromWordFile(f);
+				for (BioGraph bG: bgs) {
+					addGraph(bG);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Adds a new graph to the database, updating the index as well.
 	 * 
 	 * @param bg the BioGraph object to be added
