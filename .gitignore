@@ -13,5 +13,11 @@ src/test/resources/
 *.swp
 *.log
 
+# ignore local files created in scripts/
+scripts/*.txt
+
 # ignore pycache for python scripts
 __pycache__/
+
+# ignore local TODO files
+TODO
