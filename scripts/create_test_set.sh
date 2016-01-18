@@ -31,6 +31,7 @@ no_script() {
 infile=$1
 mut_type=${2:-c}
 num=${3:-1}
+num_words=${4:-50}
 
 # if the required script is not here, exit gracefully
 [[ ! -f "string_mutator.py" ]] && no_script
@@ -38,10 +39,10 @@ num=${3:-1}
 # if the file has not been provided or is empty, exit gracefully
 ([[ -z ${infile} ]] ||  [[ ! -f $infile ]]) && no_file
 
-
 # do the actual work
 # turn linebreak-separated file to space separated words
-words=`shuf -n 50 ${infile} | tr '\n' ' ' | cat - <(echo "")`
+words=`shuf -n ${num_words} ${infile} | tr '\n' ' ' | cat - <(echo "")`
 
-# feed them all to the script
-python3 ./string_mutator.py -${mut_type} -n ${num} ${words}
+# feed them all to the script 
+# Warning! ${var,,} turns $var into lowercase - bash v4.0+ only
+python3 ./string_mutator.py -${mut_type} -n ${num} ${words,,}
