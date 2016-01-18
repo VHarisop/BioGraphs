@@ -68,27 +68,27 @@ public class Main {
 		}
 		
 		double sSim;
-		System.out.println("CCODE:\n");
+		System.out.println("CCODE");
 		for (BioGraph bg: bgs) {
 			List<BioGraph> near = trdCanon.getKNearestNeighbours(bg, true, 2);
-			System.out.printf("%s: \n", bg.getLabel());
+			System.out.printf("\n%s: ", bg.getLabel());
 			for (BioGraph b: near) {
 				sSim = 
 					jutils.graphStructuralSimilarity(bg.getGraph(), b.getGraph());
-				System.out.printf("\t%s - %.3f\n", b.getLabel(), sSim);
+				System.out.printf("%s (%.3f) ", b.getLabel(), sSim);
 			}
 		}
-		System.out.println("\n\n");
-
-		System.out.println("2SIM:\n");
+		System.out.println("\n");
+		System.out.println("2SIM");
 		for (BioGraph bg: bgs) {
 			List<BioGraph> near = trdSim.getKNearestNeighbours(bg, true, 2);
-			System.out.printf("%s: \n", bg.getLabel());
+			System.out.printf("\n%s: ", bg.getLabel());
 			for (BioGraph b: near) {
 				sSim = 
 					jutils.graphStructuralSimilarity(bg.getGraph(), b.getGraph());
-				System.out.printf("\t%s - %.3f\n", b.getLabel(), sSim);
+				System.out.printf("%s (%.3f) ", b.getLabel(), sSim);
 			}
 		}
+		System.out.println("\n");
 	}
 }
