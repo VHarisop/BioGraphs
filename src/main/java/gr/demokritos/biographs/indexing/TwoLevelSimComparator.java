@@ -18,9 +18,6 @@ implements Comparator<BioGraph>
 			return compRes;
 
 		/* compare the canonical codes */
-		String cCodeA = bgA.getCanonicalCode();
-		String cCodeB = bgB.getCanonicalCode();
-
-		return cCodeA.compareTo(cCodeB);
+		return jutils.compareCanonicalCodes(bgA.getGraph(), bgB.getGraph());
 	}
 }
