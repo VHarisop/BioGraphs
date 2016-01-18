@@ -40,6 +40,8 @@ num=${3:-1}
 
 
 # do the actual work
-for word in `shuf -n 50 ${infile}`; do
-	python3 ./string_mutator.py -${mut_type} -n ${num} $word 
-done
+# turn linebreak-separated file to space separated words
+words=`shuf -n 50 ${infile} | tr '\n' ' ' | cat - <(echo "")`
+
+# feed them all to the script
+python3 ./string_mutator.py -${mut_type} -n ${num} ${words}
