@@ -1,6 +1,7 @@
 package gr.demokritos.biographs.indexing;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.iit.jinsect.jutils;
 import java.util.Comparator;
 
 public class CanonicalCodeComparator 
@@ -12,6 +13,7 @@ implements Comparator<BioGraph>
 	 */
 	@Override
 	public int compare(BioGraph bgA, BioGraph bgB) {
-		return bgA.getCanonicalCode().compareTo(bgB.getCanonicalCode());
+		/* use the optimized version in jutils to compare canonical codes */
+		return jutils.compareCanonicalCodes(bgA.getGraph(), bgB.getGraph());
 	}
 }
