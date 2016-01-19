@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.lang.Math;
 import java.util.*;
+import java.util.Map.Entry;
 
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.iit.jinsect.structs.*;
@@ -335,6 +336,92 @@ public abstract class QuantTreeDatabase<V> extends GraphDatabase {
 		else /* if (distLo > distHi) */ {
 			return Collections.unmodifiableList(getNodes(higher));
 		}
+	}
+
+	public List<V> getKNearestNeighbours(BioGraph bG, boolean include, int K) {
+		List<V> results = new ArrayList<V>();
+		K = (K > treeIndex.size()) ? treeIndex.size() : K;
+		if (include) {
+			/* if the inclusive flag is set, check if querying the graph
+			 * gives nonempty results; If so, add them */
+			List<V> ans = this.getNodes(bG);
+			if (ans != null) {
+				results.addAll(ans);
+				K--;
+			}
+		}
+
+		/* if K results were already found, return them */
+		if (K == 0) {
+			return Collections.unmodifiableList(results);
+		}
+
+		/* Get tail and head views. The head view should be accessed in reverse
+		 * order, since it contains entries with keys "less" than the query */
+		NavigableMap<BioGraph, List<V>> tail =
+			treeIndex.tailMap(bG, false);
+		NavigableMap<BioGraph, List<V>> head =
+			treeIndex.headMap(bG, false);
+
+		// lower values must be polled in reverse order
+		Entry<BioGraph, List<V>> high = tail.firstEntry();
+		Entry<BioGraph, List<V>> low = head.lastEntry();
+		double distLo, distHi;
+
+		/* if stuff to return remains, loop */
+		while (K > 0) {
+			/* handle cases where at least one of the maps has been depleted */
+			if (low == null && high == null) {
+				return Collections.unmodifiableList(results);
+			}
+			if (low == null) {
+				tail = tail.tailMap(high.getKey(), false);
+				results.addAll(high.getValue());
+				high = tail.firstEntry();
+				K--; continue;
+			}
+			if (high == null) {
+				head = head.headMap(low.getKey(), false);
+				results.addAll(low.getValue());
+				low = head.lastEntry();
+				K--; continue;
+			}
+
+			/* if none of the maps has been depleted yet,
+			 * we must compare their similarities at each step */
+			distLo = Math.abs(jutils.getQuantValSimilarity(
+						bG.getGraph(),
+						low.getKey().getGraph(),
+						this.vertexWeights));
+			distHi = Math.abs(jutils.getQuantValSimilarity(
+						bG.getGraph(),
+						high.getKey().getGraph(),
+						this.vertexWeights));
+
+			if (super.compareDouble(distLo, distHi)) {
+				results.addAll(low.getValue());
+				results.addAll(high.getValue());
+				head = head.headMap(low.getKey(), false);
+				low = head.lastEntry();
+				tail = tail.tailMap(high.getKey(), false);
+				high = tail.firstEntry();
+				K -= 2;
+			}
+			else if (distLo < distHi) {
+				results.addAll(low.getValue());
+				head = head.headMap(low.getKey(), false);
+				low = head.lastEntry();
+				K--;
+			}
+			else /* if (distLo > distHi) */ {
+				results.addAll(high.getValue());
+				tail = tail.tailMap(high.getKey(), false);
+				high = tail.firstEntry();
+				K--;
+			}
+		}
+		/* finally, return list of neighboring values */
+		return Collections.unmodifiableList(results);
 	}
 
 	/**
