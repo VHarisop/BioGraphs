@@ -304,6 +304,8 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 		}
 	}
 	
+	/* FIXME: getKNearestNeighbours returns empty lists for some queries! */
+
 	/**
 	 * Gets the node list corresponding to the K keys nearest to the query
 	 * graph, including exact matches if an inclusive search is desired.
@@ -324,7 +326,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 			/* if an exact match exists, add it 
 			 * to the list of nodes to return */
 			List<V> matches = getNodes(bQuery);
-			if (matches != null) {
+			if (matches != null && (matches.size() > 0)) {
 				nodes.addAll(matches);
 				retCnt += 1;
 			}
@@ -342,8 +344,8 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 			treeIndex.headMap(bQuery, false);
 
 		// lower values should be polled in reverse order
-		Entry<BioGraph, List<V>> high = tail.pollFirstEntry();
-		Entry<BioGraph, List<V>> low = head.pollLastEntry();
+		Entry<BioGraph, List<V>> high = tail.higherEntry(bQuery);
+		Entry<BioGraph, List<V>> low = head.lowerEntry(bQuery);
 		double distLo, distHi;
 
 		/* if stuff remains, loop */
@@ -357,20 +359,22 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 				return Collections.unmodifiableList(nodes);
 			}
 
-			/* add high entry to nodes, update entry as well */
+			/* add high entry to nodes, update tail map to start from next
+			 * entry higher */
 			if (low == null) {
-				nodes.addAll(high.getValue());
-				high = tail.pollFirstEntry();
-				retCnt++;
-				continue;
+				tail = tail.tailMap(high.getKey(), false);
+				nodes.addAll(new ArrayList<V>(high.getValue()));
+				high = tail.firstEntry();
+				retCnt++; continue;
 			}
 
-			/* add low entry to nodes, update entry as well */
+			/* add low entry to nodes, update head map to start from next 
+			 * entry lower than the one retrieved */
 			if (high == null) {
-				nodes.addAll(low.getValue());
-				low = head.pollLastEntry();
-				retCnt++;
-				continue;
+				head = head.headMap(low.getKey(), false);
+				nodes.addAll(new ArrayList<V>(low.getValue()));
+				low = head.lastEntry();
+				retCnt++; continue;
 			}
 
 			/* if none of the maps is depleted yet, 
@@ -386,23 +390,27 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 			/* Compare similarity difference and return the values of the
 			 * key with the minimum difference */
 			if (super.compareDouble(distLo, distHi)) {
-				nodes.addAll(low.getValue());
-				nodes.addAll(high.getValue());
-				low = head.pollLastEntry();
-				high = tail.pollFirstEntry();
+				nodes.addAll(new ArrayList<V>(low.getValue()));
+				nodes.addAll(new ArrayList<V>(high.getValue()));
+				tail = tail.tailMap(high.getKey(), false); 
+				high = tail.firstEntry();
+				head = head.headMap(low.getKey(), false); 
+				low = head.lastEntry();
 				retCnt += 2;
 			}
 			else if (distLo < distHi) {
-				nodes.addAll(low.getValue());
-				low = head.pollLastEntry();
+				nodes.addAll(new ArrayList<V>(low.getValue()));
+				head = head.headMap(low.getKey(), false);
+				low = head.lastEntry();
 				retCnt++;
 			}
 			else if (distLo > distHi) {
-				nodes.addAll(high.getValue());
-				high = tail.pollFirstEntry();
+				nodes.addAll(new ArrayList<V>(high.getValue()));
+				tail = tail.tailMap(high.getKey(), false);
+				high = tail.firstEntry();
 				retCnt++;
 			}
-		} 
+		}
 		return Collections.unmodifiableList(nodes);
 	}
 
