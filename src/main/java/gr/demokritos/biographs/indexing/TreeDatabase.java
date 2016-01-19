@@ -62,8 +62,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 */
 	public TreeDatabase() { 
 		super();
-		bgComp = new SimilarityComparator();
-		treeIndex = new TreeMap(bgComp);
+		initIndex();
 	}
 
 	/**
@@ -73,20 +72,19 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 */
 	public TreeDatabase(String path) {
 		super(path);
-		bgComp = new SimilarityComparator();
-		treeIndex = new TreeMap(bgComp);
+		initIndex();
 	}
 
+	
 	/**
 	 * Creates a blank TreeDatabase object using a custom provided
 	 * comparator.
 	 * 
-	 * @param bgC the custom comparator to be used 
+	 * @param bgC the custom comparator to be used
 	 */
 	public TreeDatabase(Comparator<BioGraph> bgC) {
 		super();
-		bgComp = bgC;
-		treeIndex = new TreeMap(bgComp);
+		initIndex(bgC);
 	}
 
 	/**
@@ -98,8 +96,25 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 */
 	public TreeDatabase(String path, Comparator<BioGraph> bgC) {
 		super(path);
-		bgComp = bgC;
-		treeIndex = new TreeMap(bgComp);
+		initIndex(bgC);
+	}
+	
+	/**
+	 * Initialize the database's comparator and tree index.
+	 */
+	protected void initIndex() {
+		this.bgComp = new SimilarityComparator();
+		this.treeIndex = new TreeMap<BioGraph, List<V>>(this.bgComp);
+	}
+
+	/**
+	 * Initialize the database's tree index with a custom comparator.
+	 *
+	 * @param bgC the comparator to use
+	 */
+	protected void initIndex(Comparator<BioGraph> bgC) {
+		this.bgComp = bgC;
+		this.treeIndex = new TreeMap<BioGraph, List<V>>(this.bgComp);
 	}
 
 	/**
@@ -221,7 +236,8 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @return a list of Entries that map biographs to their resulting nodes
 	 */
 	public Entry<BioGraph, List<V>>[] getNodes(BioGraph[] bGraphs) {
-		Entry<BioGraph, List<V>>[] results = new VEntry[bGraphs.length];
+		Entry<BioGraph, List<V>>[] results = 
+			new VEntry[bGraphs.length];
 		int iCnt;
 		for (iCnt = 0; iCnt < bGraphs.length; ++iCnt) {
 			results[iCnt] = 
@@ -274,7 +290,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 
 		/* return the nodes of the "closest" distance, or both if the
 		 * distances are equal */
-		if (compareDouble(distLo, distHi)) {
+		if (super.compareDouble(distLo, distHi)) {
 			ArrayList<V> nodes = new ArrayList<V>();
 			nodes.addAll(getNodes(lower));
 			nodes.addAll(getNodes(higher));
@@ -299,7 +315,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 */
 	public List<V> getKNearestNeighbours(BioGraph bQuery, boolean include, int K) {
 		int retCnt = 0;
-		ArrayList<V> nodes = new ArrayList();
+		ArrayList<V> nodes = new ArrayList<V>();
 
 		// return up to min(size, K) neighbouring keys
 		K = (K > treeIndex.size()) ? treeIndex.size() : K;
@@ -369,7 +385,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 
 			/* Compare similarity difference and return the values of the
 			 * key with the minimum difference */
-			if (compareDouble(distLo, distHi)) {
+			if (super.compareDouble(distLo, distHi)) {
 				nodes.addAll(low.getValue());
 				nodes.addAll(high.getValue());
 				low = head.pollLastEntry();
@@ -388,13 +404,6 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 			}
 		} 
 		return Collections.unmodifiableList(nodes);
-	}
-
-	/**
-	 * Utility function that checks double equality up to a numerical threshold
-	 */
-	protected static boolean compareDouble(double a, double b) {
-		return (Math.abs(a - b) < 0.0000001);
 	}
 
 	/**

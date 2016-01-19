@@ -1,6 +1,6 @@
-package gr.demokritos.biographs;
+package gr.demokritos.biographs.indexing;
 
-import gr.demokritos.biographs.indexing.TreeDatabase;
+import gr.demokritos.biographs.*;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -16,7 +16,7 @@ import java.util.*;
 public class KnnTest 
 	extends TestCase
 {
-	static TreeDatabase trd;
+	static TreeDatabase<String> trd;
 	static BioGraph bgTest;
 	/**
 	 * Create the test case

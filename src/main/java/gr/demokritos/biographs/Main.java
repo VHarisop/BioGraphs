@@ -17,22 +17,18 @@
 package gr.demokritos.biographs;
 
 import gr.demokritos.biographs.indexing.TreeDatabase;
+import gr.demokritos.biographs.indexing.QuantTreeDatabase;
 import gr.demokritos.biographs.indexing.CanonicalCodeComparator;
 import gr.demokritos.biographs.indexing.TwoLevelSimComparator;
+
 import gr.demokritos.iit.jinsect.jutils;
 
 import java.io.File;
 import java.util.*;
 
 public class Main {
-	public static void main(String[] args) {
 
-		/* if no file was provided as argument, inform the user and exit */
-		if (args.length < 2) {
-			System.out.println("Missing file argument!");
-			return; 
-		}
-
+	public static void checkSim(File dataFile, File testFile) {
 		/* Create a TreeDatabase ordered by canonical coding */
 		TreeDatabase<BioGraph> trdCanon = 
 			new TreeDatabase<BioGraph>(new CanonicalCodeComparator()) {
@@ -50,15 +46,11 @@ public class Main {
 					return bG;
 				}
 			};
-		/* set the database to use a two level comparator */
-
+		
 		BioGraph[] bgs;
-		/* try to get the files and build the index and the biographs
-		 * exit if the files don't exist or something goes wrong */
-		try {
-			File dataFile = new File(args[0]);
-			File testFile = new File(args[1]);
 
+		/* try to build the index and the biographs */
+		try {
 			trdCanon.buildWordIndex(dataFile);
 			trdSim.buildWordIndex(dataFile);
 			bgs = BioGraph.fromWordFile(testFile);
@@ -66,7 +58,7 @@ public class Main {
 			ex.printStackTrace();
 			return; 
 		}
-		
+
 		double sSim;
 		System.out.println("CCODE");
 		for (BioGraph bg: bgs) {
@@ -90,5 +82,67 @@ public class Main {
 			}
 		}
 		System.out.println("\n");
+
+	}
+
+	public static void checkQuant(File dataFile, File testFile) {
+		QuantTreeDatabase<String> qtd = 
+			new QuantTreeDatabase<String>() {
+				@Override
+				public String getGraphFeature(BioGraph bG) {
+					return bG.getLabel();
+				}
+			};
+		BioGraph[] bgs;
+		try {
+			qtd.buildWordIndex(dataFile);
+			bgs = BioGraph.fromWordFile(testFile);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return;
+		}
+		/* TODO: getNearestNeighbours is problematic!!!! */
+		System.out.println("QUANT");
+
+		/* Iterate and print all keys 
+		for (Map.Entry<String, Double> e: 
+				qtd.getWeightMap().entrySet()) 
+		{
+			System.out.printf("\t[%s]: %3.3f\n", e.getKey(), e.getValue());
+		}
+		*/
+		System.out.println("DATA");
+
+		/* Query all test graphs for nearest neighbours */
+		for (BioGraph bG: bgs) {
+			List<String> ans = qtd.getNearestNeighbours(bG, true);
+			if (ans == null) {
+				throw new NullPointerException();
+			}
+			else {
+				System.out.printf("%s:", bG.getLabel());
+				for (String s: ans) {
+					System.out.printf(" %s", s);
+				}
+				System.out.printf("\n");
+			}
+		}
+	}
+
+	public static void main(String[] args) {
+		/* if no file was provided as argument, inform the user and exit */
+		if (args.length < 2) {
+			System.out.println("Missing file argument!");
+			return; 
+		}
+		try {
+			File fData = new File(args[0]);
+			File fTest = new File(args[1]);
+			/* check the performance of the quantization method */
+			checkQuant(fData, fTest);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return;
+		}
 	}
 }
