@@ -14,35 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
 
-package gr.demokritos.biographs.indexing;
-
-import gr.demokritos.biographs.BioGraph;
-import gr.demokritos.iit.jinsect.structs.VertexCoder;
-import gr.demokritos.iit.jinsect.jutils;
+package gr.demokritos.biographs.indexing.comparators;
 
 import java.util.Comparator;
+import gr.demokritos.biographs.*;
+import gr.demokritos.iit.jinsect.jutils;
 
-public class QuantValComparator
-implements Comparator<BioGraph>
+public class TwoLevelSimComparator 
+implements Comparator<BioGraph> 
 {
-	protected VertexCoder vWs;
-
-	/**
-	 * Returns a new QuantValComparator that is backed by a given hashmap
-	 * of Label - Weight entries.
-	 *
-	 * @param vWeights the map of weights
-	 */
-	public QuantValComparator(VertexCoder vWeights) {
-		super();
-		vWs = vWeights;
-	}
-
 	@Override
 	public int compare(BioGraph bgA, BioGraph bgB) {
-		double qSim = 
-			jutils.getQuantValSimilarity(bgA.getGraph(), bgB.getGraph(), vWs);
+		double sSim = 
+			jutils.graphStructuralSimilarity(bgA.getGraph(), bgB.getGraph());
 
-		return Double.compare(qSim, 0.0);
+		/* if s-similarity is zero, order according to the canonical codes */
+		int compRes = Double.compare(sSim, 0.0);
+		if (compRes != 0) 
+			return compRes;
+
+		/* compare the canonical codes */
+		return jutils.compareCanonicalCodes(bgA.getGraph(), bgB.getGraph());
 	}
 }

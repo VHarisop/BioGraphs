@@ -14,22 +14,35 @@
  * You should have received a copy of the GNU General Public License
  * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
 
-package gr.demokritos.biographs.indexing;
+package gr.demokritos.biographs.indexing.comparators;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.iit.jinsect.structs.VertexCoder;
 import gr.demokritos.iit.jinsect.jutils;
+
 import java.util.Comparator;
 
-public class CanonicalCodeComparator 
-implements Comparator<BioGraph> 
+public class QuantValComparator
+implements Comparator<BioGraph>
 {
+	protected VertexCoder vWs;
+
 	/**
-	 * Compares two BioGraph objects based on the lexicographic ordering
-	 * of their canonical codes 
+	 * Returns a new QuantValComparator that is backed by a given hashmap
+	 * of Label - Weight entries.
+	 *
+	 * @param vWeights the map of weights
 	 */
+	public QuantValComparator(VertexCoder vWeights) {
+		super();
+		vWs = vWeights;
+	}
+
 	@Override
 	public int compare(BioGraph bgA, BioGraph bgB) {
-		/* use the optimized version in jutils to compare canonical codes */
-		return jutils.compareCanonicalCodes(bgA.getGraph(), bgB.getGraph());
+		double qSim = 
+			jutils.getQuantValSimilarity(bgA.getGraph(), bgB.getGraph(), vWs);
+
+		return Double.compare(qSim, 0.0);
 	}
 }

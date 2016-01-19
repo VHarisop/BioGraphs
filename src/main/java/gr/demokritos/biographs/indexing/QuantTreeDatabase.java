@@ -22,6 +22,7 @@ import java.lang.Math;
 import java.util.*;
 import java.util.Map.Entry;
 
+import gr.demokritos.biographs.indexing.comparators.QuantValComparator;
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.iit.jinsect.structs.*;
 import gr.demokritos.iit.jinsect.jutils;

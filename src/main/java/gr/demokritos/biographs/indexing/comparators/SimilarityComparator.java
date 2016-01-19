@@ -14,13 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
 
-package gr.demokritos.biographs.indexing;
+package gr.demokritos.biographs.indexing.comparators;
 
 import java.util.Comparator;
-import gr.demokritos.biographs.*;
+
+import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.iit.jinsect.jutils;
 
-public class TwoLevelSimComparator 
+/**
+ * A custom similarity comparator to be used for indexing biographs
+ * in s-similarity based graph databases.
+ *
+ * @author VHarisop
+ */
+public class SimilarityComparator
 implements Comparator<BioGraph> 
 {
 	@Override
@@ -28,12 +35,6 @@ implements Comparator<BioGraph>
 		double sSim = 
 			jutils.graphStructuralSimilarity(bgA.getGraph(), bgB.getGraph());
 
-		/* if s-similarity is zero, order according to the canonical codes */
-		int compRes = Double.compare(sSim, 0.0);
-		if (compRes != 0) 
-			return compRes;
-
-		/* compare the canonical codes */
-		return jutils.compareCanonicalCodes(bgA.getGraph(), bgB.getGraph());
+		return Double.compare(sSim, 0.0);
 	}
 }

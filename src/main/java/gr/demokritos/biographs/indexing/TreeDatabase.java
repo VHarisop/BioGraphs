@@ -31,6 +31,7 @@ import java.util.NavigableMap;
 import java.util.Comparator;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.indexing.comparators.*;
 import gr.demokritos.iit.jinsect.jutils;
 
 

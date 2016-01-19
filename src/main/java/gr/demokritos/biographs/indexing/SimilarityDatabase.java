@@ -16,25 +16,9 @@
 
 package gr.demokritos.biographs.indexing;
 
-import java.io.File;
-import java.io.FileFilter;
-
-import java.lang.Math;
-import java.lang.Double;
-
-import java.util.Map.Entry;
-import java.util.LinkedHashMap;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.Comparator;
-
 import gr.demokritos.biographs.BioGraph;
-import gr.demokritos.iit.jinsect.jutils;
+import gr.demokritos.biographs.indexing.comparators.SimilarityComparator;
 
-import org.biojava.nbio.core.sequence.DNASequence;
-import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 
 /**
  * A class that implements a graph database using the graphs's similarity measure.
@@ -45,11 +29,11 @@ import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
  */
 public class SimilarityDatabase extends TreeDatabase<String> {
 	public SimilarityDatabase() {
-		super();
+		super(new SimilarityComparator());
 	}
 
 	public SimilarityDatabase(String path) {
-		super(path);
+		super(path, new SimilarityComparator());
 	}
 
 	@Override

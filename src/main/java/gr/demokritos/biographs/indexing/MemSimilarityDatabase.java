@@ -17,7 +17,7 @@
 package gr.demokritos.biographs.indexing;
 
 import gr.demokritos.biographs.BioGraph;
-
+import gr.demokritos.biographs.indexing.comparators.SimilarityComparator;
 /**
  * A class that implements a graph database using the graphs's similarity measure.
  * Here, the similarity measure used is the graph's structural similarity, as is
@@ -32,7 +32,7 @@ public class MemSimilarityDatabase extends TreeDatabase<BioGraph> {
 	 * Creates a blank MemSimilarityDatabase object
 	 */
 	public MemSimilarityDatabase() { 
-		super(); 
+		super(new SimilarityComparator()); 
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class MemSimilarityDatabase extends TreeDatabase<BioGraph> {
 	 * @param path a string containing the directory's path
 	 */
 	public MemSimilarityDatabase(String path) {
-		super(path);
+		super(path, new SimilarityComparator());
 	}
 
 	/**
