@@ -16,10 +16,8 @@
 
 package gr.demokritos.biographs;
 
-import gr.demokritos.biographs.indexing.TreeDatabase;
-import gr.demokritos.biographs.indexing.QuantTreeDatabase;
-import gr.demokritos.biographs.indexing.CanonicalCodeComparator;
-import gr.demokritos.biographs.indexing.TwoLevelSimComparator;
+import gr.demokritos.biographs.indexing.*;
+import gr.demokritos.biographs.indexing.comparators.*;
 
 import gr.demokritos.iit.jinsect.jutils;
 
@@ -28,7 +26,91 @@ import java.util.*;
 
 public class Main {
 
-	public static void checkSim(File dataFile, File testFile) {
+	public static void checkVariance(File dataFile, BioGraph[] bgs) {
+		Comparator<BioGraph> bgComp = new Comparator<BioGraph>() {
+			@Override
+			public int compare(BioGraph bgA, BioGraph bgB) {
+				double wvs =
+					bgA.getGraph().getTotalVarRatios() -
+					bgB.getGraph().getTotalVarRatios();
+
+				int ret = Double.compare(wvs, 0.0);
+				if (ret == 0) {
+					return 
+						bgA.getDfsCode().compareTo(bgB.getDfsCode());
+				}
+				else 
+					return ret;
+			}
+		};
+
+		TreeDatabase<String> trdVar = 
+			new TreeDatabase<String>(bgComp) {
+				@Override
+				public String getGraphFeature(BioGraph bG) {
+					return bG.getLabel();
+				}
+			};
+
+		try {
+			trdVar.buildWordIndex(dataFile);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return;
+		}
+
+		for (BioGraph b: bgs) {
+			List<String> ans = trdVar.getKNearestNeighbours(b, true, 5);
+			System.out.printf("%s:", b.getLabel());
+			for (String s: ans) { System.out.printf(" %s", s); }
+			System.out.println();
+		}
+	}
+
+	public static void checkRatio(File dataFile, BioGraph[] bgs) {
+		Comparator<BioGraph> bgComp = new Comparator<BioGraph>() {
+			@Override
+			public int compare(BioGraph bgA, BioGraph bgB) {
+				double sSim = 
+					bgA.getGraph().getDegreeRatioSum() -
+					bgB.getGraph().getDegreeRatioSum();
+
+				if (GraphDatabase.compareDouble(sSim, 0.0)) {
+					return jutils.compareCanonicalCodes(
+							bgA.getGraph(),
+							bgB.getGraph());
+				} else 
+					return Double.compare(sSim, 0.0);
+			}
+		};
+
+		TreeDatabase<String> trdSim = 
+			new TreeDatabase<String>(bgComp) {
+				@Override
+				public String getGraphFeature(BioGraph bG) {
+					return bG.getLabel();
+				}
+			};
+
+		try {
+			trdSim.buildWordIndex(dataFile);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return;
+		}
+
+		for (BioGraph bg: bgs) {
+			List<String> matches = 
+				trdSim.getKNearestNeighbours(bg, true, 5);
+			System.out.printf("%s:", bg.getLabel());
+			for (String s: matches) {
+				System.out.printf(" %s", s);
+			}
+			System.out.println();
+		}
+	}
+
+	public static void checkSim(File dataFile, BioGraph[] bgs) {
 		/* Create a TreeDatabase ordered by canonical coding */
 		TreeDatabase<BioGraph> trdCanon = 
 			new TreeDatabase<BioGraph>(new CanonicalCodeComparator()) {
@@ -47,45 +129,41 @@ public class Main {
 				}
 			};
 		
-		BioGraph[] bgs;
-
 		/* try to build the index and the biographs */
 		try {
 			trdCanon.buildWordIndex(dataFile);
 			trdSim.buildWordIndex(dataFile);
-			bgs = BioGraph.fromWordFile(testFile);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return; 
 		}
 
 		double sSim;
-		System.out.println("CCODE");
+		System.out.print("CCODE");
 		for (BioGraph bg: bgs) {
 			List<BioGraph> near = trdCanon.getKNearestNeighbours(bg, true, 2);
-			System.out.printf("\n%s: ", bg.getLabel());
+			System.out.printf("\n%s:", bg.getLabel());
 			for (BioGraph b: near) {
 				sSim = 
 					jutils.graphStructuralSimilarity(bg.getGraph(), b.getGraph());
-				System.out.printf("%s (%.3f) ", b.getLabel(), sSim);
+				System.out.printf(" %s", b.getLabel(), sSim);
 			}
 		}
-		System.out.println("\n");
-		System.out.println("2SIM");
+		System.out.print("\n2SIM");
 		for (BioGraph bg: bgs) {
 			List<BioGraph> near = trdSim.getKNearestNeighbours(bg, true, 2);
-			System.out.printf("\n%s: ", bg.getLabel());
+			System.out.printf("\n%s:", bg.getLabel());
 			for (BioGraph b: near) {
 				sSim = 
 					jutils.graphStructuralSimilarity(bg.getGraph(), b.getGraph());
-				System.out.printf("%s (%.3f) ", b.getLabel(), sSim);
+				System.out.printf(" %s", b.getLabel(), sSim);
 			}
 		}
-		System.out.println("\n");
+		System.out.println();
 
 	}
 
-	public static void checkQuant(File dataFile, File testFile) {
+	public static void checkQuant(File dataFile, BioGraph[] bgs) {
 		QuantTreeDatabase<String> qtd = 
 			new QuantTreeDatabase<String>() {
 				@Override
@@ -93,29 +171,16 @@ public class Main {
 					return bG.getLabel();
 				}
 			};
-		BioGraph[] bgs;
+
 		try {
 			qtd.buildWordIndex(dataFile);
-			bgs = BioGraph.fromWordFile(testFile);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return;
 		}
-		/* TODO: getNearestNeighbours is problematic!!!! */
-		System.out.println("QUANT");
-
-		/* Iterate and print all keys 
-		for (Map.Entry<String, Double> e: 
-				qtd.getWeightMap().entrySet()) 
-		{
-			System.out.printf("\t[%s]: %3.3f\n", e.getKey(), e.getValue());
-		}
-		*/
-		System.out.println("DATA");
-
 		/* Query all test graphs for nearest neighbours */
 		for (BioGraph bG: bgs) {
-			List<String> ans = qtd.getNearestNeighbours(bG, true);
+			List<String> ans = qtd.getKNearestNeighbours(bG, false, 3);
 			if (ans == null) {
 				throw new NullPointerException();
 			}
@@ -124,7 +189,7 @@ public class Main {
 				for (String s: ans) {
 					System.out.printf(" %s", s);
 				}
-				System.out.printf("\n");
+				System.out.println();
 			}
 		}
 	}
@@ -135,11 +200,18 @@ public class Main {
 			System.out.println("Missing file argument!");
 			return; 
 		}
+		BioGraph[] bGraphs = null;
 		try {
 			File fData = new File(args[0]);
 			File fTest = new File(args[1]);
-			/* check the performance of the quantization method */
-			checkQuant(fData, fTest);
+
+			bGraphs = BioGraph.fromWordFile(fTest);
+
+			/* check the performance of the custom comparators */
+			// checkRatio(fData, bGraphs);
+			// checkSim(fData, bGraphs);
+			checkQuant(fData, bGraphs);
+			// checkVariance(fData, bGraphs);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return;
