@@ -1,7 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+import argparse
 
 # minimumEditDistance is taken from:
 # http://rosettacode.org/wiki/Levenshtein_distance#Python
@@ -21,26 +34,45 @@ def minimumEditDistance(s1,s2):
         distances = newDistances
     return distances[-1]
 
-try:
-    result_file = sys.argv[1]
-    ground_file = sys.argv[2]
-except IndexError:
-    print('Usage: python3 analyze_results.py <result_file> <ground_file>')
-    exit()
+if __name__ == '__main__':
+    # create a parser for command line arguments
+    parser = argparse.ArgumentParser(
+            description='Analyzes test results given a ground truth and a res file')
 
-with open(result_file, 'r') as f, open(ground_file) as g:
-    # res_lines: [noisy_word, res_a res_b res_c ... res_n]
-    res_lines = [i.strip().split(':') for i in 
-                    filter(lambda x: 'INFO' not in x, [j for j in f])]
+    parser.add_argument('-g', '--ground_truth_file', nargs=1,
+            required=True,
+            help='The file containing the desired results')
+    parser.add_argument('-r', '--result_file', nargs=1,
+            required=True,
+            help='The file containing the test results')
+    parser.add_argument('-o', '--output_file', nargs='?',
+            help='An output file containing the actual values along with \
+                  the values assigned to them by the test')
 
-    truth_lines = [i.strip() for i in g]
+    # get the 2 filenames from args
+    args = vars(parser.parse_args())
+    result_file = args['result_file'][0]
+    ground_file = args['ground_truth_file'][0]
+    out_file = args['output_file']
+    
+    with open(result_file, 'r') as f, open(ground_file) as g:
+        
+        if out_file:
+            out = open(out_file, 'w')
 
-    num_words = len(truth_lines)
-    hits = 0
+        # res_lines: [noisy_word, res_a res_b res_c ... res_n]
+        res_lines = [i.strip().split(':') for i in 
+                        filter(lambda x: 'INFO' not in x, [j for j in f])]
 
-    for (res_line, truth_word) in zip(res_lines, truth_lines):
-        print('{0} - {1}'.format(truth_word, res_line[1]))
-        if truth_word in res_line[1].split():
-            hits += 1
+        truth_lines = [i.strip() for i in g]
 
-print('Accuracy: {0}'.format(hits / num_words))
+        num_words = len(truth_lines)
+        hits = 0
+
+        for (res_line, truth_word) in zip(res_lines, truth_lines):
+            if out_file:
+                out.write('{0} - {1}\n'.format(truth_word, res_line[1]))
+            if truth_word in res_line[1].split():
+                hits += 1
+
+    print('Accuracy: {0}'.format(hits / num_words))
