@@ -69,10 +69,14 @@ if __name__ == '__main__':
         num_words = len(truth_lines)
         hits = 0
 
+        bin_lens = []
         for (res_line, truth_word) in zip(res_lines, truth_lines):
             if out_file:
                 out.write('{0} - {1}\n'.format(truth_word, res_line[1]))
             if truth_word in res_line[1].split():
                 hits += 1
 
+            bin_lens.append(len(res_line[1].split()))
+
     print('Accuracy: {0}'.format(hits / num_words))
+    print('Bin Lengths: {0}'.format(' '.join(str(len(i[1].split())) for i in res_lines)))
