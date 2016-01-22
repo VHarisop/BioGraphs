@@ -18,14 +18,12 @@ package gr.demokritos.biographs.indexing;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.lang.Math;
 import java.util.*;
 import java.util.Map.Entry;
 
-import gr.demokritos.biographs.indexing.comparators.QuantValComparator;
+import gr.demokritos.biographs.indexing.comparators.*;
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.iit.jinsect.structs.*;
-import gr.demokritos.iit.jinsect.jutils;
 
 public abstract class QuantTreeDatabase<V> extends GraphDatabase {
 	/**
@@ -48,7 +46,16 @@ public abstract class QuantTreeDatabase<V> extends GraphDatabase {
 	 * A custom comparator to be used for {@link #treeIndex} that 
 	 * compares graphs based on their quantized value similarity.
 	 */
-	protected Comparator<BioGraph> bgComp;
+	protected QuantComparator bgComp;
+
+	/**
+	 * The type of quantization. <tt>SIMPLE</tt> stands for simple
+	 * vertex coding, whie <tt>RANGECODE</tt> takes also degree ranges
+	 * into account.
+	 */
+	public enum QuantType {
+		SIMPLE, RANGECODE
+	}
 
 	/**
 	 * Creates a blank QuantTreeDatabase object. 
@@ -77,9 +84,26 @@ public abstract class QuantTreeDatabase<V> extends GraphDatabase {
 		/* initialize the label - weight map, the custom comparator, as
 		 * well as the tree map based on the above comparator */
 		this.vertexWeights = new VertexCoder();
-		this.bgComp = new QuantValComparator(this.vertexWeights);
+		this.bgComp = new QuantDegreeComparator(this.vertexWeights);
 
 		this.treeIndex = new TreeMap<BioGraph, List<V>>(this.bgComp);
+	}
+
+	/**
+	 * Sets the comparator used for this class.
+	 * @see #QuantType
+	 *
+	 * @param type the type of the comparator.
+	 */
+	public void setComparator(QuantType type) {
+		switch (type) {
+			case SIMPLE:
+				this.bgComp = new QuantValComparator(this.vertexWeights);
+				break;
+			case RANGECODE:
+			default:
+				this.bgComp = new QuantDegreeComparator(this.vertexWeights);
+		}
 	}
 
 	/**
@@ -156,6 +180,7 @@ public abstract class QuantTreeDatabase<V> extends GraphDatabase {
 			}
 		}
 	}
+	
 	/**
 	 * Builds a graph database index from a given file or directory 
 	 * of files which contain words without extra labels, as in the
@@ -316,14 +341,8 @@ public abstract class QuantTreeDatabase<V> extends GraphDatabase {
 		}
 
 		/* get the similarities between the lower and higher keys */
-		double distLo =
-			Math.abs(jutils.getQuantValSimilarity(bQuery.getGraph(),
-												  lower.getGraph(),
-												  vertexWeights));
-		double distHi = 
-			Math.abs(jutils.getQuantValSimilarity(bQuery.getGraph(),
-												  higher.getGraph(),
-												  vertexWeights));
+		double distLo = this.bgComp.getDistance(bQuery, lower);
+		double distHi = this.bgComp.getDistance(bQuery, higher); 
 
 		if (super.compareDouble(distLo, distHi)) {
 			List<V> nodes = new ArrayList<V>();
@@ -390,14 +409,8 @@ public abstract class QuantTreeDatabase<V> extends GraphDatabase {
 
 			/* if none of the maps has been depleted yet,
 			 * we must compare their similarities at each step */
-			distLo = Math.abs(jutils.getQuantValSimilarity(
-						bG.getGraph(),
-						low.getKey().getGraph(),
-						this.vertexWeights));
-			distHi = Math.abs(jutils.getQuantValSimilarity(
-						bG.getGraph(),
-						high.getKey().getGraph(),
-						this.vertexWeights));
+			distLo = this.bgComp.getDistance(bG, low.getKey());
+			distHi = this.bgComp.getDistance(bG, high.getKey());
 
 			if (super.compareDouble(distLo, distHi)) {
 				results.addAll(low.getValue());
@@ -433,7 +446,6 @@ public abstract class QuantTreeDatabase<V> extends GraphDatabase {
 	public VertexCoder getWeightMap() {
 		return vertexWeights;
 	}
-
 
 	/**
 	 * A method that extracts a feature from a BioGraph. This method

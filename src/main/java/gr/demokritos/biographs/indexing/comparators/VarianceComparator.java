@@ -1,19 +1,18 @@
 package gr.demokritos.biographs.indexing.comparators;
 
 import gr.demokritos.biographs.BioGraph;
-import gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph;
 import java.util.Comparator;
 
 public class VarianceComparator 
 implements Comparator<BioGraph>
 {
-	public enum VarianceType {
+	public enum Type {
 		VERTEX, DEGREE, WEIGHT
 	}
 
-	private VarianceType choice;
+	private Type choice;
 
-	public VarianceComparator(VarianceType varChoice) {
+	public VarianceComparator(Type varChoice) {
 		super();
 		choice = varChoice;
 	}
