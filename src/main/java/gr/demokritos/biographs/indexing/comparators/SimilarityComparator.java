@@ -23,7 +23,7 @@ import gr.demokritos.iit.jinsect.jutils;
 
 /**
  * A custom similarity comparator to be used for indexing biographs
- * in s-similarity based graph databases.
+ * in structural similarity-based graph databases.
  *
  * @author VHarisop
  */
