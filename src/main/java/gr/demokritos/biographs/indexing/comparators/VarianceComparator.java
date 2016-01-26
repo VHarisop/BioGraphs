@@ -33,6 +33,10 @@ import java.util.Comparator;
 public class VarianceComparator 
 implements Comparator<BioGraph>
 {
+	/**
+	 * An enum used to differentiate between different types
+	 * of variance used in {@link #compare}.
+	 */
 	public enum Type {
 		RATIO, DEGREE, WEIGHT
 	}
@@ -55,8 +59,8 @@ implements Comparator<BioGraph>
 		double varA, varB;
 		switch (choice) {
 			case WEIGHT:
-				varA = bgA.getGraph().getTotalWeightVariance();
-				varB = bgB.getGraph().getTotalWeightVariance();
+				varA = bgA.getGraph().getWeightVariance();
+				varB = bgB.getGraph().getWeightVariance();
 				break;
 
 			case RATIO:
@@ -66,8 +70,8 @@ implements Comparator<BioGraph>
 
 			case DEGREE: /* same as default case */
 			default:
-				varA = bgA.getGraph().getTotalDegreeVariance();
-				varB = bgB.getGraph().getTotalDegreeVariance();
+				varA = bgA.getGraph().getDegreeVariance();
+				varB = bgB.getGraph().getDegreeVariance();
 				break;
 		}
 		return Double.compare(varA, varB);
