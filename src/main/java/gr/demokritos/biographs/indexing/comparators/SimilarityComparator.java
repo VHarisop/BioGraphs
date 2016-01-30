@@ -16,8 +16,6 @@
 
 package gr.demokritos.biographs.indexing.comparators;
 
-import java.util.Comparator;
-
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.iit.jinsect.jutils;
 
@@ -28,8 +26,18 @@ import gr.demokritos.iit.jinsect.jutils;
  * @author VHarisop
  */
 public class SimilarityComparator
-implements Comparator<BioGraph> 
+implements TreeComparator 
 {
+	/**
+	 * @see TreeComparator#getDistance 
+	 */
+	public double getDistance(BioGraph bgA, BioGraph bgB) {
+		double sSim = 
+			jutils.graphStructuralSimilarity(bgA.getGraph(), bgB.getGraph());
+
+		return Math.abs(sSim);
+	}
+
 	@Override
 	public int compare(BioGraph bgA, BioGraph bgB) {
 		double sSim = 

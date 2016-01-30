@@ -16,12 +16,22 @@
 
 package gr.demokritos.biographs.indexing.comparators;
 
-import java.util.*;
 import gr.demokritos.biographs.*;
 
 public class TotalEntropyComparator 
-implements Comparator<BioGraph> 
+implements TreeComparator 
 {
+	/**
+	 * @see TreeComparator#getDistance
+	 */
+	public double getDistance(BioGraph bgA, BioGraph bgB) {
+		double eSim = 
+			bgA.getGraph().getTotalVertexEntropy() -
+			bgB.getGraph().getTotalVertexEntropy();
+
+		return Math.abs(eSim);
+	}
+
 	@Override
 	public int compare(BioGraph bgA, BioGraph bgB) {
 		int entropySim = Double.compare(

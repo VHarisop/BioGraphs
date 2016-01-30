@@ -17,22 +17,17 @@
 package gr.demokritos.biographs.indexing.comparators;
 
 import gr.demokritos.biographs.*;
-import gr.demokritos.iit.jinsect.jutils;
+import java.util.Comparator;
 
-public class TwoLevelSimComparator 
-extends SimilarityComparator
-{
-	@Override
-	public int compare(BioGraph bgA, BioGraph bgB) {
-		double sSim = 
-			jutils.graphStructuralSimilarity(bgA.getGraph(), bgB.getGraph());
-
-		/* if s-similarity is zero, order according to the canonical codes */
-		int compRes = Double.compare(sSim, 0.0);
-		if (compRes != 0) 
-			return compRes;
-
-		/* compare the canonical codes */
-		return jutils.compareCanonicalCodes(bgA.getGraph(), bgB.getGraph());
-	}
+public interface TreeComparator extends Comparator<BioGraph> {
+	/**
+	 * Returns the distance between two {@link BioGraph} objects, which is
+	 * the absolute value of their similarity based on some metric dependent
+	 * on the implementing comparator.
+	 *
+	 * @param bgA the first graph
+	 * @param bgB the second graph
+	 * @return the distance of the two graphs
+	 */
+	public double getDistance(BioGraph bgA, BioGraph bgB);
 }

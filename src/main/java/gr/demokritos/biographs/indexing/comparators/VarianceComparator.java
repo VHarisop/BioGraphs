@@ -17,7 +17,6 @@
 package gr.demokritos.biographs.indexing.comparators;
 
 import gr.demokritos.biographs.BioGraph;
-import java.util.Comparator;
 
 /**
  * A comparator that uses various measures of variance in vertices
@@ -31,7 +30,7 @@ import java.util.Comparator;
  * @author VHarisop
  */
 public class VarianceComparator 
-implements Comparator<BioGraph>
+implements TreeComparator
 {
 	/**
 	 * An enum used to differentiate between different types
@@ -52,6 +51,37 @@ implements Comparator<BioGraph>
 	public VarianceComparator(Type varChoice) {
 		super();
 		choice = varChoice;
+	}
+
+	/**
+	 * Computes the variances of two biographs and returns the distance
+	 * between the two computed values.
+	 *
+	 * @param bgA the first graph
+	 * @param bgB the second graph
+	 * @return the distance between the two graphs' variances
+	 */
+	public double getDistance(BioGraph bgA, BioGraph bgB) {
+		double varA, varB;
+		switch (choice) {
+			case WEIGHT:
+				varA = bgA.getGraph().getWeightVariance();
+				varB = bgB.getGraph().getWeightVariance();
+				break;
+
+			case RATIO:
+				varA = bgA.getGraph().getTotalVarRatios();
+				varB = bgB.getGraph().getTotalVarRatios();
+				break;
+
+			case DEGREE: /* same as default case */
+			default:
+				varA = bgA.getGraph().getDegreeVariance();
+				varB = bgB.getGraph().getDegreeVariance();
+				break;
+		}
+
+		return Math.abs(varA - varB);
 	}
 
 	@Override
