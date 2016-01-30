@@ -18,12 +18,9 @@ package gr.demokritos.biographs;
 
 import gr.demokritos.iit.jinsect.documentModel.representations.NGramJGraph;
 import gr.demokritos.iit.jinsect.structs.JVertex;
-import gr.demokritos.iit.jinsect.structs.Edge;
-import gr.demokritos.iit.jinsect.structs.NGramVertex;
 import gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph;
 import gr.demokritos.iit.jinsect.encoders.DepthFirstEncoder;
 import gr.demokritos.iit.jinsect.encoders.CanonicalCoder;
-import gr.demokritos.iit.jinsect.utils;
 import gr.demokritos.iit.jinsect.jutils;
 
 import gr.demokritos.iit.jinsect.io.LineReader;
@@ -33,8 +30,6 @@ import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 
 import java.io.File;
 
-import java.util.Set;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.LinkedHashMap;
@@ -48,6 +43,8 @@ import java.util.LinkedHashMap;
  * @author VHarisop
  */
 public class BioGraph extends NGramJGraph {
+
+	final static long serialVersionUID = 1L;
 
 	// the label of the dataset this graph represents
 	protected String bioLabel = null;
@@ -341,6 +338,20 @@ public class BioGraph extends NGramJGraph {
 	throws Exception 
 	{
 		return FastaReaderHelper.readFastaDNASequence(inFile);
+	}
+
+	/**
+	 * Creates a {@link NGramJGraph} object that would be this object's
+	 * superclass representation.
+	 *
+	 * @return a {@link NGramJGraph} object from this graph's parameters
+	 */
+	public NGramJGraph getSuper() {
+		return new NGramJGraph(
+					this.DataString, 
+					this.MinSize, 
+					this.MaxSize, 
+					this.CorrelationWindow);
 	}
 }
 
