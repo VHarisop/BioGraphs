@@ -40,6 +40,13 @@
       <scope>test</scope>
     </dependency>
 
+	<!-- gson for pretty results -->
+	<dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.5</version>
+    </dependency>
+
 	<!-- use PatriciaTrie from apache commons -->
 	<dependency>
 		<groupId>org.apache.commons</groupId>
