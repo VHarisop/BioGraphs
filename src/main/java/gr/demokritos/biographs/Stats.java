@@ -18,6 +18,8 @@ package gr.demokritos.biographs;
 
 import java.util.*;
 
+import gr.demokritos.biographs.indexing.TreeDatabase;
+
 /** 
  * Class to be used for serializing results. 
  *
@@ -33,6 +35,12 @@ public final class Stats {
 	 * The array of test results
 	 */
 	protected List<Result> ResultList;
+
+	/**
+	 * An array containing the size of each bin
+	 * from a tree database index.
+	 */
+	protected int[] binSizes;
 
 	/**
 	 * Creates a new Stats object to hold results for
@@ -53,6 +61,16 @@ public final class Stats {
 	 */
 	public void addResult(String test, String ... results) {
 		ResultList.add(new Result(test, results));
+	}
+
+	/**
+	 * Gets the list lengths for the keys of a database
+	 * and stores them at an array.
+	 *
+	 * @param trd the database
+	 */
+	public void setBins(TreeDatabase<?> trd) {
+		binSizes = trd.binSizes();
 	}
 
 	/**

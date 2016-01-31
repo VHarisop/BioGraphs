@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.NavigableMap;
 import java.util.Comparator;
@@ -218,6 +219,31 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 */
 	public Set<BioGraph> exposeKeys() {
 		return treeIndex.keySet();
+	}
+
+	/**
+	 * Gets the key-value pairs of the underlying tree
+	 * map of the database.
+	 *
+	 * @return a set containing all of the entries of the map
+	 */
+	public Set<Entry<BioGraph, List<V>>> exposeEntries() {
+		return treeIndex.entrySet();
+	}
+
+	/**
+	 * Returns an array containing the size of the list at each key.
+	 *
+	 * @return an array of list sizes corresponding the the map's keys
+	 */
+	public int[] binSizes() {
+		int[] bins = new int[treeIndex.size()];
+		int iCnt = 0;
+		for (Entry<BioGraph, List<V>> ent: treeIndex.entrySet()) {
+			bins[iCnt++] = ent.getValue().size();
+		}
+
+		return bins;
 	}
 
 	/**

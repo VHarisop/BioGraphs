@@ -19,30 +19,142 @@ package gr.demokritos.biographs;
 import gr.demokritos.biographs.indexing.*;
 import gr.demokritos.biographs.indexing.comparators.*;
 
-import gr.demokritos.iit.jinsect.jutils;
-
 import java.io.File;
 import java.util.*;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class Main {
 
-	public static void checkVariance(File dataFile, BioGraph[] bgs) {
-		Comparator<BioGraph> bgComp = new Comparator<BioGraph>() {
-			@Override
-			public int compare(BioGraph bgA, BioGraph bgB) {
-				double wvs =
-					bgA.getGraph().getTotalVarRatios() -
-					bgB.getGraph().getTotalVarRatios();
+	/**
+	 * Default number of neighbours to seek 
+	 */
+	static int numNeighbours = 1;
 
-				int ret = Double.compare(wvs, 0.0);
-				if (ret == 0) {
-					return 
-						bgA.getDfsCode().compareTo(bgB.getDfsCode());
-				}
-				else 
-					return ret;
+	/**
+	 * Gson builder
+	 */
+	static Gson gson;
+
+	/**
+	 * Files from which to pull database and testing graphs.
+	 */
+	static File testFile = null, dataFile = null;
+
+	public static Stats buildAndPrintTrie(
+			TrieDatabase trd,
+			BioGraph[] bgs)
+	{
+		try {
+			trd.buildWordIndex(dataFile);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+
+		Stats stat = new Stats("trie");
+		for (BioGraph b: bgs) {
+			List<String> ans = trd.select(b);
+			stat.addResult(b.getLabel(), ans.toArray(new String[ans.size()]));
+		}
+		return stat;
+	}
+	
+	public static Stats buildAndPrint(
+			TreeDatabase<String> trd,
+			BioGraph[] bgs,
+			String methodLabel)
+	{
+		try {
+			trd.buildWordIndex(dataFile);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+
+		Stats stat = new Stats(methodLabel);
+		stat.setBins(trd);
+		for (BioGraph b: bgs) {
+			List<String> ans = trd.getKNearestNeighbours(b, true, numNeighbours);
+			stat.addResult(b.getLabel(), ans.toArray(new String[ans.size()]));
+		}
+		return stat;
+	}
+
+	public static Stats checkTrie(BioGraph[] bgs) {
+		TrieDatabase trd = new TrieDatabase() {
+			@Override
+			protected String getGraphCode(BioGraph bg) {
+				return bg.getDfsCode();
 			}
 		};
+
+		return buildAndPrintTrie(trd, bgs);
+	}
+
+	public static Stats checkEntropy(BioGraph[] bgs) {
+		TreeDatabase<String> entData = 
+			new TreeDatabase<String>(new TotalEntropyComparator()) {
+				@Override
+				public String getGraphFeature(BioGraph bG) {
+					return bG.getLabel();
+				}
+			};
+
+		return buildAndPrint(entData, bgs, "entropy");
+	}
+
+	public static Stats checkHybridVariance(BioGraph[] bgs) {
+		Comparator<BioGraph> bgComp = 
+			new SimilarityComparator();
+			// new VarianceComparator(VarianceComparator.Type.RATIO);
+
+		TreeDatabase<BioGraph> trdVar = 
+			new TreeDatabase<BioGraph>(bgComp) {
+				@Override
+				public BioGraph getGraphFeature(BioGraph bG) {
+					return bG;
+				}
+			};
+
+		try {
+			trdVar.buildWordIndex(dataFile);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		Stats stat = new Stats("sim_trie");
+		stat.setBins(trdVar);
+		for (BioGraph b: bgs) {
+			List<BioGraph> ans = 
+				trdVar.getKNearestNeighbours(b, true, numNeighbours);
+
+			TrieDatabase trie = new TrieDatabase() {
+				@Override
+				public String getGraphCode(BioGraph bG) {
+					return bG.getCanonicalCode();
+				}
+			};
+
+			for (BioGraph bg: ans) {
+				trie.addGraph(bg);
+			}
+
+			List<String> answers = trie.select(b);
+			stat.addResult(
+					b.getLabel(), 
+					answers.toArray(new String[answers.size()]));
+
+		}
+
+		return stat;
+	}
+
+	public static Stats checkVariance(BioGraph[] bgs) {
+		/* Comparator that uses the ratio of degree variances */
+		Comparator<BioGraph> bgComp = 
+			new VarianceComparator(VarianceComparator.Type.RATIO);
 
 		TreeDatabase<String> trdVar = 
 			new TreeDatabase<String>(bgComp) {
@@ -52,35 +164,19 @@ public class Main {
 				}
 			};
 
-		try {
-			trdVar.buildWordIndex(dataFile);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return;
-		}
-
-		for (BioGraph b: bgs) {
-			List<String> ans = trdVar.getKNearestNeighbours(b, true, 5);
-			System.out.printf("%s:", b.getLabel());
-			for (String s: ans) { System.out.printf(" %s", s); }
-			System.out.println();
-		}
+		/* build index and print results */
+		return buildAndPrint(trdVar, bgs, "variance");
 	}
 
-	public static void checkRatio(File dataFile, BioGraph[] bgs) {
+	public static Stats checkRatio(BioGraph[] bgs) {
+		/* Custom comparator based on the degree ratio sum */
 		Comparator<BioGraph> bgComp = new Comparator<BioGraph>() {
 			@Override
 			public int compare(BioGraph bgA, BioGraph bgB) {
-				double sSim = 
-					bgA.getGraph().getDegreeRatioSum() -
-					bgB.getGraph().getDegreeRatioSum();
+				return Double.compare(
+						bgA.getGraph().getDegreeRatioSum(),
+						bgB.getGraph().getDegreeRatioSum());
 
-				if (GraphDatabase.compareDouble(sSim, 0.0)) {
-					return jutils.compareCanonicalCodes(
-							bgA.getGraph(),
-							bgB.getGraph());
-				} else 
-					return Double.compare(sSim, 0.0);
 			}
 		};
 
@@ -92,78 +188,33 @@ public class Main {
 				}
 			};
 
-		try {
-			trdSim.buildWordIndex(dataFile);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return;
-		}
-
-		for (BioGraph bg: bgs) {
-			List<String> matches = 
-				trdSim.getKNearestNeighbours(bg, true, 5);
-			System.out.printf("%s:", bg.getLabel());
-			for (String s: matches) {
-				System.out.printf(" %s", s);
-			}
-			System.out.println();
-		}
+		return buildAndPrint(trdSim, bgs, "degree_ratio");
 	}
 
-	public static void checkSim(File dataFile, BioGraph[] bgs) {
-		/* Create a TreeDatabase ordered by canonical coding */
-		TreeDatabase<BioGraph> trdCanon = 
-			new TreeDatabase<BioGraph>(new CanonicalCodeComparator()) {
+	public static Stats checkSim(BioGraph[] bgs) {
+		/* Create a TreeDatabase ordered by a two-level comparator
+		 * that uses s-similarity first and the graph's canonical
+		 * code at the next level */
+		TreeDatabase<String> trdSim = 
+			new TreeDatabase<String>(new TwoLevelSimComparator()) {
 				@Override
-				public BioGraph getGraphFeature(BioGraph bG) {
-					return bG;
-				}
-			};	
-
-		/* Create a TreeDatabase ordered by a two-level comparator */
-		TreeDatabase<BioGraph> trdSim = 
-			new TreeDatabase<BioGraph>(new TwoLevelSimComparator()) {
-				@Override
-				public BioGraph getGraphFeature(BioGraph bG) {
-					return bG;
+				public String getGraphFeature(BioGraph bG) {
+					return bG.getLabel();
 				}
 			};
-		
-		/* try to build the index and the biographs */
-		try {
-			trdCanon.buildWordIndex(dataFile);
-			trdSim.buildWordIndex(dataFile);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return; 
-		}
+	
+		return buildAndPrint(trdSim, bgs, "similarity_and_canonical_code");
+	}
+	
+	public static Stats checkSimpleSim(BioGraph[] bgs) {
+		/* simple s-similarity indexing */
+		TreeDatabase<String> trdSim = 
+			new SimilarityDatabase();
 
-		double sSim;
-		System.out.print("CCODE");
-		for (BioGraph bg: bgs) {
-			List<BioGraph> near = trdCanon.getKNearestNeighbours(bg, true, 2);
-			System.out.printf("\n%s:", bg.getLabel());
-			for (BioGraph b: near) {
-				sSim = 
-					jutils.graphStructuralSimilarity(bg.getGraph(), b.getGraph());
-				System.out.printf(" %s", b.getLabel(), sSim);
-			}
-		}
-		System.out.print("\n2SIM");
-		for (BioGraph bg: bgs) {
-			List<BioGraph> near = trdSim.getKNearestNeighbours(bg, true, 2);
-			System.out.printf("\n%s:", bg.getLabel());
-			for (BioGraph b: near) {
-				sSim = 
-					jutils.graphStructuralSimilarity(bg.getGraph(), b.getGraph());
-				System.out.printf(" %s", b.getLabel(), sSim);
-			}
-		}
-		System.out.println();
-
+		return buildAndPrint(trdSim, bgs, "similarity");
 	}
 
-	public static void checkQuant(File dataFile, BioGraph[] bgs) {
+	public static Stats checkQuant(BioGraph[] bgs) {
 		QuantTreeDatabase<String> qtd = 
 			new QuantTreeDatabase<String>() {
 				@Override
@@ -176,42 +227,75 @@ public class Main {
 			qtd.buildWordIndex(dataFile);
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return;
+			return null;
 		}
-		/* Query all test graphs for nearest neighbours */
+
+		/* inspect the codes assigned to different vertices */
+		/*
+		for (Entry<BioGraph, List<String>> e: qtd.exposeEntries()) {
+			System.out.printf("%s:", e.getKey().getLabel());
+			System.out.printf(" %d", e.getValue().size());
+			System.out.printf(" %.3f\n", 
+					e.getKey().getGraph().getDegreeRangeCode(qtd.getWeightMap()));
+		}
+		*/
+
+		Stats stat = new Stats("quantization");
 		for (BioGraph bG: bgs) {
-			List<String> ans = qtd.getKNearestNeighbours(bG, false, 3);
+			List<String> ans;
+			try {
+				ans = qtd.getKNearestNeighbours(bG, true, numNeighbours);
+			} catch (Exception ex) {
+				System.out.printf("Crash on %s!\n", bG.getLabel());
+				continue;
+			}
 			if (ans == null) {
 				throw new NullPointerException();
 			}
 			else {
-				System.out.printf("%s:", bG.getLabel());
-				for (String s: ans) {
-					System.out.printf(" %s", s);
-				}
-				System.out.println();
+				stat.addResult(
+						bG.getLabel(),
+						ans.toArray(new String[ans.size()]));
 			}
 		}
+		return stat;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) 
+	throws NumberFormatException 
+	{
 		/* if no file was provided as argument, inform the user and exit */
 		if (args.length < 2) {
 			System.out.println("Missing file argument!");
 			return; 
 		}
+
+		if (args.length == 3) {
+			numNeighbours = Integer.parseInt(args[2]);
+		}
+
 		BioGraph[] bGraphs = null;
+		gson = new GsonBuilder().setPrettyPrinting().create();
 		try {
-			File fData = new File(args[0]);
-			File fTest = new File(args[1]);
+			dataFile = new File(args[0]);
+			testFile = new File(args[1]);
+			bGraphs = BioGraph.fromWordFile(testFile);
 
-			bGraphs = BioGraph.fromWordFile(fTest);
-
+			List<Stats> statList = new ArrayList<Stats>();
+			
 			/* check the performance of the custom comparators */
-			// checkRatio(fData, bGraphs);
-			// checkSim(fData, bGraphs);
-			checkQuant(fData, bGraphs);
-			// checkVariance(fData, bGraphs);
+			statList.add(checkRatio(bGraphs));
+			statList.add(checkSim(bGraphs));
+			statList.add(checkSimpleSim(bGraphs));
+			statList.add(checkQuant(bGraphs));
+			statList.add(checkTrie(bGraphs));
+			statList.add(checkVariance(bGraphs));
+			statList.add(checkHybridVariance(bGraphs));
+			statList.add(checkEntropy(bGraphs));
+			
+			/* print all the stats */
+			System.out.println(
+				gson.toJson(statList.toArray(new Stats[statList.size()])));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return;
