@@ -20,9 +20,13 @@ import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.iit.jinsect.structs.VertexCoder;
 import gr.demokritos.iit.jinsect.jutils;
 
-public class QuantDegreeComparator
+public class QuantWeightRangeComparator
 implements QuantComparator
 {
+	/**
+	 * A backing {@link gr.demokritos.iit.jinsect.structs.VertexCoder} object
+	 * that stores the association if labels with weights.
+	 */
 	protected VertexCoder vWs;
 
 	/**
@@ -31,14 +35,14 @@ implements QuantComparator
 	 *
 	 * @param vWeights the map of weights
 	 */
-	public QuantDegreeComparator(VertexCoder vWeights) {
+	public QuantWeightRangeComparator(VertexCoder vWeights) {
 		super();
 		vWs = vWeights;
 	}
 
 	/**
 	 * Computes the distance between two biographs based on their
-	 * degree range code similarity..
+	 * weight range code similarity.
 	 *
 	 * @see QuantComparator#getDistance(BioGraph, BioGraph)
 	 *
@@ -48,7 +52,7 @@ implements QuantComparator
 	 */
 	public double getDistance(BioGraph bgA, BioGraph bgB) {
 		double d = 
-			jutils.getDegreeRangeSimilarity(bgA.getGraph(), bgB.getGraph(), vWs);
+			jutils.getWeightRangeSimilarity(bgA.getGraph(), bgB.getGraph(), vWs);
 
 		return Math.abs(d);
 	}
@@ -56,7 +60,7 @@ implements QuantComparator
 	@Override
 	public int compare(BioGraph bgA, BioGraph bgB) {
 		double qSim = 
-			jutils.getDegreeRangeSimilarity(bgA.getGraph(), bgB.getGraph(), vWs);
+			jutils.getWeightRangeSimilarity(bgA.getGraph(), bgB.getGraph(), vWs);
 
 		return Double.compare(qSim, 0.0);
 	}

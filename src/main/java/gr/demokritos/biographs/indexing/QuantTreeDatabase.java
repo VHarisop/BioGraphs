@@ -84,8 +84,7 @@ public abstract class QuantTreeDatabase<V> extends GraphDatabase {
 		/* initialize the label - weight map, the custom comparator, as
 		 * well as the tree map based on the above comparator */
 		this.vertexWeights = new VertexCoder();
-		this.bgComp = new QuantDegreeComparator(this.vertexWeights);
-
+		this.bgComp = new QuantWeightRangeComparator(this.vertexWeights);
 		this.treeIndex = new TreeMap<BioGraph, List<V>>(this.bgComp);
 	}
 
@@ -102,7 +101,7 @@ public abstract class QuantTreeDatabase<V> extends GraphDatabase {
 				break;
 			case RANGECODE:
 			default:
-				this.bgComp = new QuantDegreeComparator(this.vertexWeights);
+				this.bgComp = new QuantWeightRangeComparator(this.vertexWeights);
 		}
 	}
 

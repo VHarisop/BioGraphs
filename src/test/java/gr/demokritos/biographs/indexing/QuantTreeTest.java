@@ -11,8 +11,7 @@ import java.io.File;
 import java.util.*;
 
 /**
- * Unit test for BioGraphs' facilities that employ generics, like
- * the TreeDatabase class.
+ * Unit test for {@link QuantTreeDatabase} class.
  */
 public class QuantTreeTest 
 	extends TestCase
@@ -49,6 +48,7 @@ public class QuantTreeTest
 					return bG.getLabel();
 				}
 			};
+			
 			/* build a tree index and load the graphs into a 
 			 * separate array as well */
 			qtd.buildWordIndex(dataFile);
@@ -65,8 +65,8 @@ public class QuantTreeTest
 			List<String> nodes = 
 				qtd.getNodes(bg);
 
-			/* make sure that the retrieved list is not empty */
-			assertNotNull("Retrieved list is null!", nodes); 
+			/* make sure that the retrieved list is not null or empty */
+			assertNotNull("Retrieved list is null!", nodes);
 			assertTrue("Retrieved list is empty!", nodes.size() > 0);
 
 			/* check if queried graph was there (it should be!) */
