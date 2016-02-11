@@ -18,6 +18,9 @@ scripts/*.txt
 scripts/datasets/
 scripts/results/
 
+# ignore experiments folder
+src/main/java/gr/demokritos/biographs/experiments/
+
 # ignore pycache for python scripts
 __pycache__/
 *.pyc
