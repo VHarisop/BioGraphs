@@ -24,3 +24,6 @@ __pycache__/
 
 # ignore local TODO files
 TODO
+
+# ignore THEORY.md files, which are used for personal book-keeping
+THEORY.md
