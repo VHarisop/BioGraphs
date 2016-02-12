@@ -6,13 +6,13 @@ import gr.demokritos.iit.jinsect.structs.JVertex;
  * The default class used for hashing the labels of JVertex objects.
  * Each vertex is hashed according to its label's initial letter.
  */
-public final class DefaultVertexHash
+public final class DefaultHashStrategy
 	implements HashingStrategy<JVertex> 
 {
 	/**
-	 * Creates a new DefaultVertexHash object.
+	 * Creates a new DefaultHashStrategy object.
 	 */
-	public DefaultVertexHash() {}
+	public DefaultHashStrategy() {}
 
 	/**
 	 * Computes the hash value of a JVertex object as the ascii value

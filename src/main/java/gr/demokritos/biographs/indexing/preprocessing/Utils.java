@@ -95,4 +95,42 @@ public final class Utils {
 	 
 		return dp[lenA][lenB];
 	}
+	
+	/**
+	 * Computes the hamming distance between two encoding vectors
+	 * of integral numeric type.
+	 * @param vecA the first vector
+	 * @param vecB the second vector
+	 * @return the hamming distance of the two vectors
+	 */
+	public static int getHammingDistance(int[] vecA, int[] vecB) 
+		throws Exception {
+		if (vecA.length != vecB.length) {
+			throw new Exception("Enoding vector lengths differ!");
+		}
+		int diff = 0;
+		for (int i = 0; i < vecA.length; ++i) {
+			diff += Math.abs(vecA[i] - vecB[i]);
+		}
+		return diff;
+	}
+
+	/**
+	 * Computes the hamming distance between two encoding vectors
+	 * of floating point numeric type.
+	 * @param vecA the first vector
+	 * @param vecB the second vector
+	 * @return the hamming distance of the two vectors
+	 */
+	public static double getHammingDistance(double[] vecA, double[] vecB) 
+		throws Exception {
+		if (vecA.length != vecB.length) {
+			throw new Exception("Enoding vector lengths differ!");
+		}
+		double diffs = 0.0;
+		for (int i = 0; i < vecA.length; ++i) {
+			diffs += Math.abs(vecA[i] - vecB[i]);
+		}
+		return diffs;
+	}
 }

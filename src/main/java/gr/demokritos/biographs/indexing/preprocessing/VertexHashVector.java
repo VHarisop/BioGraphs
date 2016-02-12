@@ -37,7 +37,7 @@ public class VertexHashVector {
 	 */
 	public VertexHashVector() {
 		vertexMap = new TreeMap<Integer, Integer>();
-		hashStrategy = new DefaultVertexHash();
+		hashStrategy = new DefaultHashStrategy();
 		usePartial = false;
 	}
 
