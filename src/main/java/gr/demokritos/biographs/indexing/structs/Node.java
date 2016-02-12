@@ -44,9 +44,10 @@ public class Node<T> {
 	protected NodeType nodeType;
 
 	/**
-	 * The data this node contains.
+	 * The data this node contains. Once this field is set,
+	 * it can't be modified.
 	 */
-	protected T data;
+	protected final T data;
 
 	/**
 	 * A list containing the children of this nodes, that are also nodes.
@@ -65,9 +66,10 @@ public class Node<T> {
 	protected NodeComparator<T> nodeComp;
 
 	/**
-	 * The number of children per node.
+	 * The number of children per node. Once this field is set, it
+	 * cannot be modified.
 	 */
-	protected int branching;
+	protected final int branching;
 
 	/**
 	 * Creates a new node containing a specified data item with an initially
@@ -160,8 +162,8 @@ public class Node<T> {
 	 *
 	 * @param toAdd the new node to add
 	 */
-	public void addChild(Node<T> toAdd) {
-		/* if this is a leaf node, we definitely need to expand
+	protected void addChild(Node<T> toAdd) {
+		/* if this is a leaf node, we probably need to expand
 		 * since we are creating a new child. The current node's
 		 * type is set to INDEX and its own data is copied to a
 		 * new node, which is placed in this node's child list
@@ -183,26 +185,21 @@ public class Node<T> {
 		}
 		/* otherwise, pick the closest node to descend into */
 		else {
-			/* initialize a min distance place holder and index */
-			double minDist = nodeComp.getDistance(toAdd, children.get(0));
-			int minIndex = 0;
-
-			/* iterate and compute distances to find candidate node */
-			int curIndex = 0;
-			for (Node<T> n: this.children) {
-				double tempDist = nodeComp.getDistance(toAdd, n);
-
-				/* if found distance is smaller, update min and index */
-				if (tempDist < minDist) {
-					minDist = tempDist;
-					minIndex = curIndex;
-				}
-				curIndex++;
-			}
-
 			/* expand the child with the minimum distance */
+			int minIndex = findMinIndex(toAdd);
 			children.get(minIndex).addChild(toAdd);
 		}
+	}
+
+	/**
+	 * Adds a new child to the node.
+	 * @see #addChild(Node<T>)
+	 *
+	 * @param toAdd the data item to add
+	 */
+	public void addChild(T toAdd) {
+		Node<T> nodeToAdd = new Node<T>(toAdd, nodeComp, branching);
+		addChild(nodeToAdd);
 	}
 
 	/**
@@ -213,13 +210,81 @@ public class Node<T> {
 	 * @return the node's most similar descendant to the query node, or
 	 * this node itself if it is a leaf.
 	 */
-	public Node<T> getMostSimilarChild(Node<T> query) {
+	protected Node<T> getMostSimilarChild(Node<T> query) {
 		if (this.isLeaf()) {
 			return this;
 		}
 		else {
-			throw new UnsupportedOperationException("Unimplemented feature!");
+			int minIndex = findMinIndex(query);
+			return children.get(minIndex).getMostSimilarChild(query);
 		}
+	}
+
+	/**
+	 * Gets the data from the child whose data is most similar to a query
+	 * item, or the data from this node itself if it is a leaf node.
+	 *
+	 * @param query the query data
+	 * @return the node's most similar descendant's item or this node's data
+	 * if it is a leaf.
+	 */
+	public T getMostSimilarChild(T query) {
+		Node<T> result = 
+			getMostSimilarChild(new Node<T>(query, nodeComp, branching));
+
+		return result.getData();
+	}
+
+	/**
+	 * Finds the N most similar nodes to a query node in the tree and
+	 * returns them to the caller.
+	 *
+	 * @param query the query node
+	 * @param N the number of results to return
+	 * @return a list containing the N most similar nodes to the query
+	 */
+	protected List<Node<T>> getNMostSimilar(Node<T> query, int N) {
+		throw new UnsupportedOperationException("Unimplemented feature!");
+	}
+
+	/**
+	 * Finds the N most similar items to a query item in the tree and returns
+	 * them to the caller.
+	 *
+	 * @param query the query data
+	 * @param N the number of similar results to return
+	 * @return a list containing the N most similar items to the query
+	 */
+	public List<T> getNMostSimilar(T query, int N) {
+		List<Node<T>> resultNodes = 
+			getNMostSimilar(new Node<T>(query, nodeComp, branching), N);
+		List<T> res = new ArrayList<T>(resultNodes.size());
+		for (Node<T> nd: resultNodes) {
+			res.add(nd.getData());
+		}
+
+		return res;
+
+	}
+
+	/**
+	 * Utility function that, given a reference node, looks for the child
+	 * with the smallest distance from the reference node.
+	 *
+	 * @param ref the reference node
+	 * @return the index of the most similar child
+	 */
+	private int findMinIndex(Node<T> ref) {
+		double minDist = nodeComp.getDistance(ref, children.get(0));
+		int minIndex = 0;
+		for (int i = 1; i < children.size(); ++i) {
+			double tempDist = nodeComp.getDistance(ref, children.get(i));
+			if (tempDist < minDist) {
+				minDist = tempDist;
+				minIndex = i;
+			}
+		}
+		return minIndex;
 	}
 
 	/**
@@ -240,47 +305,44 @@ public class Node<T> {
 	 * @return a boolean indicating if the query node is contained in this
 	 * node's descendants
 	 */
-	public boolean hasChild(Node<T> key) {
+	protected boolean hasChild(Node<T> key) {
 		if (isLeaf()) {
 			return key.equals(this);
 		}
 		else { /* in this case, this is an index node - pick 
 				  most similar child to descend into */
 
-			/* FIXME: this check is probably obsolete, since the control flow
-			 * indicates that this is not a leaf node (children > 1) */
-			if (children.size() == 0)
-				return false;
+			int minIndex = findMinIndex(key);
+			return children.get(minIndex).hasChild(key);
+		}
+	}
 
-			/* flag that must stay false if all of the children are leaf nodes */
-			boolean hasIndex = children.get(0).isLeaf();
+	/**
+	 * Checks if the node contains a query key in its child list or in any
+	 * of those children's child list, or if it contains itself data equal
+	 * to the query.
+	 *
+	 * @param key the item to search for
+	 * @return a boolean indicating if the query node is contained in this
+	 * node's descendants
+	 */
+	public boolean hasChild(T key) {
+		return hasChild(new Node<T>(key, nodeComp, branching));
+	}
 
-			/* Iterate to find the child with the minimum distance */
-			double minDist = nodeComp.getDistance(children.get(0), key);
-			int minIndex = 0, currIndex = 0; 
-			for (Node<T> child: children) {
-				
-				/* if child is a leaf and contains the data, then finish */
-				if (child.isLeaf()) {
-					if (child.getData().equals(key.getData()))
-						return true;
-				}
-				else {
-					/* update minimum distance, if any */
-					double tempDist = nodeComp.getDistance(key, child);
-					if (tempDist < minDist) {
-						minDist = tempDist;
-						minIndex = currIndex;
-						hasIndex = true;
-					}
-				}
-				currIndex++;
-			}
-
-			if (hasIndex)
-				return children.get(minIndex).hasChild(key);
-			else
-				return false;
+	/**
+	 * Traverses the tree in arbitrary ordering.
+	 *
+	 * @param results a list to be filled with data
+	 */
+	public void traverse(List<T> results) {
+		if (isLeaf()) { 
+			results.add(this.data);
+		}
+		else {
+			// add results from all children
+			for (Node<T> child: children)
+				child.traverse(results);
 		}
 	}
 

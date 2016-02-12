@@ -15,18 +15,32 @@
 
 package gr.demokritos.biographs.indexing.structs;
 
+import java.util.List;
+import java.util.ArrayList;
+
 /**
  * A java class that implements an N-ary tree with generic nodes.
  * 
  * TODO: 
- * 1) make object insertion simple (autocreation of Node<Item> for Item)
- * 2) enforce unique objects (what happens if an item is inserted twice?)
- * 3) enrich API with K-Nearest Neighbour methods.
+ * 1) enforce unique objects (what happens if an item is inserted twice?)
+ * 2) enrich API with K-Nearest Neighbour methods.
  */
 public class NaryTree<T> {
-
+	/**
+	 * The {@link NodeComparator} used internally by the n-ary tree's nodes.
+	 */
 	final NodeComparator<T> nodeComp;
+
+	/**
+	 * The n-ary tree's branching factor (N).
+	 */
 	final int branching;
+
+	/**
+	 * The default branching factor to be used in absence
+	 * of a user-provided value.
+	 */
+	private static int DEFAULT_BRANCHING = 8;
 
 	/**
 	 * The tree's root node.
@@ -46,6 +60,45 @@ public class NaryTree<T> {
 	}
 
 	/**
+	 * Builds a new tree given the root node's data, using a specified
+	 * {@link NodeComparator} and the default branching factor.
+	 *
+	 * @param rootData the data of the root node
+	 * @param ndComp a user-specified node comparator
+	 */
+	public NaryTree(T rootData, NodeComparator<T> ndComp) {
+		this.root = new Node<T>(rootData, ndComp, DEFAULT_BRANCHING);
+		this.nodeComp = ndComp;
+		this.branching = DEFAULT_BRANCHING;
+	}
+
+	/**
+	 * Builds a new tree given the root node's data, using a specified
+	 * {@link NodeComparator} and a user-provided branching factor.
+	 *
+	 * @param rootData the data of the root node
+	 * @param ndComp a user-specified node comparator
+	 * @param n the branching factor of the tree
+	 */
+	public NaryTree(T rootData, NodeComparator<T> ndComp, int n) {
+		this.root = new Node<T>(rootData, ndComp, n);
+		this.nodeComp = ndComp;
+		this.branching = n;
+	}
+
+	/**
+	 * Builds a new tree that is initially empty, using a specified
+	 * {@link NodeComparator} and the default branching factor.
+	 *
+	 * @param ndComp a user-specified node comparator
+	 */
+	public NaryTree(NodeComparator<T> ndComp) {
+		this.root = null;
+		this.nodeComp = ndComp;
+		this.branching = DEFAULT_BRANCHING;
+	}
+
+	/**
 	 * Checks if the tree is empty.
 	 *
 	 * @return a boolean indicating if the tree is empty or not.
@@ -58,19 +111,36 @@ public class NaryTree<T> {
 	 * Checks if the tree contains a specified node.
 	 *
 	 * @param key the node to search for
-	 * @return a boolean indicating if the tree contains that node.
+	 * @return a boolean indicating if the tree contains that node
 	 */
-	public boolean containsNode(Node<T> key) {
+	protected boolean containsNode(Node<T> key) {
 		return root.hasChild(key);
 	}
 
 	/**
-	 * Adds a new node to the tree.
+	 * Checks if the tree contains a specified data item
+	 * in one of its nodes.
+	 *
+	 * @param key the item to search for
+	 * @return a boolean indicating if the tree contains that item
+	 */
+	public boolean containsItem(T key) {
+		return containsNode(new Node<T>(key, nodeComp, branching));
+	}
+
+	/**
+	 * Adds a new node to the tree. If the tree is empty, the node
+	 * becomes the tree's root.
 	 *
 	 * @param toAdd the new node to add in the tree.
 	 */
-	public void addNode(Node<T> toAdd) {
-		root.addChild(toAdd);
+	protected void addNode(Node<T> toAdd) {
+		if (root == null) {
+			this.root = toAdd;
+		}
+		else {
+			root.addChild(toAdd);
+		}
 	}
 
 	/**
@@ -80,12 +150,45 @@ public class NaryTree<T> {
 	 * @param toAdd the data item to add in the tree.
 	 */
 	public void addData(T toAdd) {
-		Node<T> _toAdd = new Node<T>(toAdd, nodeComp, branching);
-		root.addChild(_toAdd);
+		if (null == root) {
+			Node<T> _toAdd = new Node<T>(toAdd, nodeComp, branching);
+			this.root = _toAdd;
+		}
+		else {
+			root.addChild(toAdd);
+		}
 	}
 
 	/**
-	 * Static function that tests the correctness of this class. 
+	 * Looks for the node in the tree whose data is the most similar
+	 * to a specified query item. 
+	 *
+	 * @param query the reference data
+	 * @return the data from the node in the tree that exhibits
+	 * the highest similarity to the query
+	 */
+	public T getNearestNeighbour(T query) {
+		if (isEmpty())
+			return null;
+		Node<T> toSeek = new Node<T>(query, nodeComp, branching);
+		Node<T> result = root.getMostSimilarChild(toSeek);
+		return result.getData();
+	}
+
+	/**
+	 * Traverses the tree in arbitrary order.
+	 *
+	 * @return a list containing the tree's items
+	 */
+	public List<T> traverse() {
+		ArrayList<T> results = new ArrayList<T>();
+		/* run traverse in child to populate list */
+		root.traverse(results);
+		return results;
+	}
+
+	/**
+	 * Static function to quickly assess this class's performance.
 	 */
 	public static void main(String[] args) {
 		NodeComparator<Integer> nComp = new NodeComparator<Integer>() {
@@ -100,15 +203,15 @@ public class NaryTree<T> {
 		};
 
 		// create a new node with branching factor 4
-		Node<Integer> baseNode = new Node<Integer>(10, nComp, 4);
-		NaryTree<Integer> nTree = new NaryTree<Integer>(baseNode); 
+		NaryTree<Integer> nTree = new NaryTree<Integer>(10, nComp, 4);
 
 		nTree.addData(2); nTree.addData(5);
 		nTree.addData(9); nTree.addData(6); 
 		nTree.addData(15); nTree.addData(10);
 
-		System.out.println(nTree.containsNode(new Node<Integer>(5, nComp, 4)));
-		System.out.println(nTree.containsNode(new Node<Integer>(12, nComp, 4)));
-		System.out.println(nTree.containsNode(new Node<Integer>(6, nComp, 4)));
+		System.out.println(nTree.containsItem(5));
+		System.out.println(nTree.containsItem(12));
+		System.out.println(nTree.containsItem(6));
+		System.out.println(nTree.getNearestNeighbour(7));
 	}
 }
