@@ -45,7 +45,7 @@ public class HashingTest
 		assertNotNull(graphEnc);
 		assertTrue(graphEnc.length == 20);
 
-		HashingStrategy<JVertex> dvh = new DefaultVertexHash(); int key;
+		HashingStrategy<JVertex> dvh = new DefaultHashStrategy(); int key;
 
 		/* get hash of "A" */
 		key = dvh.hash(new NGramVertex("ACT")) % 20;
