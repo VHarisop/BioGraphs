@@ -17,8 +17,6 @@
 package gr.demokritos.biographs.experiments;
 
 import gr.demokritos.biographs.*;
-import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
-import gr.demokritos.biographs.indexing.preprocessing.Utils;
 import gr.demokritos.biographs.indexing.structs.*;
 
 import java.io.File;
@@ -39,6 +37,36 @@ public class TestTree {
 	 * Files from which to pull database and testing graphs.
 	 */
 	static File testFile = null, dataFile = null;
+
+	static Stats checkNearestK(BioGraph[] bgs, NTreeDatabase ntd, int K) {
+		Stats stat = new Stats("ntree_" +
+				String.valueOf(numBins) + "_" +
+				String.valueOf(numBranches) + "_" +
+				String.valueOf(K) + "NN");
+		for (BioGraph bg : bgs) {
+			BioGraph[] res = ntd.getKNearestNeighbours(bg, K);
+			String[] resLabels = new String[res.length];
+			int i = 0;
+			for (BioGraph b: res) {
+				resLabels[i++] = b.getLabel();
+			}
+			stat.addResult(bg.getLabel(), resLabels);
+		}
+		return stat;
+	}
+
+	static Stats checkNearest(BioGraph[] bgs, NTreeDatabase ntd) {
+		Stats stat = new Stats("ntree_" +
+				String.valueOf(numBins) + "_" +
+				String.valueOf(numBranches));
+		for (BioGraph bg : bgs) {
+			String res = ntd.getNearestNeighbour(bg).getLabel();
+			stat.addResult(
+					bg.getLabel(),
+					new String[] { res });
+		}
+		return stat;
+	}
 
 	public static void main(String[] args) 
 	throws NumberFormatException 
@@ -62,18 +90,13 @@ public class TestTree {
 		BioGraph[] bGraphsTest = null;
 		gson = new GsonBuilder().setPrettyPrinting().create();
 		Stats[] statList = new Stats[1];
-		Stats stat = new Stats("ntree_"+String.valueOf(numBins));
 		try {
 			dataFile = new File(args[0]);
 			testFile = new File(args[1]);
 			bGraphsTest = BioGraph.fromWordFile(testFile);
 
 			ntD.buildWordIndex(dataFile);
-			for (BioGraph bg: bGraphsTest) {
-				String res = ntD.getNearestNeighbour(bg).getLabel();
-				stat.addResult(bg.getLabel(), new String[] {res});
-			}
-			statList[0] = stat;
+			statList[0] = checkNearest(bGraphsTest, ntD);
 			System.out.println(gson.toJson(statList));
 		} catch (Exception ex) {
 			ex.printStackTrace();
