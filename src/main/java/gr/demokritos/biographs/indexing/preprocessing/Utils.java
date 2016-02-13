@@ -125,11 +125,30 @@ public final class Utils {
 	public static double getHammingDistance(double[] vecA, double[] vecB) 
 		throws Exception {
 		if (vecA.length != vecB.length) {
-			throw new Exception("Enoding vector lengths differ!");
+			throw new Exception("Encoding vector lengths differ!");
 		}
 		double diffs = 0.0;
 		for (int i = 0; i < vecA.length; ++i) {
 			diffs += Math.abs(vecA[i] - vecB[i]);
+		}
+		return diffs;
+	}
+
+	/**
+	 * Computes the euclidean distance between two encoding vectors
+	 * of floating point numeric type.
+	 * @param vecA the first vector
+	 * @param vecB the second vector
+	 * @return the euclidean distance of the two vectors
+	 */
+	public static double getEuclideanDistance(double[] vecA, double[] vecB) 
+		throws Exception {
+		if (vecA.length != vecB.length) {
+			throw new Exception("Encoding vector lengths differ!");
+		}
+		double diffs = 0.0;
+		for (int i = 0; i < vecA.length; ++i) {
+			diffs += (vecA[i] - vecB[i]) * (vecA[i] - vecB[i]);
 		}
 		return diffs;
 	}
