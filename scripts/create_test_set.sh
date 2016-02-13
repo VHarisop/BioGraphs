@@ -43,8 +43,11 @@ num_words=${4:-50}
 # turn linebreak-separated file to space separated words
 words=`shuf -n ${num_words} ${infile} | tr '\n' ' ' | cat - <(echo "")`
 
+# isolate name of input file
+outname=$(basename ${infile} | cut -d '.' -f 1)
+
 # save the words used to a reference file
-echo ${words} | tr ' ' '\n' > ${1}_${2}_${num}_mutated.txt
+echo ${words} | tr ' ' '\n' > ${outname}_${mut_type}_${num}.txt
 
 # feed them all to the script 
 # Warning! ${var,,} turns $var into lowercase - bash v4.0+ only
