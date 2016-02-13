@@ -18,6 +18,7 @@ package gr.demokritos.biographs;
 
 import gr.demokritos.biographs.indexing.*;
 import gr.demokritos.biographs.indexing.comparators.*;
+import gr.demokritos.biographs.indexing.structs.NTreeDatabase;
 
 import java.io.File;
 import java.util.*;
@@ -104,11 +105,54 @@ public class Main {
 
 		return buildAndPrint(entData, bgs, "entropy");
 	}
-
-	public static Stats checkHybridVariance(BioGraph[] bgs) {
+	
+	public static Stats checkSimNTree(BioGraph[] bgs) {
 		Comparator<BioGraph> bgComp = 
 			new SimilarityComparator();
-			// new VarianceComparator(VarianceComparator.Type.RATIO);
+
+		TreeDatabase<BioGraph> trdVar = 
+			new TreeDatabase<BioGraph>(bgComp) {
+				@Override
+				public BioGraph getGraphFeature(BioGraph bG) {
+					return bG;
+				}
+			};
+
+		try {
+			trdVar.buildWordIndex(dataFile);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		Stats stat = new Stats("sim_ntree");
+		stat.setBins(trdVar);
+		for (BioGraph b: bgs) {
+			List<BioGraph> ans = 
+				trdVar.getKNearestNeighbours(b, true, numNeighbours);
+
+			NTreeDatabase ntree = new NTreeDatabase(8, 26);
+
+			for (BioGraph bg: ans) {
+				ntree.addGraph(bg);
+			}
+
+			BioGraph[] answers = ntree.getKNearestNeighbours(b, numNeighbours);
+			String[] labels = new String[answers.length]; int i = 0;
+			for (BioGraph bAns: answers) {
+				labels[i++] = bAns.getLabel();
+			}
+			stat.addResult(
+					b.getLabel(), 
+					labels);
+
+		}
+
+		return stat;
+	}
+
+	public static Stats checkSimTrie(BioGraph[] bgs) {
+		Comparator<BioGraph> bgComp = 
+			new SimilarityComparator();
 
 		TreeDatabase<BioGraph> trdVar = 
 			new TreeDatabase<BioGraph>(bgComp) {
@@ -208,7 +252,7 @@ public class Main {
 
 	public static Stats checkHashVectorSim(BioGraph[] bgs) {
 		TreeDatabase<String> trd = 
-			new TreeDatabase<String>(new VertexHashComparator(20)) {
+			new TreeDatabase<String>(new VertexHashComparator(26)) {
 				@Override
 				public String getGraphFeature(BioGraph bG) {
 					return bG.getLabel();
@@ -241,16 +285,6 @@ public class Main {
 			ex.printStackTrace();
 			return null;
 		}
-
-		/* inspect the codes assigned to different vertices */
-		/*
-		for (Entry<BioGraph, List<String>> e: qtd.exposeEntries()) {
-			System.out.printf("%s:", e.getKey().getLabel());
-			System.out.printf(" %d", e.getValue().size());
-			System.out.printf(" %.3f\n", 
-					e.getKey().getGraph().getDegreeRangeCode(qtd.getWeightMap()));
-		}
-		*/
 
 		Stats stat = new Stats("quantization");
 		for (BioGraph bG: bgs) {
@@ -302,9 +336,9 @@ public class Main {
 			statList.add(checkQuant(bGraphs));
 			statList.add(checkTrie(bGraphs));
 			statList.add(checkVariance(bGraphs));
-			statList.add(checkHybridVariance(bGraphs));
+			statList.add(checkSimTrie(bGraphs));
 			statList.add(checkEntropy(bGraphs));
-			statList.add(checkHashVectorSim(bGraphs));
+			statList.add(checkSimNTree(bGraphs));
 			
 			/* print all the stats */
 			System.out.println(
