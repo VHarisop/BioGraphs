@@ -16,6 +16,7 @@
 
 package gr.demokritos.biographs.indexing.structs;
 
+import java.util.List;
 import java.io.File;
 import java.io.FileFilter;
 
@@ -169,5 +170,10 @@ public class NTreeDatabase extends GraphDatabase {
 	 */
 	public BioGraph getNearestNeighbour(BioGraph bg) {
 		return treeIndex.getNearestNeighbour(bg);
+	}
+
+	public BioGraph[] getKNearestNeighbours(BioGraph bg, int K) {
+		List<BioGraph> res = treeIndex.getKNearestNeighbours(bg, K);
+		return res.toArray(new BioGraph[res.size()]);
 	}
 }
