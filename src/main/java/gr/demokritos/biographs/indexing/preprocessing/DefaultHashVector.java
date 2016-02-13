@@ -29,7 +29,7 @@ public class DefaultHashVector {
 	 * The length of the resulting vector. Increase for resolution,
 	 * decrease for smaller size.
 	 */
-	protected int K = 20;
+	protected int K = 26;
 
 	/**
 	 * A boolean indicating if the hash vector should be transformed
