@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.indexing.databases.TrieDatabase;
 
 import java.io.File;
 

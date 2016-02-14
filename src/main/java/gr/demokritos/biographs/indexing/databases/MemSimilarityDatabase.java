@@ -14,31 +14,44 @@
  * You should have received a copy of the GNU General Public License
  * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
 
-package gr.demokritos.biographs.indexing;
+package gr.demokritos.biographs.indexing.databases;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.indexing.TreeDatabase;
 import gr.demokritos.biographs.indexing.comparators.SimilarityComparator;
-
-
 /**
  * A class that implements a graph database using the graphs's similarity measure.
  * Here, the similarity measure used is the graph's structural similarity, as is
- * implemented in {@link gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph}.
+ * implemented in {@link gr.demokritos.iit.jinsect.structs.jutils}. 
+ * The values stored here are the complete {@link BioGraph} objects.
  *
  * @author VHarisop
  */
-public class SimilarityDatabase extends TreeDatabase<String> {
-	public SimilarityDatabase() {
-		super(new SimilarityComparator());
+public class MemSimilarityDatabase extends TreeDatabase<BioGraph> {
+
+	/**
+	 * Creates a blank MemSimilarityDatabase object
+	 */
+	public MemSimilarityDatabase() { 
+		super(new SimilarityComparator()); 
 	}
 
-	public SimilarityDatabase(String path) {
+	/**
+	 * Creates a blank MemSimilarityDatabase object operating on
+	 * a provided directory 
+	 *
+	 * @param path a string containing the directory's path
+	 */
+	public MemSimilarityDatabase(String path) {
 		super(path, new SimilarityComparator());
 	}
 
+	/**
+	 * Implements the {@link TreeDatabase.getGraphFeature} method, using the 
+	 * biographs themselves as values.
+	 */
 	@Override
-	public String getGraphFeature(BioGraph bg) {
-		return bg.getLabel();
+	public BioGraph getGraphFeature(BioGraph bg) {
+		return bg;
 	}
 }
-

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
 
-package gr.demokritos.biographs.indexing.structs;
+package gr.demokritos.biographs.indexing.databases;
 
 import java.util.List;
 import java.io.File;
@@ -172,6 +172,15 @@ public class NTreeDatabase extends GraphDatabase {
 		return treeIndex.getNearestNeighbour(bg);
 	}
 
+	/**
+	 * Gets the K nearest neighbours to a query {@link BioGraph} object
+	 * via the approximation of nearest neighbours offered by {@link NTree}'s
+	 * function interface.
+	 * 
+	 * @param bg the query graph
+	 * @param K the number of neighbours to look for
+	 * @return an array containing the K nearest neighbours
+	 */
 	public BioGraph[] getKNearestNeighbours(BioGraph bg, int K) {
 		List<BioGraph> res = treeIndex.getKNearestNeighbours(bg, K);
 		return res.toArray(new BioGraph[res.size()]);

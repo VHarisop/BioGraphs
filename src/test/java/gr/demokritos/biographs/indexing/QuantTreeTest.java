@@ -1,6 +1,7 @@
 package gr.demokritos.biographs.indexing;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.indexing.databases.QuantTreeDatabase;
 import gr.demokritos.iit.jinsect.structs.*;
 
 import junit.framework.Test;

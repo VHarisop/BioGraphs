@@ -5,7 +5,10 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import gr.demokritos.biographs.indexing.*;
-
+import gr.demokritos.biographs.indexing.databases.CachedSimilarityDatabase;
+import gr.demokritos.biographs.indexing.databases.MemSimilarityDatabase;
+import gr.demokritos.biographs.indexing.databases.SimilarityDatabase;
+import gr.demokritos.biographs.indexing.databases.TrieDatabase;
 import gr.demokritos.iit.jinsect.documentModel.representations.NGramJGraph;
 import gr.demokritos.iit.jinsect.structs.Edge;
 import gr.demokritos.iit.jinsect.structs.JVertex;

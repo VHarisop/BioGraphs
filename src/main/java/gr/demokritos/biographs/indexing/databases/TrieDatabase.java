@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
 
-package gr.demokritos.biographs.indexing;
+package gr.demokritos.biographs.indexing.databases;
 
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.indexing.GraphDatabase;
 
 
 /**
