@@ -71,40 +71,50 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	protected HashMap<HashVector, List<BioGraph>> clusters;
 
 	/**
+	 * The number of iterations to be used in the clustering phase.
+	 */
+	protected int iters;
+	/**
 	 * Creates a blank ClusterGraphDatabase object with a specified
-	 * number of clusters to be used.
+	 * number of clusters to be used and a custom number of iterations.
 	 *
 	 * @param numClusters the number of clusters to use
 	 */
-	public ClusterGraphDatabase(int numClusters) { 
+	public ClusterGraphDatabase(int numClusters, int iters) { 
 		super();
-		initIndex(8, 26, numClusters);
+		initIndex(8, 26, numClusters, iters);
 
 	}
 	
 	/**
 	 * Creates a blank ClusterGraphDatabase object using a specified
-	 * branching factor for its subtrees and a specified number of bins
-	 * for hashing.
+	 * branching factor for its subtrees, a specified number of bins
+	 * for hashing and a custom number of iterations.
 	 *
-	 * @param numClusters the number of clusters to use
-	 * @param branching the branching factor to be used
-	 * @param numBins the number of bins for hashing
+	 * @param nClusters the number of clusters to use
+	 * @param n the branching factor to be used
+	 * @param nBins the number of bins for hashing
+	 * @param iters the number of iterations to be used for clustering
 	 */
-	public ClusterGraphDatabase(int numClusters, int branching, int numBins) { 
+	public ClusterGraphDatabase(int nClusters, int n, int nBins, int iters) { 
 		super();
-		initIndex(branching, numBins, numClusters);
+		initIndex(n, nBins, nClusters, iters);
 	}
 
 	/**
-	 * Initialize the database's comparator with a default hash comparator
-	 * that contains 20 bins and an N-Tree with branching factor 8.
+	 * Initialize the database.
+	 *
+	 * @param n the tree's branching factor
+	 * @param nBins the number of bins to use
+	 * @param nClusters the number of initial clusters
+	 * @param iters the specified number of iterations for clustering
 	 */
-	protected void initIndex(int branching, int numBins, int numClusters) {
-		this.bgComp = new DefaultHashComparator(numBins);
-		this.treeIndex = new NTree<BioGraph>(bgComp, branching);
-		this.clusters = new HashMap<HashVector, List<BioGraph>>(numClusters);
-		this.numClusters = numClusters;
+	protected void initIndex(int n, int nBins, int nClusters, int iters) {
+		this.bgComp = new DefaultHashComparator(nBins);
+		this.treeIndex = new NTree<BioGraph>(bgComp, nBins);
+		this.clusters = new HashMap<HashVector, List<BioGraph>>(nClusters);
+		this.numClusters = nClusters;
+		this.iters = iters;
 	}
 
 	/**
@@ -163,7 +173,7 @@ public class ClusterGraphDatabase extends GraphDatabase {
 			BioGraph[] bgs = BioGraph.fromWordFile(fPath);
 
 			/* cluster the graphs first, collect centers */
-			graphClusterer = new Clustering(bgs, this.numClusters);
+			graphClusterer = new Clustering(bgs, this.numClusters, this.iters);
 			centroids = graphClusterer.getCenters();
 			for (BioGraph bG: bgs) {
 				addToClusters(bG);
@@ -185,9 +195,10 @@ public class ClusterGraphDatabase extends GraphDatabase {
 					allGraphs.add(bG);
 				}
 			}
-			BioGraph[] graphArray = new BioGraph[allGraphs.size()];
+			BioGraph[] graphArray = 
+				allGraphs.toArray(new BioGraph[allGraphs.size()]);
 			graphClusterer = 
-				new Clustering(allGraphs.toArray(graphArray), this.numClusters);
+				new Clustering(graphArray, this.numClusters, this.iters);
 			centroids = graphClusterer.getCenters();
 			for (BioGraph bG: allGraphs) {
 				addToClusters(bG);

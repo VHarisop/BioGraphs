@@ -54,11 +54,16 @@ public class TestCluster {
 		}
 
 		int numClusters = 25;
-		if (args.length == 3) {
+		int iters = 100;
+		if (args.length >= 3) {
 			numClusters = Integer.parseInt(args[2]);
 		}
 
-		ClusterGraphDatabase cgd = new ClusterGraphDatabase(numClusters);
+		if (args.length >= 4) {
+			iters = Integer.parseInt(args[3]);
+		}
+
+		ClusterGraphDatabase cgd = new ClusterGraphDatabase(numClusters, iters);
 		BioGraph[] bGraphsTest = null;
 		gson = new GsonBuilder().setPrettyPrinting().create();
 		Stats[] statList = new Stats[1];

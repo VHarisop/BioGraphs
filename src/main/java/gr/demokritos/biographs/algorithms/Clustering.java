@@ -60,25 +60,27 @@ public final class Clustering {
 
 	/**
 	 * Creates a new Clustering object given an array of {@link BioGraph}
-	 * objects, and performs clustering on them.
+	 * objects, and performs clustering on them using a specified number
+	 * of iterations and initial clusters.
 	 *
 	 * @param bGraphs the array of graphs
-	 * @param k the number of desired clusters
+	 * @param k the number of initial clusters
+	 * @param iters the number of iterations
 	 */
-	public Clustering(BioGraph[] bGraphs, int k) {
+	public Clustering(BioGraph[] bGraphs, int k, int iters) {
 		dataPoints = new ArrayList<HashVector>(bGraphs.length);
+
+		/* add the vectors of all graphs to the data points */
 		for (BioGraph bg: bGraphs) {
 			double[] points = new DefaultHashVector().encodeGraph(bg);
 			HashVector vec = new HashVector(points); vec.setGraph(bg);
 			dataPoints.add(vec);
 		}
-
 		int dim = dataPoints.get(0).getPoint().length;
-
 		/* create the clusterer object that uses the specified distance
 		 * measure and a maximum of 1000 iterations */
 		vectorClusterer = 
-			new KMeansPlusPlusClusterer<HashVector>(k, 100, distMeasure);
+			new KMeansPlusPlusClusterer<HashVector>(k, iters, distMeasure);
 		clusters = new ArrayList<CentroidCluster<HashVector>>();
 		for (Cluster<HashVector> cl: vectorClusterer.cluster(dataPoints)) {
 			clusters.add(centroidOf(cl.getPoints(), dim));
