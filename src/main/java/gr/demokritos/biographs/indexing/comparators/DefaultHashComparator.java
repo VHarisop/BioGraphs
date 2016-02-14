@@ -16,10 +16,10 @@
 package gr.demokritos.biographs.indexing.comparators;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.Utils;
 import gr.demokritos.ntree.NodeComparator;
 import gr.demokritos.ntree.Node;
 import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
-import gr.demokritos.biographs.indexing.preprocessing.Utils;
 
 /**
  * A custom comparator that encodes each graph using a 

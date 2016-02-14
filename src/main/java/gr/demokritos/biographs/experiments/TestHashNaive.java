@@ -18,7 +18,6 @@ package gr.demokritos.biographs.experiments;
 
 import gr.demokritos.biographs.*;
 import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
-import gr.demokritos.biographs.indexing.preprocessing.Utils;
 
 import java.io.File;
 

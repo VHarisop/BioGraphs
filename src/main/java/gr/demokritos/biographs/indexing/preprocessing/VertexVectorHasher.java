@@ -23,9 +23,10 @@ import gr.demokritos.iit.jinsect.structs.*;
 
 /**
  * A class that hashes vertex labels based on an arbitrary hash function
- * and creates a vector that maps each hash value to a number of occurences.
+ * and creates a vector that maps each distinct hash value to a sum of
+ * encoding values.
  */
-public class DefaultHashVector {
+public class VertexVectorHasher {
 	/**
 	 * The underlying {@link java.util.TreeMap}, where the hash - count
 	 * mappings are stored when a new vertex is added.
@@ -55,63 +56,74 @@ public class DefaultHashVector {
 	protected boolean usePartial;
 
 	/**
-	 * Creates an empty DefaultHashVector object using the default method
-	 * for hashing.
+	 * A utility class for building VertexVectorHasher objects with custom parameters.
 	 */
-	public DefaultHashVector() {
-		hashStrategy = new DefaultHashStrategy();
-		initParameters();
+	public static class Builder {
+		private boolean usePartial;
+		private HashingStrategy<JVertex> hashSg;
+		private int K;
+
+		/**
+		 * Creates a new Builder object with default parameters.
+		 */
+		public Builder() {
+			this.hashSg = new DefaultHashStrategy();
+			this.K = 26;
+			this.usePartial = false;
+		}
+
+		/**
+		 * Sets the number of hashing bins to be used.
+		 * @param K the number of hashing bins
+		 */
+		public Builder withK(int K) {
+			this.K = K;
+			return this;
+		}
+
+		/**
+		 * Sets a flag that indicates whether partial sums
+		 * should be used.
+		 */
+		public Builder withPartial() {
+			this.usePartial = true;
+			return this;
+		}
+
+		/**
+		 * Sets the hashing strategy the object should use.
+		 * @param hashSg the hashing strategy to use
+		 */
+		public Builder withHashStrategy(HashingStrategy<JVertex> hashSg) {
+			this.hashSg = hashSg;
+			return this;
+		}
+
+		/**
+		 * Builds a new {@link VertexVectorHasher} with the builder's specified
+		 * parameters.
+		 *
+		 * @return a new VertexVectorHasher object
+		 */
+		public VertexVectorHasher build() {
+			return new VertexVectorHasher(this.hashSg, this.K, this.usePartial);
+		}
+
 	}
 
 	/**
-	 * Creates an empty LabelHash object using a specified hash method.
+	 * Creates a new VertexVectorHasher object using the specified hashing
+	 * strategy, bin size and flag for partial sum usage.
 	 *
-	 * @param hashSg the hash method to use
+	 * @param hsg the hashing strategy to use
+	 * @param K the number of hashing bins
+	 * @param use a flag indicating if partial sums should be used
 	 */
-	public DefaultHashVector(
-			HashingStrategy<JVertex> hashSg) 
-	{
-		hashStrategy = hashSg;
-		initParameters();
-	}
-
-	private void initParameters() {
-		vertexMap = new TreeMap<Integer, Double>();
-		usePartial = false;
-	}
-
-	/**
-	 * Sets the {@link #encodingStrategy} to be used when adding a new vertex.
-	 *
-	 * @param encSg the encoding strategy to be used
-	 * @return the modified DefaultHashVector
-	 */
-	public DefaultHashVector withEncoding(EncodingStrategy<Double> encSg) {
-		this.encodingStrategy = encSg;
-		return this;
-	}
-
-	/**
-	 * Sets the {@link #usePartial} flag in this object and returns
-	 * the modified object.
-	 *
-	 * @return the modified DefaultHashVector
-	 */
-	public DefaultHashVector withPartialSums() {
-		this.usePartial = true;
-		return this;
-	}
-
-	/**
-	 * Sets the {@link #K} value, which is the number of distinct hash bins
-	 * and returns the modified object.
-	 *
-	 * @param newK the new number of bins
-	 * @return the modified DefaultHashVector
-	 */
-	public DefaultHashVector withBins(int newK) {
-		this.K = newK;
-		return this;
+	public VertexVectorHasher(HashingStrategy<JVertex> hsg, int K, boolean use) {
+		this.hashStrategy = hsg;
+		this.K = K;
+		this.usePartial = use;
+		this.vertexMap = new TreeMap<Integer, Double>();
 	}
 
 	/**
@@ -120,14 +132,6 @@ public class DefaultHashVector {
 	 */
 	public HashingStrategy<JVertex> getHashStrategy() {
 		return hashStrategy;
-	}
-
-	/**
-	 * Sets a new hashing strategy to be used by this object.
-	 * @param newSg the new strategy
-	 */
-	public void setHashStrategy(HashingStrategy<JVertex> newSg) {
-		hashStrategy = newSg;
 	}
 
 	/**
@@ -150,20 +154,29 @@ public class DefaultHashVector {
 			vertexMap.put(hashVal, previous.doubleValue() + code);
 		}
 	}
-	/* TODO: Add an encoding strategy for vector cells! */
 
 	/**
-	 * Encodes a {@link UniqueJVertexGraph} object using label hashing on each
-	 * of its vertices.
+	 * Encodes a {@link BioGraph} object using label hashing.
+	 *
+	 * @param bg the graph to encode
+	 * @return a vector of doubles that encodes the graph
+	 */
+	public double[] encodeGraph(BioGraph bg) {
+		return encodeGraph(bg.getGraph());
+	}
+
+	/**
+	 * Encodes a {@link UniqueJVertexGraph} object using label hashing on
+	 * each of its vertices.
 	 *
 	 * @param uvg the graph to encode
 	 * @return a double vector that encodes the graph
 	 */
-	public double[] encodeGraph(UniqueJVertexGraph uvg) {
+	protected double[] encodeGraph(UniqueJVertexGraph uvg) {
 		/* make sure the map is reset before encoding */
 		this.clear();
 
-		/* create a new encoding strategy */
+		/* create a new default encoding strategy */
 		encodingStrategy = new DefaultEncodingStrategy(uvg);
 		
 		/* hash each of the graph's vertices */
@@ -188,17 +201,7 @@ public class DefaultHashVector {
 	}
 
 	/**
-	 * Encodes a {@link BioGraph} object using label hashing.
-	 *
-	 * @param bg the graph to encode
-	 * @return a vector of doubles that encodes the graph
-	 */
-	public double[] encodeGraph(BioGraph bg) {
-		return encodeGraph(bg.getGraph());
-	}
-
-	/**
-	 * Resets the DefaultHashVector object, erasing all entries from the
+	 * Resets the VertexVectorHasher object, erasing all entries from the
 	 * map and resetting all other values.
 	 */
 	public void clear() {

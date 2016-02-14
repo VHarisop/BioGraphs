@@ -2,6 +2,7 @@ package gr.demokritos.biographs.indexing.preprocessing;
 
 import java.util.TreeMap;
 
+import gr.demokritos.biographs.Utils;
 import gr.demokritos.iit.jinsect.structs.*;
 
 /**

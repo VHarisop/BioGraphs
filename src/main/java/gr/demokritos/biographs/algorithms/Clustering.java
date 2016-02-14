@@ -1,7 +1,22 @@
+/* This file is part of BioGraphs.
+ *
+ * BioGraphs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BioGraphs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
+
 package gr.demokritos.biographs.algorithms;
 
 import gr.demokritos.biographs.BioGraph;
-import gr.demokritos.biographs.indexing.preprocessing.Utils;
+import gr.demokritos.biographs.Utils;
 import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
 
 import org.apache.commons.math3.ml.clustering.*;
@@ -54,7 +69,8 @@ public final class Clustering {
 		dataPoints = new ArrayList<HashVector>(bGraphs.length);
 		for (BioGraph bg: bGraphs) {
 			double[] points = new DefaultHashVector().encodeGraph(bg);
-			dataPoints.add(new HashVector(points));
+			HashVector vec = new HashVector(points); vec.setGraph(bg);
+			dataPoints.add(vec);
 		}
 
 		int dim = dataPoints.get(0).getPoint().length;
@@ -62,7 +78,7 @@ public final class Clustering {
 		/* create the clusterer object that uses the specified distance
 		 * measure and a maximum of 1000 iterations */
 		vectorClusterer = 
-			new KMeansPlusPlusClusterer<HashVector>(k, 1000, distMeasure);
+			new KMeansPlusPlusClusterer<HashVector>(k, 100, distMeasure);
 		clusters = new ArrayList<CentroidCluster<HashVector>>();
 		for (Cluster<HashVector> cl: vectorClusterer.cluster(dataPoints)) {
 			clusters.add(centroidOf(cl.getPoints(), dim));

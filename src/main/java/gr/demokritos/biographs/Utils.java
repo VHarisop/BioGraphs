@@ -1,4 +1,4 @@
-package gr.demokritos.biographs.indexing.preprocessing;
+package gr.demokritos.biographs;
 
 /**
  * A class containing various utilities used in preprocessing
@@ -151,5 +151,17 @@ public final class Utils {
 			diffs += (vecA[i] - vecB[i]) * (vecA[i] - vecB[i]);
 		}
 		return diffs;
+	}
+
+	/**
+	 * Determines if two double values are equal with respect to a numerical
+	 * threshold and returns true or false depending on the result.
+	 *
+	 * @param a the first value
+	 * @param b the second value
+	 * @return a boolean indicating if the two values are equal or not
+	 */
+	public static boolean equalDoubles(double a, double b) {
+		return (Math.abs(a - b) < 0.0000001) ? true : false;
 	}
 }
