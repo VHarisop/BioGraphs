@@ -56,6 +56,11 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	protected Clustering graphClusterer;
 
 	/**
+	 * The number of clusters to use.
+	 */
+	protected int numClusters;
+
+	/**
 	 * A list of centroids resulting from clustering.
 	 */
 	protected List<HashVector> centroids;
@@ -66,11 +71,15 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	protected HashMap<HashVector, List<BioGraph>> clusters;
 
 	/**
-	 * Creates a blank ClusterGraphDatabase object.
+	 * Creates a blank ClusterGraphDatabase object with a specified
+	 * number of clusters to be used.
+	 *
+	 * @param numClusters the number of clusters to use
 	 */
-	public ClusterGraphDatabase() { 
+	public ClusterGraphDatabase(int numClusters) { 
 		super();
-		initIndex(8, 26);
+		initIndex(8, 26, numClusters);
+
 	}
 	
 	/**
@@ -78,22 +87,24 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	 * branching factor for its subtrees and a specified number of bins
 	 * for hashing.
 	 *
+	 * @param numClusters the number of clusters to use
 	 * @param branching the branching factor to be used
 	 * @param numBins the number of bins for hashing
 	 */
-	public ClusterGraphDatabase(int branching, int numBins) { 
+	public ClusterGraphDatabase(int numClusters, int branching, int numBins) { 
 		super();
-		initIndex(branching, numBins);
+		initIndex(branching, numBins, numClusters);
 	}
 
 	/**
 	 * Initialize the database's comparator with a default hash comparator
 	 * that contains 20 bins and an N-Tree with branching factor 8.
 	 */
-	protected void initIndex(int branching, int numBins) {
+	protected void initIndex(int branching, int numBins, int numClusters) {
 		this.bgComp = new DefaultHashComparator(numBins);
 		this.treeIndex = new NTree<BioGraph>(bgComp, branching);
-		this.clusters = new HashMap<HashVector, List<BioGraph>>();
+		this.clusters = new HashMap<HashVector, List<BioGraph>>(numClusters);
+		this.numClusters = numClusters;
 	}
 
 	/**
@@ -152,7 +163,7 @@ public class ClusterGraphDatabase extends GraphDatabase {
 			BioGraph[] bgs = BioGraph.fromWordFile(fPath);
 
 			/* cluster the graphs first, collect centers */
-			graphClusterer = new Clustering(bgs, 25);
+			graphClusterer = new Clustering(bgs, this.numClusters);
 			centroids = graphClusterer.getCenters();
 			for (BioGraph bG: bgs) {
 				addToClusters(bG);
@@ -175,7 +186,8 @@ public class ClusterGraphDatabase extends GraphDatabase {
 				}
 			}
 			BioGraph[] graphArray = new BioGraph[allGraphs.size()];
-			graphClusterer = new Clustering(allGraphs.toArray(graphArray), 25);
+			graphClusterer = 
+				new Clustering(allGraphs.toArray(graphArray), this.numClusters);
 			centroids = graphClusterer.getCenters();
 			for (BioGraph bG: allGraphs) {
 				addToClusters(bG);

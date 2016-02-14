@@ -4,7 +4,7 @@
   <groupId>gr.demokritos.biographs</groupId>
   <artifactId>BioGraphs</artifactId>
   <packaging>jar</packaging>
-  <version>0.2-beta</version>
+  <version>0.3-beta</version>
   <name>BioGraphs</name>
   <url>http://maven.apache.org</url>
   

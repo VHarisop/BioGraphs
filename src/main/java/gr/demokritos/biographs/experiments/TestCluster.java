@@ -25,9 +25,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class TestCluster {
-
-	static int numBins = 20;
-	static int numBranches = 8;
 	/**
 	 * Gson builder
 	 */
@@ -44,10 +41,6 @@ public class TestCluster {
 			BioGraph bGraph = cgd.getNearestNeighbour(bg);
 			stat.addResult(bg.getLabel(), new String[] { bGraph.getLabel() });
 		}
-		for (int i: cgd.getClusterSizes()) {
-			System.out.printf("%d ", i);
-		}
-		System.out.println();
 		return stat;
 	}
 
@@ -60,16 +53,12 @@ public class TestCluster {
 			return; 
 		}
 
-		/* if argument was provided, set the number of bins for the hash */
-		if (args.length >= 3) {
-			numBins = Integer.parseInt(args[2]);
+		int numClusters = 25;
+		if (args.length == 3) {
+			numClusters = Integer.parseInt(args[2]);
 		}
 
-		if (args.length >= 4) {
-			numBranches = Integer.parseInt(args[3]);
-		}
-
-		ClusterGraphDatabase cgd = new ClusterGraphDatabase();
+		ClusterGraphDatabase cgd = new ClusterGraphDatabase(numClusters);
 		BioGraph[] bGraphsTest = null;
 		gson = new GsonBuilder().setPrettyPrinting().create();
 		Stats[] statList = new Stats[1];
