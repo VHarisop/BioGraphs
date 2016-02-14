@@ -2,6 +2,7 @@ package gr.demokritos.biographs.indexing.preprocessing;
 
 import java.util.TreeMap;
 
+import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.iit.jinsect.structs.*;
 
 /**
@@ -168,6 +169,16 @@ public class DefaultHashVector {
 		else {
 			return vec;
 		}
+	}
+
+	/**
+	 * Encodes a {@link BioGraph} object using label hashing.
+	 *
+	 * @param bg the graph to encode
+	 * @return a vector of doubles that encodes the graph
+	 */
+	public double[] encodeGraph(BioGraph bg) {
+		return encodeGraph(bg.getGraph());
 	}
 
 	/**

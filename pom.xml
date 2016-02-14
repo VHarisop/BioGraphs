@@ -61,6 +61,13 @@
 		<version>4.0</version>
 	</dependency>
 
+	<!-- use commons-math3 for clustering -->
+	<dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-math3</artifactId>
+		<version>3.6</version>
+	</dependency>
+
 	<!-- use jgrapht for various graph related stuff -->
 	<dependency>
 		<groupId>org.jgrapht</groupId>
