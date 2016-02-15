@@ -143,9 +143,13 @@ public class ClusterHybridDatabase extends GraphDatabase {
 	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
 			BioGraph[] bgs = BioGraph.fastaFileToGraphs(fPath);
+			/* cluster the graphs and collect centers first */
+			graphClusterer = new Clustering(bgs, this.numClusters, this.iters);
+			centroids = graphClusterer.getCenters();
 			for (BioGraph bG: bgs) {
-				addGraph(bG);
+				addToClusters(bG);
 			}
+			buildNTrees();
 		}
 		else {
 			// get all files in a list
@@ -155,13 +159,27 @@ public class ClusterHybridDatabase extends GraphDatabase {
 				}
 			});
 
-			// add them all to the database
+			List<BioGraph> allGraphs = new ArrayList<BioGraph>();
+			// gather all graphs into the list
 			for (File f: fileList) {
 				BioGraph[] bgs = BioGraph.fastaFileToGraphs(f);
 				for (BioGraph bG: bgs) {
-					addGraph(bG);
+					allGraphs.add(bG);
 				}
 			}
+			BioGraph[] bgArray =
+				allGraphs.toArray(new BioGraph[allGraphs.size()]);
+
+			/* cluster all the graphs */
+			graphClusterer =
+				new Clustering(bgArray, this.numClusters, this.iters);
+			centroids = graphClusterer.getCenters();
+
+			/* add graphs to their assigned clusters */
+			for (BioGraph bG: bgArray) {
+				addToClusters(bG);
+			}
+			buildNTrees();
 		}
 	}
 
