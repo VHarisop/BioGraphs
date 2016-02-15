@@ -61,9 +61,10 @@ if __name__ == "__main__":
             name, seq = fasta.id, mutate(fasta.seq.tomutable(), mutation_num)
             mutated_sequences.append(SeqRecord(seq, name, '', ''))
 
+        # include a random tenth percentile from the mutated sequences
+        final_sequences = sample(
+                mutated_sequences,
+                len(mutated_sequences) / 10)
+
         # write mutated sequences to output file
-        SeqIO.write(mutated_sequences, w, 'fasta')
-
-
-
-
+        SeqIO.write(final_sequences, w, 'fasta')
