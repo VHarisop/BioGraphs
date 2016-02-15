@@ -19,6 +19,7 @@ package gr.demokritos.biographs;
 import gr.demokritos.biographs.indexing.*;
 import gr.demokritos.biographs.indexing.comparators.*;
 import gr.demokritos.biographs.indexing.databases.*;
+import gr.demokritos.biographs.indexing.structs.Stats;
 
 import java.io.File;
 import java.util.*;

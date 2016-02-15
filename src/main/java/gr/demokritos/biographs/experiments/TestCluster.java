@@ -18,6 +18,7 @@ package gr.demokritos.biographs.experiments;
 
 import gr.demokritos.biographs.*;
 import gr.demokritos.biographs.indexing.databases.ClusterGraphDatabase;
+import gr.demokritos.biographs.indexing.structs.Stats;
 
 import java.io.File;
 
@@ -41,6 +42,7 @@ public class TestCluster {
 			BioGraph bGraph = cgd.getNearestNeighbour(bg);
 			stat.addResult(bg.getLabel(), new String[] { bGraph.getLabel() });
 		}
+		stat.setBins(cgd.getClusterSizes());
 		return stat;
 	}
 

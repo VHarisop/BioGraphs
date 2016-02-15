@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
 
-package gr.demokritos.biographs;
+package gr.demokritos.biographs.indexing.structs;
 
 import java.util.*;
 
@@ -71,6 +71,15 @@ public final class Stats {
 	 */
 	public void setBins(TreeDatabase<?> trd) {
 		binSizes = trd.binSizes();
+	}
+
+	/**
+	 * Sets the bin sizes of the Stats object.
+	 *
+	 * @param bins an array containing the bin sizes
+	 */
+	public void setBins(int[] bins) {
+		binSizes = bins;
 	}
 
 	/**

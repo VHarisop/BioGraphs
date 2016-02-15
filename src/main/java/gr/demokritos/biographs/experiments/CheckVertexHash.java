@@ -19,6 +19,7 @@ package gr.demokritos.biographs.experiments;
 import gr.demokritos.biographs.*;
 import gr.demokritos.biographs.indexing.TreeDatabase;
 import gr.demokritos.biographs.indexing.comparators.VertexHashComparator;
+import gr.demokritos.biographs.indexing.structs.Stats;
 
 import java.io.File;
 import java.util.*;

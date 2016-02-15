@@ -20,19 +20,11 @@ import java.io.File;
 import java.io.FileFilter;
 
 import java.lang.Math;
-
-import java.util.Collections;
-import java.util.Map.Entry;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.NavigableMap;
-import java.util.Comparator;
+import java.util.*;
 
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.comparators.*;
+import gr.demokritos.biographs.indexing.structs.*;
 import gr.demokritos.iit.jinsect.jutils;
 
 
@@ -227,7 +219,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 *
 	 * @return a set containing all of the entries of the map
 	 */
-	public Set<Entry<BioGraph, List<V>>> exposeEntries() {
+	public Set<Map.Entry<BioGraph, List<V>>> exposeEntries() {
 		return treeIndex.entrySet();
 	}
 
@@ -239,7 +231,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	public int[] binSizes() {
 		int[] bins = new int[treeIndex.size()];
 		int iCnt = 0;
-		for (Entry<BioGraph, List<V>> ent: treeIndex.entrySet()) {
+		for (Map.Entry<BioGraph, List<V>> ent: treeIndex.entrySet()) {
 			bins[iCnt++] = ent.getValue().size();
 		}
 
@@ -262,13 +254,13 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @param bGraphs the {@link BioGraph} array of query graphs
 	 * @return a list of Entries that map biographs to their resulting nodes
 	 */
-	public Entry<BioGraph, List<V>>[] getNodes(BioGraph[] bGraphs) {
-		Entry<BioGraph, List<V>>[] results = 
-			new VEntry[bGraphs.length];
+	public List<DatabaseEntry<BioGraph, List<V>>> getNodes(BioGraph[] bGraphs) {
+		List<DatabaseEntry<BioGraph, List<V>>> results = 
+			new ArrayList<DatabaseEntry<BioGraph, List<V>>>();
 		int iCnt;
 		for (iCnt = 0; iCnt < bGraphs.length; ++iCnt) {
-			results[iCnt] = 
-				new VEntry<V>(bGraphs[iCnt], getNodes(bGraphs[iCnt]));
+			results.add(new DatabaseEntry<BioGraph, List<V>>(
+						bGraphs[iCnt], getNodes(bGraphs[iCnt])));
 		}
 
 		return results;
@@ -371,8 +363,8 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 			treeIndex.headMap(bQuery, false);
 
 		// lower values should be polled in reverse order
-		Entry<BioGraph, List<V>> high = tail.higherEntry(bQuery);
-		Entry<BioGraph, List<V>> low = head.lowerEntry(bQuery);
+		Map.Entry<BioGraph, List<V>> high = tail.higherEntry(bQuery);
+		Map.Entry<BioGraph, List<V>> low = head.lowerEntry(bQuery);
 		double distLo, distHi;
 
 		/* if stuff remains, loop */
@@ -450,35 +442,4 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @return a graph feature
 	 */
 	public abstract V getGraphFeature(BioGraph bg);
-}
-
-/**
- * Utility class that implements Map.Entry for specific types 
- */
-final class VEntry<V> implements Entry<BioGraph, List<V>> {
-	private final BioGraph key;
-	private List<V> value;
-
-	public VEntry(BioGraph bKey, List<V> listValues) {
-		key = bKey;
-		value = listValues;
-	}
-
-	@Override
-	public BioGraph getKey() {
-		return key;
-	}
-
-	@Override
-	public List<V> getValue() {
-		return value;
-	}
-
-	@Override
-	public List<V> setValue(List<V> newValues) {
-		List<V> old = value;
-		value = newValues;
-		return old;
-	}
-
 }
