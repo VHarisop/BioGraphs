@@ -219,6 +219,43 @@ public class TrieDatabase extends GraphDatabase {
 	}
 
 	/**
+	 * Returns a list of graph labels whose keys are the K closest to
+	 * the key of a specified query graph.
+	 *
+	 * @param bQuery the graph to be queried for
+	 * @param K the number of requested nearest neighbours
+	 * @return a list of labels that are the closest matches
+	 */
+	public List<String> selectKNearest(BioGraph bQuery, int K) {
+		String code = getGraphCode(bQuery);
+		List<String> labels = trieIndex.selectValue(code);
+
+		String prevKey = trieIndex.selectKey(code),
+			   nextKey = trieIndex.selectKey(code);
+		int returned = 1;
+
+		/* collect results from the K closest keys, expanding equally in
+		 * either direction, except in the case where there are no higher
+		 * or lower keys to expand to.
+		 */
+		do {
+			if (null != prevKey) {
+				prevKey = trieIndex.previousKey(prevKey);
+				labels.addAll(trieIndex.selectValue(prevKey));
+				++returned;
+			}
+			if (null != nextKey) {
+				nextKey = trieIndex.nextKey(nextKey);
+				labels.addAll(trieIndex.selectValue(nextKey));
+				++returned;
+			}
+			if ((nextKey == null) && (prevKey == null))
+				break;
+		} while (returned < K);
+		return labels;
+	}
+
+	/**
 	 * Simple getter for the database's trie keyset.
 	 */
 	public Set<String> exposeKeys() {
