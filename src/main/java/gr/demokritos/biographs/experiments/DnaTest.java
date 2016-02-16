@@ -57,7 +57,7 @@ public class DnaTest {
 
 		Stats stat = new Stats("trie");
 		for (BioGraph b: bgs) {
-			List<String> ans = trd.select(b);
+			List<String> ans = trd.selectKNearest(b, numNeighbours);
 			stat.addResult(b.getLabel(), ans.toArray(new String[ans.size()]));
 		}
 		return stat;
@@ -251,7 +251,6 @@ public class DnaTest {
 			cgd.buildIndex(dataFile);
 			/* check the performance of the custom comparators */
 			statList.add(checkTrie(bGraphs));
-			statList.add(checkSimpleSim(bGraphs));
 			statList.add(checkNearest(bGraphs, cgd));
 			
 			/* print all the stats */
