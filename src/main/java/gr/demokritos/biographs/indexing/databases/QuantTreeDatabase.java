@@ -47,7 +47,7 @@ public abstract class QuantTreeDatabase<V> extends GraphDatabase {
 	 * A custom comparator to be used for {@link #treeIndex} that 
 	 * compares graphs based on their quantized value similarity.
 	 */
-	protected QuantComparator bgComp;
+	protected TreeComparator bgComp;
 
 	/**
 	 * The type of quantization. <tt>SIMPLE</tt> stands for simple

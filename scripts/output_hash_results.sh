@@ -7,6 +7,10 @@ MUTATION_FILE="${BASE_DIR}/scripts/word_mutations.txt"
 GROUND_FILE="${BASE_DIR}/scripts/datasets/words.txt_c_1_mutated.txt"
 PARSE_SCRIPT="${BASE_DIR}/scripts/parse_results.py"
 
+# do a compilation first
+mvn clean compile
+[[ $? -ne 0 ]] && exit
+
 # Run the experiment for all combos first, save to temporary files
 for num_neighb in 1 2 3 4 5 7; do
 	for num_bins in 10 12 14 16 18 20; do
@@ -14,13 +18,6 @@ for num_neighb in 1 2 3 4 5 7; do
 			-Dexec.mainClass=${MAIN_CLASS} \
 			-Dexec.args="${WORD_FILE} ${MUTATION_FILE} ${num_neighb} ${num_bins}" \
 			| grep -v "INFO" > test_${num_neighb}_${num_bins}.out
-
-	done
-done
-
-
-for num_neighb in 1 2 3 4 5 7; do
-	for num_bins in 10 12 14 16 18 20; do
 		python3 ${PARSE_SCRIPT} \
 			-g ${GROUND_FILE} -r test_${num_neighb}_${num_bins}.out \
 			| awk -F ' ' '{print $2}' \
@@ -28,5 +25,3 @@ for num_neighb in 1 2 3 4 5 7; do
 		rm test_${num_neighb}_${num_bins}.out
 	done
 done
-
-

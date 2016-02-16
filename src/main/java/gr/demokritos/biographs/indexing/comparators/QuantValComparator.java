@@ -21,7 +21,7 @@ import gr.demokritos.iit.jinsect.structs.VertexCoder;
 import gr.demokritos.iit.jinsect.jutils;
 
 public class QuantValComparator
-implements QuantComparator
+implements TreeComparator
 {
 	protected VertexCoder vWs;
 
@@ -40,7 +40,7 @@ implements QuantComparator
 	 * Computes the distance between two biographs based on their
 	 * quantized value similarity.
 	 *
-	 * @see QuantComparator#getDistance(BioGraph, BioGraph)
+	 * @see TreeComparator#getDistance(BioGraph, BioGraph)
 	 *
 	 * @param bgA the first graph 
 	 * @param bgB the second graph

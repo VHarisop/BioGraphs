@@ -17,7 +17,7 @@
 package gr.demokritos.biographs.indexing.comparators;
 
 import gr.demokritos.biographs.BioGraph;
-import gr.demokritos.iit.jinsect.documentModel.representations.*;
+import gr.demokritos.iit.jinsect.representations.*;
 import gr.demokritos.iit.jinsect.comparators.NGramGraphComparator;
 
 import java.util.List;

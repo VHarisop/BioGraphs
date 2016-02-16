@@ -9,7 +9,7 @@ import gr.demokritos.biographs.indexing.databases.CachedSimilarityDatabase;
 import gr.demokritos.biographs.indexing.databases.MemSimilarityDatabase;
 import gr.demokritos.biographs.indexing.databases.SimilarityDatabase;
 import gr.demokritos.biographs.indexing.databases.TrieDatabase;
-import gr.demokritos.iit.jinsect.documentModel.representations.NGramJGraph;
+import gr.demokritos.iit.jinsect.representations.NGramJGraph;
 import gr.demokritos.iit.jinsect.structs.Edge;
 import gr.demokritos.iit.jinsect.structs.JVertex;
 import gr.demokritos.iit.jinsect.structs.NGramVertex;

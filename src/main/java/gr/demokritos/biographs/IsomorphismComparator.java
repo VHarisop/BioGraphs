@@ -16,16 +16,6 @@
 
 package gr.demokritos.biographs;
 
-import gr.demokritos.iit.jinsect.documentModel.representations.NGramJGraph;
-import gr.demokritos.iit.jinsect.structs.NGramVertex;
-import gr.demokritos.iit.jinsect.structs.JVertex;
-import gr.demokritos.iit.jinsect.structs.Edge;
-import gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph;
-
-import java.util.HashMap;
-import java.util.Set;
-import java.lang.Math;
-
 /**
  * This class is a proxy class for (sub-)graph isomorphism testing
  * for n-gram graphs of documents. 
