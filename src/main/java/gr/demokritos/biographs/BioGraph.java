@@ -17,12 +17,9 @@
 package gr.demokritos.biographs;
 
 import gr.demokritos.iit.jinsect.representations.NGramJGraph;
-import gr.demokritos.iit.jinsect.structs.JVertex;
-import gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph;
-import gr.demokritos.iit.jinsect.encoders.DepthFirstEncoder;
-import gr.demokritos.iit.jinsect.encoders.CanonicalCoder;
+import gr.demokritos.iit.jinsect.structs.*;
+import gr.demokritos.iit.jinsect.encoders.*;
 import gr.demokritos.iit.jinsect.jutils;
-
 import gr.demokritos.iit.jinsect.io.LineReader;
 
 import org.biojava.nbio.core.sequence.DNASequence;
@@ -31,7 +28,9 @@ import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 import java.io.File;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.LinkedHashMap;
 
 /**
@@ -279,6 +278,21 @@ public class BioGraph extends NGramJGraph {
 	}
 
 	/**
+	 * Returns a string representation of the list of ordered vertex pairs.
+	 * @see UniqueJVertexGraph#getOrderedWeightPairs 
+	 *
+	 * @return the string representation of the weight-ordered vertices
+	 */
+	public String getOrderedVertexCode() {
+		List<Pair<JVertex, Double>> ordPairs = getGraph().getOrderedWeightPairs();
+		String toRet = "";
+		for (Pair<JVertex, Double> p: ordPairs) {
+			toRet += "_" + p.getFirst().getLabel() + String.valueOf(p.getSecond());
+		}
+		return toRet;
+	}
+
+	/**
 	 * This method is a proxy to {@link #fromFileLines(File)} 
 	 *
 	 * @param filePath the string containing the file path
@@ -352,6 +366,11 @@ public class BioGraph extends NGramJGraph {
 					this.MinSize, 
 					this.MaxSize, 
 					this.CorrelationWindow);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getLabel());
 	}
 }
 
