@@ -37,19 +37,32 @@ public final class Clustering {
 	protected List<HashVector> dataPoints;
 
 	/**
+	 * The vector of the points' mean values for each dimension.
+	 */
+	protected double[] pop_mean;
+
+	/**
+	 * The vector of the points' standard deviations for each dimension.
+	 */
+	protected double[] pop_dev;
+
+	/**
 	 * The list of clusters.
 	 */
 	protected List<CentroidCluster<HashVector>> clusters;
 
 	/**
 	 * The distance measure used in clustering, with the
-	 * default set to be the hamming distance.
+	 * default set to be the hamming distance of the standardized
+	 * version of the vectors.
 	 */
 	protected DistanceMeasure distMeasure = new DistanceMeasure() {
 		static final long serialVersionUID = 1L;
 		@Override
 		public double compute(double[] vecA, double[] vecB) {
 			double dist = 0.0;
+			vecA = Utils.standardize(vecA, pop_mean, pop_dev);
+			vecB = Utils.standardize(vecB, pop_mean, pop_dev);
 			try {
 				dist = Utils.getHammingDistance(vecA, vecB);
 			}
@@ -78,6 +91,11 @@ public final class Clustering {
 			HashVector vec = new HashVector(points); vec.setGraph(bg);
 			dataPoints.add(vec);
 		}
+		/* Compute feature means and standard deviations to standardize
+		 * the vectors for each point */
+		this.pop_mean = computeFeatureMeans(dataPoints);
+		this.pop_dev = computeFeatureDeviations(dataPoints, this.pop_mean);
+
 		int dim = dataPoints.get(0).getPoint().length;
 		/* create the clusterer object that uses the specified distance
 		 * measure and a maximum of 1000 iterations */
@@ -113,6 +131,11 @@ public final class Clustering {
 			HashVector vec = new HashVector(points); vec.setGraph(bg);
 			dataPoints.add(vec);
 		}
+		/* Compute feature means and standard deviations to standardize
+		 * the vectors for each point */
+		this.pop_mean = computeFeatureMeans(dataPoints);
+		this.pop_dev = computeFeatureDeviations(dataPoints, this.pop_mean);
+
 		int dim = dataPoints.get(0).getPoint().length;
 		/* create the clusterer object that uses the specified distance
 		 * measure and a maximum of 1000 iterations */
@@ -122,6 +145,58 @@ public final class Clustering {
 		for (Cluster<HashVector> cl: vectorClusterer.cluster(dataPoints)) {
 			clusters.add(centroidOf(cl.getPoints(), dim));
 		}
+	}
+
+	/**
+	 * Computes the means of a list of vector points for every dimension
+	 * of the feature vector.
+	 *
+	 * @param points the list of points
+	 * @return an array of length equal to the dimension of the feature
+	 * vectors containing the means of each feature
+	 */
+	protected double[] computeFeatureMeans(List<HashVector> points) {
+		/* create a vector of means with length equal to the dimension
+		 * of the data points */
+		double[] means = new double[points.get(0).getPoint().length];
+
+		/* for each hash vector, sum the feature at the proper dimension */
+		for (HashVector hv: points) {
+			for (int i = 0; i < means.length; ++i) {
+				means[i] += hv.getPoint()[i];
+			}
+		}
+
+		/* calculate the mean at the proper dimension */
+		for (int i = 0; i < means.length; ++i) {
+			means[i] /= points.size();
+		}
+		return means;
+	}
+
+	protected double[]
+	computeFeatureDeviations(List<HashVector> points, double[] means) {
+		double[] stdev = new double[points.get(0).getPoint().length];
+
+		/* for all points, sum the squared difference from the mean
+		 * for each dimension of the feature vector
+		 */
+		for (HashVector hv: points) {
+			double[] pt = hv.getPoint();
+			for (int i = 0; i < means.length; ++i) {
+				stdev[i] += (pt[i] - means[i]) * (pt[i] - means[i]);
+			}
+		}
+
+		/* compute the value /N (variance) and then take the square root
+		 * to compute standard deviation
+		 */
+		for (int i = 0; i < stdev.length; ++i) {
+			stdev[i] /= points.size();
+			stdev[i] = Math.sqrt(stdev[i]);
+		}
+
+		return stdev;
 	}
 	/**
 	 * Returns the list of clusters that were calculated when clustering

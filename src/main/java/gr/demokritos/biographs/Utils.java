@@ -164,4 +164,24 @@ public final class Utils {
 	public static boolean equalDoubles(double a, double b) {
 		return (Math.abs(a - b) < 0.0000001) ? true : false;
 	}
+
+	/**
+	 * Given a sample mean and standard deviation, standardizes a vector that
+	 * might or might not belong to the sample in order for it to be suitable
+	 * for comparison in classification methods.
+	 *
+	 * @param vec the vector to standardize
+	 * @param means the means of the reference sample, one for each dimension
+	 * @param devs the standard deviations of the reference sample, one for each
+	 * dimension
+	 * @return the standardized vector
+	 */
+	public static double[]
+	standardize(double[] vec, double means[], double devs[]) {
+		double[] znew = new double[vec.length];
+		for (int i = 0; i < vec.length; ++i) {
+			znew[i] = (vec[i] - means[i]) / devs[i];
+		}
+		return znew;
+	}
 }
