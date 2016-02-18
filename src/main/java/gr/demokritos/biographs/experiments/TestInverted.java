@@ -40,7 +40,13 @@ public class TestInverted {
 	static Stats checkIndex(BioGraph[] bgs, InvertedIndex invInd) {
 		Stats stat = new Stats("inv_index");
 		for (BioGraph bg : bgs) {
+			/* measure per-item query time and print to stderr */
+			long startTime = System.currentTimeMillis();
 			Set<BioGraph> ans = invInd.getMatches(bg);
+			long stopTime = System.currentTimeMillis();
+			System.err.printf("Querying: %s s\n",
+					String.valueOf((stopTime - startTime) / 1000));
+
 			if (ans == null || ans.size() == 0) {
 				stat.addResult(bg.getLabel(), new String[] { "None" });
 			}
@@ -74,8 +80,19 @@ public class TestInverted {
 			testFile = new File(args[1]);
 			bGraphsTest = BioGraph.fastaFileToGraphs(testFile);
 
+			/* build index and measure building time */
+			long startTime = System.currentTimeMillis();
 			invInd.buildIndex(dataFile);
+			long stopTime = System.currentTimeMillis();
+			System.err.printf("Building: %s s\n",
+					String.valueOf((stopTime - startTime) / 1000.0));
+
+			/* perform query, measure total and per-item query time */
+			startTime = System.currentTimeMillis();
 			statList[0] = checkIndex(bGraphsTest, invInd);
+			stopTime = System.currentTimeMillis();
+			System.err.printf("Total query: %s s\n",
+					String.valueOf((stopTime - startTime) / 1000.0));
 			System.out.println(gson.toJson(statList));
 		} catch (Exception ex) {
 			ex.printStackTrace();
