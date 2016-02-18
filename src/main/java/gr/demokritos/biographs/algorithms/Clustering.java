@@ -18,6 +18,8 @@ package gr.demokritos.biographs.algorithms;
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.Utils;
 import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
+import gr.demokritos.biographs.indexing.preprocessing.HashingStrategy;
+import gr.demokritos.iit.jinsect.structs.JVertex;
 
 import org.apache.commons.math3.ml.clustering.*;
 import org.apache.commons.math3.ml.distance.DistanceMeasure;
@@ -79,6 +81,41 @@ public final class Clustering {
 		int dim = dataPoints.get(0).getPoint().length;
 		/* create the clusterer object that uses the specified distance
 		 * measure and a maximum of 1000 iterations */
+		vectorClusterer =
+			new KMeansPlusPlusClusterer<HashVector>(k, iters, distMeasure);
+		clusters = new ArrayList<CentroidCluster<HashVector>>();
+		for (Cluster<HashVector> cl: vectorClusterer.cluster(dataPoints)) {
+			clusters.add(centroidOf(cl.getPoints(), dim));
+		}
+	}
+	
+	/**
+	 * Creates a new Clustering object given an array of {@link BioGraph}
+	 * objects, and performs clustering on them using a specified number
+	 * of iterations, initial clusters and a custom {@link HashingStrategy}.
+	 *
+	 * @param bGraphs the array of graphs
+	 * @param k the number of initial clusters
+	 * @param iters the number of iterations
+	 */
+	public Clustering(
+			BioGraph[] bGraphs,
+			int k,
+			int iters,
+			HashingStrategy<JVertex> hsg)
+	{
+		DefaultHashVector hvec = new DefaultHashVector(hsg).withBins(10);
+		dataPoints = new ArrayList<HashVector>(bGraphs.length);
+
+		/* add the vectors of all graphs to the data points */
+		for (BioGraph bg: bGraphs) {
+			double[] points = hvec.encodeGraph(bg);
+			HashVector vec = new HashVector(points); vec.setGraph(bg);
+			dataPoints.add(vec);
+		}
+		int dim = dataPoints.get(0).getPoint().length;
+		/* create the clusterer object that uses the specified distance
+		 * measure and a maximum of 1000 iterations */
 		vectorClusterer = 
 			new KMeansPlusPlusClusterer<HashVector>(k, iters, distMeasure);
 		clusters = new ArrayList<CentroidCluster<HashVector>>();
@@ -86,7 +123,6 @@ public final class Clustering {
 			clusters.add(centroidOf(cl.getPoints(), dim));
 		}
 	}
-
 	/**
 	 * Returns the list of clusters that were calculated when clustering
 	 * the data points.
@@ -117,6 +153,9 @@ public final class Clustering {
 	private CentroidCluster<HashVector> 
 		centroidOf(final Collection<HashVector> points, final int dim) {
 		final double[] centroid = new double[dim];
+		for (int i = 0; i < dim; ++i) {
+			centroid[i] = 0.0;
+		}
 		for (final HashVector v: points) {
 			final double[] point = v.getPoint();
 			for (int i = 0; i < centroid.length; i++) {

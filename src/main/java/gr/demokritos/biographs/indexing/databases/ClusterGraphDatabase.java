@@ -17,6 +17,9 @@
 package gr.demokritos.biographs.indexing.databases;
 
 import java.util.*;
+
+import org.apache.commons.math3.util.Pair;
+
 import java.io.File;
 import java.io.FileFilter;
 
@@ -27,7 +30,7 @@ import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.ntree.*;
 import gr.demokritos.biographs.indexing.GraphDatabase;
 import gr.demokritos.biographs.indexing.comparators.DefaultHashComparator;
-import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
+import gr.demokritos.biographs.indexing.preprocessing.*;
 
 
 /**
@@ -74,6 +77,20 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	 * The number of iterations to be used in the clustering phase.
 	 */
 	protected int iters;
+
+	/**
+	 * Indicates if DNA data are represented, to use an alternative
+	 * hashing strategy.
+	 */
+	protected boolean usesDna = false;
+
+	/**
+	 * The hash vector generator to be used - this will be affected
+	 * by {@link #usesDna} since a different hashing strategy is used
+	 * for DNA graph vertices.
+	 */
+	protected DefaultHashVector dhv;
+	
 	/**
 	 * Creates a blank ClusterGraphDatabase object with a specified
 	 * number of clusters to be used and a custom number of iterations.
@@ -83,7 +100,6 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	public ClusterGraphDatabase(int numClusters, int iters) { 
 		super();
 		initIndex(8, 26, numClusters, iters);
-
 	}
 	
 	/**
@@ -118,6 +134,38 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	}
 
 	/**
+	 * Builds a graph database index from a given file or directory of files
+	 * that contains graphs that represent a specified data type.
+	 *
+	 * @param fPath the file or directory to get the data from
+	 * @param type the {@link GraphDatabase.GraphType} of the database
+	 * @throws Exception in case the file or directory doesn't exist or
+	 * the data cannot be read
+	 */
+	public void build(File fPath, GraphType type) throws Exception {
+		switch (type) {
+			case WORD:
+				this.usesDna = false;
+				dhv = new DefaultHashVector().withBins(26);
+				buildWordIndex(fPath);
+				break;
+			case DNA:
+			default:
+				this.usesDna = true;
+				dhv = new DefaultHashVector(new DnaHashStrategy()).withBins(10);
+				this.bgComp = new DefaultHashComparator(10);
+				buildIndex(fPath);
+		}
+	}
+
+	/**
+	 * @see #build(File, GraphType) build
+	 */
+	public void build(String path, GraphType type) throws Exception {
+		build(new File(path), type);
+	}
+
+	/**
 	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *
@@ -139,9 +187,7 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
 			BioGraph[] bgs = BioGraph.fastaFileToGraphs(fPath);
-			for (BioGraph bG: bgs) {
-				addGraph(bG);
-			}
+			initClusters(bgs);
 		}
 		else {
 			// get all files in a list
@@ -151,13 +197,37 @@ public class ClusterGraphDatabase extends GraphDatabase {
 				}
 			});
 
-			// add them all to the database
+			// populate a list with all the graphs
+			List<BioGraph> bgList = new ArrayList<BioGraph>();
 			for (File f: fileList) {
 				BioGraph[] bgs = BioGraph.fastaFileToGraphs(f);
 				for (BioGraph bG: bgs) {
-					addGraph(bG);
+					bgList.add(bG);
 				}
 			}
+			BioGraph[] bgArray = bgList.toArray(new BioGraph[bgList.size()]);
+			initClusters(bgArray);
+		}
+	}
+
+	/**
+	 * Clusters a set of {@link BioGraph} objects, computing the centroids of
+	 * the representation, and then adds each graph to its closest cluster.
+	 * 
+	 * @param graphs an array of {@link BioGraph} objects to be clustered
+	 */
+	protected void initClusters(BioGraph[] graphs) {
+		if (this.usesDna) {
+			graphClusterer = 
+				new Clustering(graphs, numClusters, iters, new DnaHashStrategy());
+		}
+		else {
+			graphClusterer = 
+				new Clustering(graphs, numClusters, iters);
+		}
+		centroids = graphClusterer.getCenters();
+		for (BioGraph bG: graphs) {
+			addToClusters(bG);
 		}
 	}
 
@@ -171,13 +241,8 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	public void buildWordIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
 			BioGraph[] bgs = BioGraph.fromWordFile(fPath);
-
-			/* cluster the graphs first, collect centers */
-			graphClusterer = new Clustering(bgs, this.numClusters, this.iters);
-			centroids = graphClusterer.getCenters();
-			for (BioGraph bG: bgs) {
-				addToClusters(bG);
-			}
+			/* collect centers and cluster the graphs */
+			initClusters(bgs);
 		}
 		else {
 			// get all files in a list
@@ -197,12 +262,9 @@ public class ClusterGraphDatabase extends GraphDatabase {
 			}
 			BioGraph[] graphArray = 
 				allGraphs.toArray(new BioGraph[allGraphs.size()]);
-			graphClusterer = 
-				new Clustering(graphArray, this.numClusters, this.iters);
-			centroids = graphClusterer.getCenters();
-			for (BioGraph bG: allGraphs) {
-				addToClusters(bG);
-			}
+
+			/* cluster the resulting array of graphs */
+			initClusters(graphArray);
 		}
 	}
 
@@ -242,12 +304,14 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	}
 
 	/**
-	 * Finds the centroid that is closest to the encoding vector
-	 * of a BioGraph.
+	 * Finds the index of the centroid that is closest to the encoding
+	 * vector of a BioGraph.
+	 *
+	 * @param bG the query biograph
+	 * @return the index of the closest centroid
 	 */
 	private int findClosestCluster(BioGraph bG) {
-		DefaultHashVector dhv = new DefaultHashVector().withBins(26);
-		double[] graphVec = dhv.encodeGraph(bG);
+		double[] graphVec = this.dhv.encodeGraph(bG);
 
 		boolean unset = true;
 		int minIndex = 0, tempIndex = 0;
@@ -273,8 +337,48 @@ public class ClusterGraphDatabase extends GraphDatabase {
 			}
 			tempIndex++;
 		}
-
 		return minIndex;
+	}
+
+	/**
+	 * Finds the K closest centroids to a query graph.
+	 */
+	private int[] findKClosestClusters(BioGraph bG, int K) {
+		double[] graphVec = this.dhv.encodeGraph(bG);
+
+		// array of index - distance pairs
+		List<Pair<Integer, Double>> pairs =
+			new ArrayList<Pair<Integer, Double>>();
+		double weight; int index = 0;
+		for (HashVector cl: centroids) {
+			double[] clVec = cl.getPoint();
+			try {
+				weight = Utils.getHammingDistance(graphVec, clVec);
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+				weight = Double.MAX_VALUE;
+			}
+			/* add to array of pairs */
+			pairs.add(Pair.create(index, weight));
+			index++;
+		}
+		Collections.sort(pairs, new Comparator<Pair<Integer, Double>>() {
+			@Override
+			public int compare(
+					Pair<Integer, Double> a,
+					Pair<Integer, Double> b)
+			{
+				return a.getSecond().compareTo(b.getSecond());
+			}
+		});
+
+		/* get the indices of the K closest centroids */
+		int[] kClosest = new int[Math.min(K, pairs.size())];
+		for (int i = 0; i < Math.min(K, pairs.size()); ++i) {
+			kClosest[i] = pairs.get(i).getFirst();
+		}
+		return kClosest;
 	}
 
 	/**
@@ -294,14 +398,27 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	 * @return the nearest neighbouring graph
 	 */
 	public BioGraph getNearestNeighbour(BioGraph bg) {
-		/* get the centroid closest to the graph */
-		HashVector closest =  centroids.get(findClosestCluster(bg));
-		List<BioGraph> cand = clusters.get(closest);
+		/* get the centroid closest to the graph and return the closest
+		 * biograph in the cluster that contains that centroid
+		 */
+		return getClosestInCluster(bg, findClosestCluster(bg));
+	}
+
+	/**
+	 * Finds the biograph closest to a query biograph in a specified cluster.
+	 *
+	 * @param bg the query graph
+	 * @param centroidIndex the index of the centroid of the cluster
+	 * @return the closest biograph to the query in that cluster
+	 */
+	protected BioGraph getClosestInCluster(BioGraph bg, int centroidIndex) {
+		HashVector centroid = centroids.get(centroidIndex);
+		List<BioGraph> cand = clusters.get(centroid);
 		double minDist = ClusterDistance.clusterDistance(bg, cand.get(0));
 		int minIndex = 0, currIndex = 0;
-		
-		for (BioGraph bG: cand) {
-			double dist = ClusterDistance.clusterDistance(bg, bG);
+
+		for (BioGraph cGraph: cand) {
+			double dist = ClusterDistance.clusterDistance(bg, cGraph);
 			if (dist < minDist) {
 				minDist = dist;
 				minIndex = currIndex;
@@ -312,16 +429,19 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	}
 
 	/**
-	 * Gets the K nearest neighbours to a query {@link BioGraph} object
-	 * via the approximation of nearest neighbours offered by {@link NTree}'s
-	 * function interface.
-	 * 
+	 * Gets the k-nearest neighbours of a biograph, which are the biographs
+	 * closest to the query graph in k distinct clusters.
+	 *
 	 * @param bg the query graph
-	 * @param K the number of neighbours to look for
-	 * @return an array containing the K nearest neighbours
+	 * @param K the number of neighbours to return
 	 */
-	public BioGraph[] getKNearestNeighbours(BioGraph bg, int K) {
-		List<BioGraph> res = treeIndex.getKNearestNeighbours(bg, K);
-		return res.toArray(new BioGraph[res.size()]);
+	public List<BioGraph> kNearestNeighbours(BioGraph bg, int K) {
+		int retSize = Math.min(K, centroids.size());
+		int[] kCenters = findKClosestClusters(bg, retSize);
+		List<BioGraph> results = new ArrayList<BioGraph>(retSize);
+		for (int i = 0; i < retSize; ++i) {
+			results.add(getClosestInCluster(bg, kCenters[i]));
+		}
+		return results;
 	}
 }

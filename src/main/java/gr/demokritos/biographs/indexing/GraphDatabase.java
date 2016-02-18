@@ -31,6 +31,13 @@ import gr.demokritos.biographs.BioGraph;
 public abstract class GraphDatabase {
 
 	/**
+	 * The datatype that the graphs of this database represent.
+	 */
+	public enum GraphType {
+		WORD, DNA
+	}
+
+	/**
 	 * the directory of the graph database, if any 
 	 */
 	protected String path;

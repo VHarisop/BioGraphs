@@ -89,10 +89,7 @@ public class InvertedIndex extends GraphDatabase {
 	@Override
 	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
-			BioGraph[] bgs = BioGraph.fastaFileToGraphs(fPath);
-			for (BioGraph bG: bgs) {
-				addGraph(bG);
-			}
+			addAllGraphs(BioGraph.fastaFileToGraphs(fPath));
 		}
 		else {
 			// get all files in a list
@@ -104,10 +101,7 @@ public class InvertedIndex extends GraphDatabase {
 
 			// add them all to the database
 			for (File f: fileList) {
-				BioGraph[] bgs = BioGraph.fastaFileToGraphs(f);
-				for (BioGraph bG: bgs) {
-					addGraph(bG);
-				}
+				addAllGraphs(BioGraph.fastaFileToGraphs(f));
 			}
 		}
 	}
@@ -121,10 +115,7 @@ public class InvertedIndex extends GraphDatabase {
 	 */
 	public void buildWordIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
-			BioGraph[] bgs = BioGraph.fromWordFile(fPath);
-			for (BioGraph bG: bgs) {
-				addGraph(bG);
-			}
+			addAllGraphs(BioGraph.fromWordFile(fPath));
 		}
 		else {
 			// get all files in a list
@@ -136,11 +127,20 @@ public class InvertedIndex extends GraphDatabase {
 
 			// add them all to the database
 			for (File f: fileList) {
-				BioGraph[] bgs = BioGraph.fromWordFile(f);
-				for (BioGraph bG: bgs) {
-					addGraph(bG);
-				}
+				addAllGraphs(BioGraph.fromWordFile(f));
 			}
+		}
+	}
+
+	/**
+	 * Helper function that adds an array {@link BioGraph} objects
+	 * to the database's index.
+	 *
+	 * @see #addGraph(BioGraph) addGraph
+	 */
+	private void addAllGraphs(BioGraph[] bgs) {
+		for (BioGraph bg: bgs) {
+			addGraph(bg);
 		}
 	}
 
