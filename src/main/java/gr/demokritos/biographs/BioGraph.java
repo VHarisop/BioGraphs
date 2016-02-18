@@ -19,6 +19,7 @@ package gr.demokritos.biographs;
 import gr.demokritos.iit.jinsect.representations.NGramJGraph;
 import gr.demokritos.iit.jinsect.structs.*;
 import gr.demokritos.iit.jinsect.encoders.*;
+import gr.demokritos.biographs.indexing.preprocessing.*;
 import gr.demokritos.iit.jinsect.jutils;
 import gr.demokritos.iit.jinsect.io.LineReader;
 
@@ -45,9 +46,16 @@ public class BioGraph extends NGramJGraph {
 
 	final static long serialVersionUID = 1L;
 
-	// the label of the dataset this graph represents
+	/** 
+	 * the label of the dataset this graph represents.
+	 */
 	protected String bioLabel = null;
 
+	/**
+	 * A cached copy of this graph's hash encoding.
+	 */
+	protected double[] hashEncoding = null;
+	
 	/**
 	 * Creates a BioGraph object to represent a given string.
 	 * This method invokes the default NGramJGraph constructor.
@@ -366,6 +374,28 @@ public class BioGraph extends NGramJGraph {
 					this.MinSize, 
 					this.MaxSize, 
 					this.CorrelationWindow);
+	}
+
+	/**
+	 * Calculates and returns the graph's hash encoding using a
+	 * {@link DefaultHashVector} encoder.
+	 *
+	 * @return a double array containing the graph's hash encoding
+	 */
+	public double[] getHashEncoding(boolean usesDna) {
+		if (hashEncoding == null) {
+			DefaultHashVector hVec;
+			if (usesDna) {
+				hVec =
+					new DefaultHashVector(new DnaHashStrategy()).withBins(10);
+			}
+			else {
+				hVec = 
+					new DefaultHashVector().withBins(26);
+			}
+			hashEncoding = hVec.encodeGraph(this);
+		}
+		return hashEncoding;
 	}
 
 	@Override

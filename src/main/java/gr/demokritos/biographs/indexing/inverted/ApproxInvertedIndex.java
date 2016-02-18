@@ -22,7 +22,9 @@ import java.io.FileFilter;
 import java.util.*;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.Utils;
 import gr.demokritos.biographs.indexing.*;
+import gr.demokritos.biographs.indexing.preprocessing.*;
 
 /* JInsect imports */
 import gr.demokritos.iit.jinsect.structs.*;
@@ -32,13 +34,18 @@ import gr.demokritos.iit.jinsect.structs.*;
  * on the [N - 1] letters of their labels.
  */
 public class ApproxInvertedIndex extends GraphDatabase {
-
 	/**
 	 * A hashmap that matches vertices to Tree maps that contain integer to
 	 * biograph list pairs. The integer keys are frequency counts and count
 	 * how many times the hashmap's key (vertex) has been seen in which graph.
 	 */
 	protected HashMap<JVertex, FreqTree> invIndex;
+
+	/**
+	 * A flag indicating whether this databases stores graphs encoding
+	 * biological data or not.
+	 */
+	protected boolean usesDna = false;
 
 	/**
 	 * Creates a blank ApproxInvertedIndex object.
@@ -67,6 +74,27 @@ public class ApproxInvertedIndex extends GraphDatabase {
 
 	/**
 	 * Builds a graph database index from a given file or directory
+	 * based on a specified data type to distinguish between lexical
+	 * and biological data.
+	 *
+	 * @param path the file or directory to read the graphs from
+	 * @param type the data type to be indexed
+	 */
+	public void build(File path, GraphType type) throws Exception {
+		switch (type) {
+			case DNA:
+				buildIndex(path);
+				break;
+			case WORD:
+			default:
+				buildWordIndex(path);
+				break;
+		}
+		return;
+	}
+
+	/**
+	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *
 	 * @param path a string containing a path to a file or directory
@@ -85,6 +113,7 @@ public class ApproxInvertedIndex extends GraphDatabase {
 	 */
 	@Override
 	public void buildIndex(File fPath) throws Exception {
+		usesDna = true;
 		if (!fPath.isDirectory()) {
 			addAllGraphs(BioGraph.fastaFileToGraphs(fPath));
 		}
@@ -111,6 +140,7 @@ public class ApproxInvertedIndex extends GraphDatabase {
 	 * @param fPath a path pointing to a file or directory 
 	 */
 	public void buildWordIndex(File fPath) throws Exception {
+		usesDna = false;
 		if (!fPath.isDirectory()) {
 			addAllGraphs(BioGraph.fromWordFile(fPath));
 		}
@@ -244,8 +274,17 @@ public class ApproxInvertedIndex extends GraphDatabase {
 		/* initial set of results and a flag indicating if it
 		 * has been initialized or not */
 		Set<BioGraph> soFar = null;
-		boolean unset = true; 
+		boolean unset = true;
 
+		DefaultHashVector hVec;
+		if (usesDna) {
+			hVec = new DefaultHashVector(new DnaHashStrategy()).withBins(10);
+		}
+		else {
+			hVec = new DefaultHashVector().withBins(26);
+		}
+
+		double[] vgM = hVec.encodeGraph(bG);
 		/* Lookup lists of containments for all vertices and intersect them
 		 * step by step. The initial list is unset */
 		for (JVertex v: uvG.vertexSet()) {
@@ -261,6 +300,30 @@ public class ApproxInvertedIndex extends GraphDatabase {
 			int vWeight = (int) uvG.incomingWeightSumOf(v);
 			Set<BioGraph> contain = 
 				vTree.getFreq(vWeight, epsilon);
+			
+			if (contain == null) {
+				continue;
+			}
+
+			/* find the optimal matching biograph, in terms of hash vector
+			 * distance, from the set of matching biographs
+			 */
+			double distMin = Double.MAX_VALUE; BioGraph bgMin = null;
+			for (BioGraph gCont: contain) {
+				double[] vgA = gCont.getHashEncoding(usesDna);
+				double dist;
+				try {
+					dist = Utils.getHammingDistance(vgA, vgM);
+				}
+				catch (Exception ex) {
+					ex.printStackTrace();
+					return null;
+				}
+				if (dist < distMin) {
+					distMin = dist;
+					bgMin = gCont;
+				}
+			}
 
 			/* if set of results is unset, initialize now
 			 * and skip to next iteration */
@@ -270,18 +333,8 @@ public class ApproxInvertedIndex extends GraphDatabase {
 				continue;
 			}
 			else {
-				/* compute the intersection of the sets - use a temporary
-				 * copy to return last valid set if at some point the result
-				 * is null */
-				Set<BioGraph> backup = new HashSet<BioGraph>(soFar);
-				backup.addAll(contain);
-				// backup.retainAll(contain);
-				if (backup.size() == 0) {
-					return soFar;
-				}
-				else {
-					soFar = new HashSet<BioGraph>(backup);
-				}
+				/* only add the closest matching biograph to the set */
+				soFar.add(bgMin);
 				
 				/* if, at some point, result set is empty, skip next iteration
 				 * and return the result which is null itself */
