@@ -17,6 +17,7 @@
 package gr.demokritos.biographs;
 
 import gr.demokritos.biographs.indexing.*;
+import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.biographs.indexing.comparators.*;
 import gr.demokritos.biographs.indexing.databases.*;
 import gr.demokritos.biographs.indexing.structs.Stats;
@@ -69,7 +70,7 @@ public class Main {
 			String methodLabel)
 	{
 		try {
-			trd.buildWordIndex(dataFile);
+			trd.build(dataFile, GraphType.WORD);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return null;
@@ -120,7 +121,7 @@ public class Main {
 			};
 
 		try {
-			trdVar.buildWordIndex(dataFile);
+			trdVar.build(dataFile, GraphType.WORD);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -164,7 +165,7 @@ public class Main {
 			};
 
 		try {
-			trdVar.buildWordIndex(dataFile);
+			trdVar.build(dataFile, GraphType.WORD);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

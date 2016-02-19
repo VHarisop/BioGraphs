@@ -52,6 +52,12 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	protected Comparator<BioGraph> bgComp;
 
 	/**
+	 * A field indicating if the data of this database's graphs comes from
+	 * words or biological sequences.
+	 */
+	protected GraphType type;
+
+	/**
 	 * Creates a blank TreeDatabase object.
 	 */
 	public TreeDatabase() { 
@@ -112,6 +118,18 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	}
 
 	/**
+	 * Builds a graph database index from a given file or directory and
+	 * a specified type of data source.
+	 *
+	 * @param path the file or directory to build from
+	 * @param gType the {@link GraphType} of the graphs to be indexed
+	 */
+	public void build(File path, GraphType gType) throws Exception {
+		this.type = gType;
+		buildIndex(path);
+	}
+
+	/**
 	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *
@@ -124,6 +142,23 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	}
 
 	/**
+	 * Adds a set of data in a file into the database, reading them
+	 * with a method depending on the graph type.
+	 */
+	private void addAllGraphs(File path) throws Exception {
+		if (type == GraphType.DNA) {
+			for (BioGraph bg: BioGraph.fastaFileToGraphs(path)) {
+				addGraph(bg);
+			}
+		}
+		else {
+			for (BioGraph bg: BioGraph.fromWordFile(path)) {
+				addGraph(bg);
+			}
+		}
+	}
+
+	/**
 	 * Builds a graph database index from a given file or a directory 
 	 * of files.
 	 *
@@ -132,57 +167,19 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	@Override
 	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
-			BioGraph[] bgs = BioGraph.fastaFileToGraphs(fPath);
-			for (BioGraph bG: bgs) {
-				addGraph(bG);
-			}
+			addAllGraphs(fPath);
 		}
 		else {
-			// get all files in a list
+			/* get all files in a list, and then add all graphs for
+			 * each file to the database
+			 */
 			File[] fileList = fPath.listFiles(new FileFilter() {
 				public boolean accept(File toFilter) {
 					return toFilter.isFile();
 				}
 			});
-
-			// add them all to the database
 			for (File f: fileList) {
-				BioGraph[] bgs = BioGraph.fastaFileToGraphs(f);
-				for (BioGraph bG: bgs) {
-					addGraph(bG);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Builds a graph database index from a given file or directory 
-	 * of files which contain words without extra labels, as in the
-	 * case of FASTA files.
-	 *
-	 * @param fPath a path pointing to a file or directory 
-	 */
-	public void buildWordIndex(File fPath) throws Exception {
-		if (!fPath.isDirectory()) {
-			BioGraph[] bgs = BioGraph.fromWordFile(fPath);
-			for (BioGraph bG: bgs) {
-				addGraph(bG);
-			}
-		}
-		else {
-			// get all files in a list
-			File[] fileList = fPath.listFiles(new FileFilter() {
-				public boolean accept(File toFilter) {
-					return toFilter.isFile();
-				}
-			});
-
-			// add them all to the database
-			for (File f: fileList) {
-				BioGraph[] bgs = BioGraph.fromWordFile(f);
-				for (BioGraph bG: bgs) {
-					addGraph(bG);
-				}
+				addAllGraphs(f);
 			}
 		}
 	}

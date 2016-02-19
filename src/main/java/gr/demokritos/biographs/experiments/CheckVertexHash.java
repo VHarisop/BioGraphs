@@ -17,6 +17,7 @@
 package gr.demokritos.biographs.experiments;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.biographs.indexing.TreeDatabase;
 import gr.demokritos.biographs.indexing.comparators.VertexHashComparator;
 import gr.demokritos.biographs.indexing.structs.Stats;
@@ -56,7 +57,7 @@ public class CheckVertexHash {
 			String methodLabel)
 	{
 		try {
-			trd.buildWordIndex(dataFile);
+			trd.build(dataFile, GraphType.WORD);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return null;

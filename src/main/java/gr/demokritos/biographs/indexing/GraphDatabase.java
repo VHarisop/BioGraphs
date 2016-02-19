@@ -47,6 +47,12 @@ public abstract class GraphDatabase {
 	 */
 	protected boolean inMem;
 
+	/**
+	 * A field indicating the type of the data that the graphs in
+	 * this database actually represent (words or biosequences).
+	 */
+	protected GraphType type;
+
 	/** 
 	 * an array list of graphs to be kept in memory 
 	 */
