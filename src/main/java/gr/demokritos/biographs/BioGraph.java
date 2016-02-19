@@ -375,7 +375,30 @@ public class BioGraph extends NGramJGraph {
 					this.MaxSize, 
 					this.CorrelationWindow);
 	}
-
+	/**
+	 * Calculates and the graph's hash encoding using a
+	 * {@link DefaultHashVector} encoder and caches it.
+	 *
+	 * @param usesDna a boolean indicating whether this graph encodes
+	 * biological sequences or not
+	 * @param nBins the number of bins to use in hashing
+	 * @return a double array containing the graph's hash encoding
+	 */
+	public void computeHashEncoding(boolean usesDna, int nBins) {
+		if (hashEncoding == null) {
+			DefaultHashVector hVec;
+			if (usesDna) {
+				hVec =
+					new DefaultHashVector(new DnaHashStrategy()).withBins(nBins);
+			}
+			else {
+				hVec = 
+					new DefaultHashVector().withBins(nBins);
+			}
+			hashEncoding = hVec.encodeGraph(this);
+		}
+	}
+	
 	/**
 	 * Calculates and returns the graph's hash encoding using a
 	 * {@link DefaultHashVector} encoder.
