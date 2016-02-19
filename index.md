@@ -15,11 +15,15 @@ System.out.println(bGraph.toDot());
 {% endhighlight %}
 
 ## Uses
-For now, BioGraphs contains utilities for indexing biological sequences using their n-gram graph representation. A custom graph similarity metric is employed to build an efficient tree-based index.  
+For now, BioGraphs contains utilities for indexing biological sequences using their n-gram graph representation. A custom graph similarity metric is employed to build an efficient tree-based index.
 
 In the near future, BioGraphs will be expanded with facilities for classification and data analysis.
 
 ## License
 BioGraphs is released under the [GPLv3][license] license.
 
+### Read more:
+* [A preprocessing method based on hashing][preproc]
+
 [license]: https://www.gnu.org/licenses/gpl.html
+[preproc]: /biographs/2016/02/15/indexing.html

@@ -1,0 +1,49 @@
+---
+layout: post
+title:  "Hash-based preprocessing"
+date:   2016-2-15 03:21:23 +0200
+categories: biographs
+---
+
+### Preprocessing for indexing on N-Gram Graphs
+
+In this section, a new method for preprocessing data extracted from N-gram graphs is proposed. The method involves hashing the vertex labels of each N-gram graph to produce a fixed-size vector, each cell of which is filled according to an encoding strategy.
+
+### Hashed Label Vectors
+Given a `UniqueJVertexGraph`, all of its vertices are hashed using any arbitrarily chosen scheme. The resulting value is divided modulo a constant number, which can define the complexity of the model. A simple choice for the hashing function can be the mapping from letters to integers in the range $$ [0, S - 1] $$ , where $$ S $$ is the total number of distinct symbols that appear in any n-gram graph.
+
+The simplest of schemes can apply the hash function to the initial letter of each vertex label, while for datasets with a small number of symbols, pairs or triples of initials in vertex labels can be regarded as the fundamental units on which the hash function is applied. 
+
+For a normal english alphabet and n-gram graphs resulting from encoding distinct
+words, we can have:
+
+$$ \text{Hash}(abc) = h(a) = 0 $$
+
+$$ \text{Hash}(fdo) = h(f) = 5 $$
+
+$$ \text{Hash}(zed) = h(z) = 25 $$
+
+After computing the hash value for each vertex, a vector of length $$ S $$ can be created by adding a properly selected quantity for each vertex to the cell the hash function suggests it "belongs" to.
+
+### Applying an encoding scheme
+The choice of an encoding scheme plays an important role; an intuitive selection would be to simply add the vertex's indegree and outdegree to the cell the hash function suggests. Another strategy can be adding the sum of the vertex's incident edge weights, or any function of those.
+
+Using a function of the vertex's incident weights seems to be the most meaningful choice, since N-Gram Graphs are uniquely labelled and, therefore, most of the information that the graph contains is encoded by the edge weights. In [Biographs][biographs-src], the default encoding scheme sums the vertex's incident edge weights.
+
+
+### Properties
+The hashing method presented above exhibits some properties that make it an attractive choice when dealing with n-gram graph indexing. We examine the case of a "naive" linear scan over all the graphs in a database, in the case of a graph query in which the presented graph can be a mutated version of a database graph, a graph already present in the database, or any other arbitrary graph:
+
+* The hashing function is assumed to [and should] be deterministic. This means that two vertices with the same label will always be hashed to the same bin. Since the encoding scheme is deterministic as well, those assumptions mean that there will be no false negatives during a graph lookup, which guarantees 100% recall.
+
+* The computation of the hash vector can be performed only once for the graphs in the database, since the resulting hash vector can be computed and cached at the time a graph is indexed. This comes in contrast to value similarity, which depends heavily on the two graphs involved in comparisons, since it involves nonlinear functions of the edge weights (minimum and maximum among pairs of edges from the graphs). In the case of hash vectors, the only computation needed for comparison is a distance computation, which is bounded in time by the length of the hash vector.
+
+* The hashing scheme can be tweaked to accomodate different types of data. For example, when dealing with DNA sequences, one can map dinucleotides to distinct bins, based on prior knowledge that suggests using dinucleotides as features in classification tasks. Different n-gram lengths can also suggest using different hashing schemes: a graph that contains 5- or 6-grams as vertices might suggest using couples of letters in the hashing process, for example: 
+
+$$ \text{Hash}(abcde) = \text{Hash}(ab) = \text{Hash}(a) \cdot 26 + \text{Hash}(b) $$
+
+In future posts, a comparison between value similarity and hashed label vectors will be presented, along with the method BioGraphs uses to create efficient indexes for large databases, based on a variation of an inverted index and the preprocessing method introduced in this post.
+
+
+[biographs-src]: https://github.com/VHarisop/BioGraphs
+

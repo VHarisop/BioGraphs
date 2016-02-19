@@ -11,7 +11,7 @@ BioGraphs builds heavily on [Jinsect][jinsect] and [JGraphT][jgrapht]. It releas
 * [Apache Commons][commons] v4.0
 * [JGraphT][jgrapht] v0.9.1
 * [BioJava][biojava] v4.0.0
-* JInsect v1.0 (a release can be found [here]({{ site.baseurl }}/assets/jinsect-core-1.0b.jar)).
+* JInsect v1.0 (a release can be found [here]({{ site.baseurl }}/assets/jinsect-core-1.0rc.jar)). You can also [verify]({{ site.baseurl }}/assets/jinsect-core-1.0rc.jar.asc) the release.
 
 
 ## Using JInsect in Maven
