@@ -50,7 +50,7 @@ public class Main {
 			BioGraph[] bgs)
 	{
 		try {
-			trd.buildWordIndex(dataFile);
+			trd.build(dataFile, GraphType.WORD);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return null;

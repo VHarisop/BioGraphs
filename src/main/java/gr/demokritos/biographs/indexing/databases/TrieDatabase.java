@@ -35,7 +35,6 @@ import gr.demokritos.biographs.indexing.GraphDatabase;
  * @author VHarisop
  */
 public class TrieDatabase extends GraphDatabase {
-
 	/**
 	 * A {@link org.apache.commons.collections4.trie.PatriciaTrie} 
 	 * that is used for indexing graphs by using the graphs'
@@ -63,6 +62,18 @@ public class TrieDatabase extends GraphDatabase {
 	}
 
 	/**
+	 * Builds a graph database from graphs found in a specified file or
+	 * directory, containing a given type of data.
+	 *
+	 * @param path the file or directory to index from
+	 * @param gType the data type of the graphs
+	 * @throws Exception if data cannot be read or if a file doesn't exist
+	 */
+	public void build(File path, GraphType gType) throws Exception {
+		this.type = gType;
+		buildIndex(path);
+	}
+	/**
 	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *
@@ -83,61 +94,38 @@ public class TrieDatabase extends GraphDatabase {
 	 * @param fPath a path containing one or multiple files
 	 */
 	@Override
-	public void buildIndex(File fPath) 
-	throws Exception 
-	{
+	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
-			BioGraph[] bgs = BioGraph.fastaFileToGraphs(fPath);
-			for (BioGraph bG: bgs) {
-				addGraph(bG);
-			}
+			addAllGraphs(fPath);
 		}
 		else {
-			// get all files in a list
+			/* get all files in a list, and for each file add all
+			 * the resulting biographs to the database */
 			File[] fileList = fPath.listFiles(new FileFilter() {
 				public boolean accept(File toFilter) {
 					return toFilter.isFile();
 				}
 			});
-
-			// add the graphs of each file to the database
 			for (File f: fileList) {
-				BioGraph[] bgs = BioGraph.fastaFileToGraphs(f);
-				for (BioGraph bG: bgs) {
-					addGraph(bG);
-				}
+				addAllGraphs(f);
 			}
 		}
 	}
-	
+
 	/**
-	 * Builds a graph database index from a given file or directory 
-	 * of files which contain words without extra labels, as in the
-	 * case of FASTA files.
-	 *
-	 * @param fPath a path pointing to a file or directory 
+	 * Adds all graphs from a file to the database, choosing an appropriate
+	 * reading method depending on the data type of the graphs this database
+	 * indexes.
 	 */
-	public void buildWordIndex(File fPath) throws Exception {
-		if (!fPath.isDirectory()) {
-			BioGraph[] bgs = BioGraph.fromWordFile(fPath);
-			for (BioGraph bG: bgs) {
-				addGraph(bG);
+	private void addAllGraphs(File f) throws Exception {
+		if (type == GraphType.DNA) {
+			for (BioGraph bg: BioGraph.fastaFileToGraphs(f)) {
+				addGraph(bg);
 			}
 		}
 		else {
-			// get all files in a list
-			File[] fileList = fPath.listFiles(new FileFilter() {
-				public boolean accept(File toFilter) {
-					return toFilter.isFile();
-				}
-			});
-
-			// add them all to the database
-			for (File f: fileList) {
-				BioGraph[] bgs = BioGraph.fromWordFile(f);
-				for (BioGraph bG: bgs) {
-					addGraph(bG);
-				}
+			for (BioGraph bg: BioGraph.fromWordFile(f)) {
+				addGraph(bg);
 			}
 		}
 	}

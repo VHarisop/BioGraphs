@@ -1,6 +1,7 @@
 package gr.demokritos.biographs.indexing;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.iit.jinsect.jutils;
 
 import junit.framework.Test;
@@ -99,7 +100,7 @@ public class KnnTest
 				}
 			};
 
-			trd.buildWordIndex(res);
+			trd.build(res, GraphType.WORD);
 			BioGraph[] bgs = BioGraph.fromWordFile(res);
 
 			/* make sure that graphs that were indexed in the database

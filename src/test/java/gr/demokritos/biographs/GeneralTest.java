@@ -4,24 +4,15 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import gr.demokritos.biographs.indexing.*;
+import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.biographs.indexing.databases.CachedSimilarityDatabase;
 import gr.demokritos.biographs.indexing.databases.MemSimilarityDatabase;
 import gr.demokritos.biographs.indexing.databases.SimilarityDatabase;
 import gr.demokritos.biographs.indexing.databases.TrieDatabase;
-import gr.demokritos.iit.jinsect.representations.NGramJGraph;
-import gr.demokritos.iit.jinsect.structs.Edge;
-import gr.demokritos.iit.jinsect.structs.JVertex;
 import gr.demokritos.iit.jinsect.structs.NGramVertex;
-import gr.demokritos.iit.jinsect.utils;
-import gr.demokritos.iit.jinsect.jutils;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.LinkedHashMap;
 
 /**
  * Unit test for simple App.
@@ -152,7 +143,7 @@ public class GeneralTest
 
 		try {
 			File res = new File(getClass().getResource(fName).toURI());
-			gData.buildIndex(res);
+			gData.build(res, GraphType.DNA);
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
@@ -172,8 +163,8 @@ public class GeneralTest
 		SimilarityDatabase gSimData = new SimilarityDatabase();
 		try {
 			File res = new File(getClass().getResource(fName).toURI());
-			gData.buildIndex(res);
-			gSimData.buildIndex(res);
+			gData.build(res, GraphType.DNA);
+			gSimData.build(res, GraphType.DNA);
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
@@ -195,8 +186,8 @@ public class GeneralTest
 			nfrData = new SimilarityDatabase();
 			nclData = new SimilarityDatabase();
 
-			nfrData.buildIndex(resNFR);
-			nclData.buildIndex(resNCL);
+			nfrData.build(resNFR, GraphType.DNA);
+			nclData.build(resNCL, GraphType.DNA);
 			assertTrue(true); // succeed
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -215,8 +206,8 @@ public class GeneralTest
 			nfrMem = new MemSimilarityDatabase();
 			nclMem = new MemSimilarityDatabase();
 
-			nfrMem.buildIndex(resNFR);
-			nclMem.buildIndex(resNCL);
+			nfrMem.build(resNFR, GraphType.DNA);
+			nclMem.build(resNCL, GraphType.DNA);
 
 			assertTrue(true); // succeed
 		} catch (Exception ex) {
