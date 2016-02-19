@@ -246,10 +246,8 @@ public class RandomInvertedIndex extends GraphDatabase {
 		UniqueJVertexGraph uvG = bG.getGraph();
 		int epsilon = bG.getWindowSize() + tolerance;
 
-		/* initial set of results and a flag indicating if it
-		 * has been initialized or not */
-		Set<BioGraph> soFar = null;
-		boolean unset = true; 
+		/* initial set of results */
+		Set<BioGraph> results = new HashSet<BioGraph>();
 
 		/* Lookup lists of containments for all vertices and intersect them
 		 * step by step. The initial list is unset */
@@ -258,10 +256,56 @@ public class RandomInvertedIndex extends GraphDatabase {
 			vertices.add(v);
 		}
 
-		/* shuffle and pick half the graphs */
+		/* shuffle and pick chunks of the vertices */
 		Collections.shuffle(vertices);
-		int sizeMax = (vertices.size() / 3); int currIndex = 0;
-		sizeMax = 3;
+		int vSize = vertices.size();
+		int from, to, subSize = 3;
+
+		/** 
+		 * <i>METHOD</i>:
+		 * perform 4 runs of intersection-and-nearest-neighbour searches,
+		 * merging the resulting sets and returning them as nearest matches
+		 * to the graph query. The size of the sets must be kept small, as
+		 * larger sizes may lead to more intersections and loss in accuracy.
+		 */
+		for (int i = 0; i < 4; ++i) {
+			from = subSize * i;
+			to = Math.min(from + subSize, vSize);
+			List<JVertex> keys = vertices.subList(from, to);
+			results.addAll(intersectAndFind(bG, keys, epsilon));
+		}
+		return results;
+
+	}
+
+	/**
+	 * Given a collection of vertices that can be looked up in the inverted
+	 * index, computes the resulting set from intersecting the lookup results
+	 * from all the vertices, and among that set, computes the closest graph
+	 * in terms of hash vector distance to a query graph.
+	 *
+	 * @param bQuery the query graph
+	 * @param vertices the vertices to be used as keys
+	 * @param epsilon the search index frequency tolerance
+	 * @return a single-element set that contains the biograph closest
+	 * to the query graph, in terms of hash vector distance
+	 */
+	private Set<BioGraph> intersectAndFind
+	(BioGraph bQuery, Collection<JVertex> vertices, int epsilon) 
+	{
+		/* get the underlying unique vertex graph of the query graph */
+		UniqueJVertexGraph uvG = bQuery.getGraph();
+		int currIndex = 0,
+			sizeMax = vertices.size() - 1;
+
+		/* initialize parameters required to compute the intersection
+		 * and find the closest graph
+		 */
+		Set<BioGraph> soFar = null;
+		BioGraph bgFound = null;
+
+		/* flag indicating if the set of results has been initialized */
+		boolean unset = true;
 
 		for (JVertex v: vertices) {
 			currIndex++;
@@ -296,7 +340,7 @@ public class RandomInvertedIndex extends GraphDatabase {
 				/* if I have performed enough intersections, compute the
 				 * minimum graph to return to the caller */
 				if (currIndex > sizeMax) {
-					BioGraph bgFound = getClosest(bG, backup);
+					bgFound = getClosest(bQuery, backup);
 					Set<BioGraph> toRet = new HashSet<BioGraph>(); 
 					toRet.add(bgFound);
 					return toRet; 
@@ -309,7 +353,7 @@ public class RandomInvertedIndex extends GraphDatabase {
 				else {
 					soFar = new HashSet<BioGraph>(backup);
 				}
-				
+
 				/* if, at some point, result set is empty, skip next iteration
 				 * and return the result which is null itself */
 				if (soFar.size() == 0) {
@@ -322,7 +366,11 @@ public class RandomInvertedIndex extends GraphDatabase {
 
 	/**
 	 * Finds the closest, in terms of hash vector hamming distance, graph
-	 * to a query BioGraph.
+	 * to a query BioGraph from a set of candidates.
+	 *
+	 * @param bQuery the query graph
+	 * @param candidates the set of graphs to pick the nearest neighbour from
+	 * @return the nearest biograph from the candidate set
 	 */
 	private BioGraph getClosest(BioGraph bQuery, Set<BioGraph> candidates) {
 		/* initialize query vector and minimum distance / graph */
