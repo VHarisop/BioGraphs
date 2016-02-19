@@ -23,7 +23,6 @@ In the near future, BioGraphs will be expanded with facilities for classificatio
 BioGraphs is released under the [GPLv3][license] license.
 
 ### Read more:
-* [A preprocessing method based on hashing][preproc]
+* [A preprocessing method based on hashing]({{ site.baseurl }}/biographs/2016/02/15/indexing.html)
 
 [license]: https://www.gnu.org/licenses/gpl.html
-[preproc]: /biographs/2016/02/15/indexing.html
