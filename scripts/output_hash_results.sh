@@ -3,9 +3,9 @@
 BASE_DIR="${HOME}/demokritos/BioGraphs"
 MAIN_CLASS="gr.demokritos.biographs.experiments.CheckVertexHash"
 WORD_FILE="${BASE_DIR}/scripts/datasets/words.txt"
-MUTATION_FILE="${BASE_DIR}/scripts/word_mutations.txt"
+MUTATION_FILE="${BASE_DIR}/scripts/datasets/word_mutations.txt"
 GROUND_FILE="${BASE_DIR}/scripts/datasets/words.txt_c_1_mutated.txt"
-PARSE_SCRIPT="${BASE_DIR}/scripts/parse_results.py"
+PARSE_SCRIPT="${BASE_DIR}/scripts/tools/parse_results.py"
 
 # do a compilation first
 mvn clean compile
