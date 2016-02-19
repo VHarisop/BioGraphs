@@ -28,9 +28,8 @@ import gr.demokritos.biographs.indexing.*;
 import gr.demokritos.iit.jinsect.structs.*;
 
 /**
- * An abstract class that implements a graph database using graph similarity.
- * Here, the similarity measure used is the graphs' structural similarity, as is
- * implemented in {@link gr.demokritos.iit.jinsect.jutils}
+ * A class that uses randomized vector lookup in an inverted index to pick the
+ * nearest neighbour for query graphs.
  *
  * @author VHarisop
  */
@@ -230,8 +229,6 @@ public class RandomInvertedIndex extends GraphDatabase {
 	 * @return a set of matching graphs, or null if none exist
 	 */
 	public Set<BioGraph> getMatches(BioGraph bG, int tolerance) {
-		// throw new UnsupportedOperationException("Not implemented!");
-
 		/**
 		 * <i>METHOD</i>:
 		 * 1 - for each of the query graph's vertices, get inWeightSum
@@ -239,8 +236,12 @@ public class RandomInvertedIndex extends GraphDatabase {
 		 *     vertex's corresponding FreqTree, with tolerance (epsilon)
 		 *     equal to the n-gram size used in the graph - if the vertex
 		 *     has no associated FreqTree, simply go to next vertex
-		 * 3 - take the intersection of all lists retrieved in step 2
-		 * 4 - return this list as an answer
+		 * 3 - randomize the order of the vertices by which the FreqTree is
+		 *     looked up
+		 * 4 - take the intersection of a chunk of 3 or 4 random vertices,
+		 *     and look for the graph closest to the query graph in the
+		 *     resulting set
+		 * 5 - return the graph as an answer
 		 */
 		UniqueJVertexGraph uvG = bG.getGraph();
 		int epsilon = bG.getWindowSize() + tolerance;
@@ -260,7 +261,7 @@ public class RandomInvertedIndex extends GraphDatabase {
 		/* shuffle and pick half the graphs */
 		Collections.shuffle(vertices);
 		int sizeMax = (vertices.size() / 3); int currIndex = 0;
-		sizeMax = 4;
+		sizeMax = 3;
 
 		for (JVertex v: vertices) {
 			currIndex++;
