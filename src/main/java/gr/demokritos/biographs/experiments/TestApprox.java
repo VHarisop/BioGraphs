@@ -17,6 +17,7 @@
 package gr.demokritos.biographs.experiments;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.biographs.indexing.inverted.*;
 import gr.demokritos.biographs.indexing.structs.Stats;
 
@@ -39,14 +40,18 @@ public class TestApprox {
 
 	static Stats checkIndex(BioGraph[] bgs, ApproxInvertedIndex invInd) {
 		Stats stat = new Stats("inv_index");
+		long maxTime = 0L;
+		long sumTime = 0L;
 		for (BioGraph bg : bgs) {
-			/* perform queries and measure per-query time */
+			/* perform queries and measure per-query time to find maximum
+			 * and mean query times */
 			long startTime = System.currentTimeMillis();
 			Set<BioGraph> ans = invInd.getMatches(bg);
 			long stopTime = System.currentTimeMillis();
-			System.err.printf("Querying: %s s\n",
-					String.valueOf((stopTime - startTime) / 1000.0));
-
+			if ((stopTime - startTime) > maxTime) {
+				maxTime = stopTime - startTime;
+			}
+			sumTime += stopTime - startTime;
 			if (ans == null || ans.size() == 0) {
 				stat.addResult(bg.getLabel(), new String[] { "None" });
 			}
@@ -58,6 +63,9 @@ public class TestApprox {
 				stat.addResult(bg.getLabel(), labels);
 			}
 		}
+		System.err.printf("Querying - Mean: %s Max: %s s\n",
+				String.valueOf((sumTime / bgs.length) / 1000.0),
+				String.valueOf(maxTime / 1000.0));
 		stat.setBins(invInd.binSizes());
 		return stat;
 	}
@@ -82,7 +90,7 @@ public class TestApprox {
 
 			/* build index and measure time required for the build */
      		long startTime = System.currentTimeMillis();
-			invInd.buildIndex(dataFile);
+			invInd.build(dataFile, GraphType.DNA);
 			long stopTime = System.currentTimeMillis();
 			System.err.printf("Building: %s s\n",
 					String.valueOf((stopTime - startTime) / 1000.0));

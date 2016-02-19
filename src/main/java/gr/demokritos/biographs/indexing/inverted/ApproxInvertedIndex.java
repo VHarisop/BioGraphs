@@ -78,19 +78,14 @@ public class ApproxInvertedIndex extends GraphDatabase {
 	 * and biological data.
 	 *
 	 * @param path the file or directory to read the graphs from
-	 * @param type the data type to be indexed
+	 * @param gType the data type to be indexed
 	 */
-	public void build(File path, GraphType type) throws Exception {
-		switch (type) {
-			case DNA:
-				buildIndex(path);
-				break;
-			case WORD:
-			default:
-				buildWordIndex(path);
-				break;
+	public void build(File path, GraphType gType) throws Exception {
+		this.type = gType;
+		if (gType == GraphType.DNA) {
+			usesDna = true;
 		}
-		return;
+		buildIndex(path);
 	}
 
 	/**
@@ -115,59 +110,40 @@ public class ApproxInvertedIndex extends GraphDatabase {
 	public void buildIndex(File fPath) throws Exception {
 		usesDna = true;
 		if (!fPath.isDirectory()) {
-			addAllGraphs(BioGraph.fastaFileToGraphs(fPath));
+			addAllGraphs(fPath);
 		}
 		else {
-			// get all files in a list
+			/* get all files in a list and add all the graphs of each
+			 * file to the database */
 			File[] fileList = fPath.listFiles(new FileFilter() {
 				public boolean accept(File toFilter) {
 					return toFilter.isFile();
 				}
 			});
-
-			// add them all to the database
 			for (File f: fileList) {
-				addAllGraphs(BioGraph.fastaFileToGraphs(f));
+				addAllGraphs(f);
 			}
 		}
 	}
 
-	/**
-	 * Builds a graph database index from a given file or directory 
-	 * of files which contain words without extra labels, as in the
-	 * case of FASTA files.
-	 *
-	 * @param fPath a path pointing to a file or directory 
-	 */
-	public void buildWordIndex(File fPath) throws Exception {
-		usesDna = false;
-		if (!fPath.isDirectory()) {
-			addAllGraphs(BioGraph.fromWordFile(fPath));
-		}
-		else {
-			// get all files in a list
-			File[] fileList = fPath.listFiles(new FileFilter() {
-				public boolean accept(File toFilter) {
-					return toFilter.isFile();
-				}
-			});
-
-			// add them all to the database
-			for (File f: fileList) {
-				addAllGraphs(BioGraph.fromWordFile(f));
-			}
-		}
-	}
 
 	/**
-	 * Helper function that adds an array {@link BioGraph} objects
-	 * to the database's index.
+	 * Helper function that reads all {@link BioGraph} objects from
+	 * a file using the appopriate reading method, depending on the
+	 * type of the graphs' data.
 	 *
 	 * @see #addGraph(BioGraph) addGraph
 	 */
-	private void addAllGraphs(BioGraph[] bgs) {
-		for (BioGraph bg: bgs) {
-			addGraph(bg);
+	private void addAllGraphs(File path) throws Exception {
+		if (type == GraphType.DNA) {
+			for (BioGraph bg: BioGraph.fastaFileToGraphs(path)) {
+				addGraph(bg);
+			}
+		}
+		else {
+			for (BioGraph bg: BioGraph.fromWordFile(path)) {
+				addGraph(bg);
+			}
 		}
 	}
 
@@ -275,10 +251,11 @@ public class ApproxInvertedIndex extends GraphDatabase {
 		 * has been initialized or not */
 		Set<BioGraph> soFar = null;
 		boolean unset = true;
+		int nBins = 10;
 
 		DefaultHashVector hVec;
 		if (usesDna) {
-			hVec = new DefaultHashVector(new DnaHashStrategy()).withBins(10);
+			hVec = new DefaultHashVector(new DnaHashStrategy()).withBins(nBins);
 		}
 		else {
 			hVec = new DefaultHashVector().withBins(26);
@@ -310,7 +287,7 @@ public class ApproxInvertedIndex extends GraphDatabase {
 			 */
 			double distMin = Double.MAX_VALUE; BioGraph bgMin = null;
 			for (BioGraph gCont: contain) {
-				double[] vgA = gCont.getHashEncoding(usesDna);
+				double[] vgA = gCont.getHashEncoding(usesDna, nBins);
 				double dist;
 				try {
 					dist = Utils.getHammingDistance(vgA, vgM);

@@ -39,13 +39,17 @@ public class TestRandom {
 
 	static Stats checkIndex(BioGraph[] bgs, RandomInvertedIndex invInd) {
 		Stats stat = new Stats("inv_index");
+		long maxTime = 0L, sumTime = 0L;
 		for (BioGraph bg : bgs) {
-			/* measure per-item query time and print to stderr */
+			/* measure per-item query time to extract maximum and mean
+			 * query times */
 			long startTime = System.currentTimeMillis();
 			Set<BioGraph> ans = invInd.getMatches(bg);
 			long stopTime = System.currentTimeMillis();
-			System.err.printf("Querying: %s s\n",
-					String.valueOf((stopTime - startTime) / 1000.0));
+			if ((stopTime - startTime) > maxTime) {
+				maxTime = stopTime - startTime;
+			}
+			sumTime += stopTime - startTime;
 
 			if (ans == null || ans.size() == 0) {
 				stat.addResult(bg.getLabel(), new String[] { "None" });
@@ -58,6 +62,9 @@ public class TestRandom {
 				stat.addResult(bg.getLabel(), labels);
 			}
 		}
+		System.err.printf("Querying - Mean: %s Max: %s\n",
+				String.valueOf((sumTime / bgs.length) / 1000.0),
+				String.valueOf(maxTime/ 1000.));
 		stat.setBins(invInd.binSizes());
 		return stat;
 	}
