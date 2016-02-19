@@ -5,7 +5,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
-import gr.demokritos.biographs.indexing.databases.CachedSimilarityDatabase;
 import gr.demokritos.biographs.indexing.databases.MemSimilarityDatabase;
 import gr.demokritos.biographs.indexing.databases.SimilarityDatabase;
 import gr.demokritos.biographs.indexing.databases.TrieDatabase;
@@ -41,10 +40,6 @@ public class GeneralTest
 	// similarity databases to be shared amongst tests
 	static SimilarityDatabase nfrData;
 	static SimilarityDatabase nclData;
-
-	// cached similarity databases to be shared amongst tests
-	static CachedSimilarityDatabase nfrCache;
-	static CachedSimilarityDatabase nclCache;
 
 	// in-memory similarity databases
 	static MemSimilarityDatabase nfrMem;
@@ -216,26 +211,6 @@ public class GeneralTest
 		}
 	}
 
-	public void testCreateCachedSimIndex() {
-		String nfrIndex = "/1099_consistent_NFR.fa";
-		String nclIndex = "/3061_consistent_nucleosomes.fa";
-		try {
-			// build database index 
-			File resNFR = new File(getClass().getResource(nfrIndex).toURI());
-			File resNCL = new File(getClass().getResource(nclIndex).toURI());
-
-			nfrCache = new CachedSimilarityDatabase();
-			nclCache = new CachedSimilarityDatabase();
-
-			nfrCache.buildIndex(resNFR);
-			nclCache.buildIndex(resNCL);
-			assertTrue(true); // succeed
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false); // fail
-		}
-	}
-
 	/**
 	 * Test that index building and retrieval works properly
 	 * for {@link SimilarityDatabase} classes.
@@ -251,37 +226,6 @@ public class GeneralTest
 			List<String> labels = nfrData.getNodes(bgTest);
 			assertNotNull(labels); 
 			
-			// assert that the existing graph is found in the returned list
-			boolean found = false;
-			for (String s: labels) {
-				if (s.equals("chr1:39666-39676")) {
-					found = true;
-					break;
-				}
-			}
-			assertTrue(found);
-
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Test that index building and retrieval works properly
-	 * for {@link CachedSimilarityDatabase} classes.
-	 */
-	public void testReadCachedSimIndex() {
-		String sTest = "/testFile01.fasta";
-		try {
-			// build the test graph
-			File res = new File(getClass().getResource(sTest).toURI());
-			BioGraph bgTest = BioGraph.fromFastaFile(res);
-
-			// assert that querying an existing graph gives non-null labels
-			List<String> labels = nfrData.getNodes(bgTest);
-			assertNotNull(labels); 
-
 			// assert that the existing graph is found in the returned list
 			boolean found = false;
 			for (String s: labels) {
