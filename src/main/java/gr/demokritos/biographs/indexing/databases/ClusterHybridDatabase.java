@@ -230,6 +230,10 @@ public class ClusterHybridDatabase extends GraphDatabase {
 		}
 	}
 
+	/**
+	 * Builds the hash-map that maps hash vectors to ntrees for the database
+	 * and adds all the graphs in a cluster to its corresponding ntree.
+	 */
 	private void buildNTrees() {
 		trees = new HashMap<HashVector, NTreeDatabase>(clusters.size());
 		for (Map.Entry<HashVector, List<BioGraph>> hv: clusters.entrySet()) {
