@@ -53,7 +53,7 @@ public class TestApprox {
 			}
 			sumTime += stopTime - startTime;
 			if (ans == null || ans.size() == 0) {
-				stat.addResult(bg.getLabel(), new String[] { "None" });
+				stat.addResult(bg.getLabel(), "None");
 			}
 			else {
 				String[] labels = new String[ans.size()]; int ind = 0;
@@ -63,9 +63,7 @@ public class TestApprox {
 				stat.addResult(bg.getLabel(), labels);
 			}
 		}
-		System.err.printf("Querying - Mean: %s Max: %s s\n",
-				String.valueOf((sumTime / bgs.length) / 1000.0),
-				String.valueOf(maxTime / 1000.0));
+		stat.setTimes(maxTime, sumTime, bgs.length);
 		stat.setBins(invInd.binSizes());
 		return stat;
 	}

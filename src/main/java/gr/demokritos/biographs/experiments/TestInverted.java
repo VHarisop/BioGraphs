@@ -39,16 +39,19 @@ public class TestInverted {
 
 	static Stats checkIndex(BioGraph[] bgs, InvertedIndex invInd) {
 		Stats stat = new Stats("inv_index");
+		long sumTime = 0L, maxTime = 0L;
 		for (BioGraph bg : bgs) {
 			/* measure per-item query time and print to stderr */
 			long startTime = System.currentTimeMillis();
 			Set<BioGraph> ans = invInd.getMatches(bg);
 			long stopTime = System.currentTimeMillis();
-			System.err.printf("Querying: %s s\n",
-					String.valueOf((stopTime - startTime) / 1000));
+			if ((stopTime - startTime) > maxTime) {
+				maxTime = stopTime - startTime;
+			}
+			sumTime += stopTime - startTime;
 
 			if (ans == null || ans.size() == 0) {
-				stat.addResult(bg.getLabel(), new String[] { "None" });
+				stat.addResult(bg.getLabel(), "None");
 			}
 			else {
 				String[] labels = new String[ans.size()]; int ind = 0;
@@ -58,6 +61,7 @@ public class TestInverted {
 				stat.addResult(bg.getLabel(), labels);
 			}
 		}
+		stat.setTimes(maxTime, sumTime, bgs.length);
 		stat.setBins(invInd.binSizes());
 		return stat;
 	}

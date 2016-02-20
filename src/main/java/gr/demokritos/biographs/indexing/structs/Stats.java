@@ -43,6 +43,16 @@ public final class Stats {
 	protected int[] binSizes;
 
 	/**
+	 * Contains the maximum query time in seconds
+	 */
+	protected double maxTime;
+
+	/**
+	 * Contains the mean query time in seconds
+	 */
+	protected double meanTime;
+
+	/**
 	 * Creates a new Stats object to hold results for
 	 * an indexing method to be applied.
 	 *
@@ -80,6 +90,17 @@ public final class Stats {
 	 */
 	public void setBins(int[] bins) {
 		binSizes = bins;
+	}
+
+	/**
+	 * Sets the query times used in some test.
+	 * @param maxTime the maximum query time in milliseconds
+	 * @param sumTime the total query time
+	 * @param numTests the number of tests performed
+	 */
+	public void setTimes(long maxTime, long sumTime, int numTests) {
+		this.maxTime = maxTime / 1000.0;
+		this.meanTime = (sumTime / 1000.0) / numTests;
 	}
 
 	/**
