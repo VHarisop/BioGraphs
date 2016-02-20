@@ -173,7 +173,7 @@ public class InvertedIndex extends GraphDatabase {
 				/* associate the inweight of the vertex with this graph
 				 * and let FreqTree handle the additions */
 				vTree.addGraph(vInWeight, bg);
-				invIndex.put(v, new FreqTree());
+				invIndex.put(v, vTree);
 			} 
 			else {
 				/* pickup already existing FreqTree and add the graph
