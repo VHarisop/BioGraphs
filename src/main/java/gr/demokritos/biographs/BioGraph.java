@@ -29,7 +29,6 @@ import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 import java.io.File;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.LinkedHashMap;
@@ -200,7 +199,7 @@ public class BioGraph extends NGramJGraph {
 	}
 
 	/**
-	 * Returns the underlying <tt>UniqueJVertexGraph</tt> object that 
+	 * Returns the underlying {@link UniqueJVertexGraph} object that 
 	 * implements the N-gram graph representation. By definition, it is
 	 * the zero-index graph in the vertex graph array.
 	 * @return the underlying UniqueJVertexGraph 
@@ -292,10 +291,11 @@ public class BioGraph extends NGramJGraph {
 	 * @return the string representation of the weight-ordered vertices
 	 */
 	public String getOrderedVertexCode() {
-		List<Pair<JVertex, Double>> ordPairs = getGraph().getOrderedWeightPairs();
 		String toRet = "";
-		for (Pair<JVertex, Double> p: ordPairs) {
-			toRet += "_" + p.getFirst().getLabel() + String.valueOf(p.getSecond());
+		for (Pair<JVertex, Double> p: getGraph().getOrderedWeightPairs()) {
+			toRet += "_" +
+				p.getFirst().getLabel() +
+				String.valueOf(p.getSecond());
 		}
 		return toRet;
 	}
@@ -348,10 +348,8 @@ public class BioGraph extends NGramJGraph {
 	}
 
 	/**
-	 * A wrapper method around 
-	 * {@link org.biojava.nbio.core.sequence.io.FastaReaderHelper}'s 
-	 * <tt>readFastaDNASequence</tt> in order to facilicate reading DNA 
-	 * sequences from FASTA files. 
+	 * A wrapper method around {@link FastaReaderHelper#readFastaDNASequence}
+	 * in order to facilicate reading DNA sequences from FASTA files. 
 	 *
 	 * @param inFile the file from which to read the sequences
 	 * @return a hash map of String/Sequence pairs.
@@ -409,18 +407,7 @@ public class BioGraph extends NGramJGraph {
 	 * @return a double array containing the graph's hash encoding
 	 */
 	public double[] getHashEncoding(boolean usesDna, int nBins) {
-		if (hashEncoding == null) {
-			DefaultHashVector hVec;
-			if (usesDna) {
-				hVec =
-					new DefaultHashVector(new DnaHashStrategy()).withBins(nBins);
-			}
-			else {
-				hVec = 
-					new DefaultHashVector().withBins(nBins);
-			}
-			hashEncoding = hVec.encodeGraph(this);
-		}
+		computeHashEncoding(usesDna, nBins);
 		return hashEncoding;
 	}
 
