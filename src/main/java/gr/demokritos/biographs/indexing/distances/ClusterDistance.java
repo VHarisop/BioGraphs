@@ -8,7 +8,6 @@ import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
  * to be used when clustering on the graphs is involved.
  */
 public class ClusterDistance {
-	
 	/**
 	 * Computes the clustering distance between two graphs, which is
 	 * assumed to be the hamming distance of their hash-encoded vectors.
@@ -16,7 +15,8 @@ public class ClusterDistance {
 	 * @param bgA the first graph
 	 * @param bgB the second graph
 	 * @return the hamming distance between the two graphs' hash-encoded
-	 * vectors
+	 * vectors. If an exception occurs during the computation, the max
+	 * value for doubles is returned.
 	 */
 	public static double clusterDistance(BioGraph bgA, BioGraph bgB) {
 		DefaultHashVector vHash = new DefaultHashVector();
@@ -27,7 +27,7 @@ public class ClusterDistance {
 					vHash.encodeGraph(bgB));
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			dist = 0.0;
+			dist = Double.MAX_VALUE;
 		}
 		return dist;
 	}
