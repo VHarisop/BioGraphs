@@ -49,9 +49,16 @@ def parse_json(json_string):
         hits = sum(hit(i) for i in method['ResultList'])
         accuracy = float(hits) / len(method['ResultList'])
 
+        try:
+            max_time, mean_time = method['maxTime'], method['meanTime']
+        except KeyError:
+            mean_time = max_time = "unmeasured"
+
         result_list.append({
             'method': method_label,
             'accuracy': accuracy,
+            'mean_time': mean_time,
+            'max_time': max_time,
             'bins': bin_sizes})
 
     return result_list
@@ -75,4 +82,6 @@ if __name__ == '__main__':
         json_lines = ''.join(i for i in f)
 
         for i in parse_json(json_lines):
-            print(i['method'], i['accuracy'], 'bins:', i['bins'])
+            time_label = 'mean: %s, max: %s' % (i['mean_time'], i['max_time'])
+            print(i['method'], i['accuracy'], 'bins:', i['bins'],
+                    'times: ', time_label)
