@@ -9,6 +9,44 @@ import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
  */
 public class ClusterDistance {
 	/**
+	 * Computes the hamming distance between two vectors, returning
+	 * the system's max value for doubles if their lengths differ.
+	 *
+	 * @param encA the first vector
+	 * @param encB the second vector
+	 * @return the hamming distance between the two vectors
+	 */
+	public static double hamming(double[] encA, double[] encB) {
+		double dist;
+		try {
+			dist = Utils.getHammingDistance(encA, encB);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			dist = Double.MAX_VALUE;
+		}
+		return dist;
+	}
+
+	/**
+	 * Computes the hamming distance between two vectors, returning
+	 * the system's max value for doubles if their lengths differ.
+	 *
+	 * @param encA the first vector
+	 * @param encB the second vector
+	 * @return the hamming distance between the two vectors
+	 */
+	public static double euclidean(double[] encA, double[] encB) {
+		double dist;
+		try {
+			dist = Utils.getEuclideanDistance(encA, encB);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			dist = Double.MAX_VALUE;
+		}
+		return dist;
+	}
+
+	/**
 	 * Computes the hamming distance between two graphs, which is assumed
 	 * to be the hamming distance of their hash-encoded vectors.
 	 *
@@ -20,16 +58,7 @@ public class ClusterDistance {
 	 */
 	public static double hamming(BioGraph bgA, BioGraph bgB) {
 		DefaultHashVector vHash = new DefaultHashVector();
-		double dist;
-		try {
-			dist = Utils.getHammingDistance(
-					vHash.encodeGraph(bgA),
-					vHash.encodeGraph(bgB));
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			dist = Double.MAX_VALUE;
-		}
-		return dist;
+		return hamming(vHash.encodeGraph(bgA), vHash.encodeGraph(bgB));
 	}
 
 	/**
@@ -44,15 +73,6 @@ public class ClusterDistance {
 	 */
 	public static double euclidean(BioGraph bgA, BioGraph bgB) {
 		DefaultHashVector vHash = new DefaultHashVector();
-		double dist;
-		try {
-			dist = Utils.getEuclideanDistance(
-					vHash.encodeGraph(bgA),
-					vHash.encodeGraph(bgB));
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			dist = Double.MAX_VALUE;
-		}
-		return dist;
+		return euclidean(vHash.encodeGraph(bgA), vHash.encodeGraph(bgB));
 	}
 }

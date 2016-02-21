@@ -22,8 +22,8 @@ import java.io.FileFilter;
 import java.util.*;
 
 import gr.demokritos.biographs.BioGraph;
-import gr.demokritos.biographs.Utils;
 import gr.demokritos.biographs.indexing.*;
+import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 /* JInsect imports */
 import gr.demokritos.iit.jinsect.structs.*;
 
@@ -101,32 +101,6 @@ public class RandomInvertedIndex extends GraphDatabase {
 			// add them all to the database
 			for (File f: fileList) {
 				addAllGraphs(BioGraph.fastaFileToGraphs(f));
-			}
-		}
-	}
-
-	/**
-	 * Builds a graph database index from a given file or directory 
-	 * of files which contain words without extra labels, as in the
-	 * case of FASTA files.
-	 *
-	 * @param fPath a path pointing to a file or directory 
-	 */
-	public void buildWordIndex(File fPath) throws Exception {
-		if (!fPath.isDirectory()) {
-			addAllGraphs(BioGraph.fromWordFile(fPath));
-		}
-		else {
-			// get all files in a list
-			File[] fileList = fPath.listFiles(new FileFilter() {
-				public boolean accept(File toFilter) {
-					return toFilter.isFile();
-				}
-			});
-
-			// add them all to the database
-			for (File f: fileList) {
-				addAllGraphs(BioGraph.fromWordFile(f));
 			}
 		}
 	}
@@ -379,14 +353,8 @@ public class RandomInvertedIndex extends GraphDatabase {
 		
 		/* loop over all candidates to find minimum hamming distance */
 		for (BioGraph b: candidates) {
-			double dist = Double.MAX_VALUE;
-			try {
-				dist = Utils.getHammingDistance(
-						b.getHashEncoding(true, 10),
-						vQuery);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
+			double dist =
+				ClusterDistance.hamming(b.getHashEncoding(true, 10), vQuery);
 			if (dist < mDist) {
 				mDist = dist;
 				bgMin = b;
