@@ -65,7 +65,6 @@ public class KnnTest
 		try {
 			File test = new File(getClass().getResource(nclTest).toURI());
 			bgTest = BioGraph.fromFastaFile(test);
-
 			assertNotNull(bgTest);
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -119,32 +118,6 @@ public class KnnTest
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			assertTrue(false);
-		}
-	}
-
-	public void testKnn() {
-		// make sure query graph has been read. If not, read it again
-		if (bgTest == null) {
-			String nclTest = "/testFile02.fasta";
-			try {
-				File test = new File(getClass().getResource(nclTest).toURI());
-				bgTest = BioGraph.fromFastaFile(test);
-
-				assertNotNull(bgTest);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				assertTrue(false);
-			}
-		}
-
-		// make sure list of nearest neighbours exists and is not empty
-		List<String> near = trd.getKNearestNeighbours(bgTest, true, 4);
-		assertNotNull(near);
-		assertTrue(near.size() > 0);
-
-		// print list of NNs
-		for (String s: near) {
-			System.out.println(s);
 		}
 	}
 }

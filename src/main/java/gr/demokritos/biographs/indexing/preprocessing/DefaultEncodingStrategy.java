@@ -18,9 +18,15 @@ package gr.demokritos.biographs.indexing.preprocessing;
 import gr.demokritos.iit.jinsect.structs.JVertex;
 import gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph;
 
+/**
+ * The default encoding strategy that operates on the vertices of a
+ * {@link UniqueJVertexGraph}, assigning to each vertex an encoding
+ * value equal to the sum of its incident weights.
+ * 
+ * @author VHarisop
+ */
 public final class DefaultEncodingStrategy
 	implements EncodingStrategy<Double> {
-
 	/**
 	 * The {@link UniqueJVertexGraph} on whose vertices this
 	 * EncodingStrategy will operate on.

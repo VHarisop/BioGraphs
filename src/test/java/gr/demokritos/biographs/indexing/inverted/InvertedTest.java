@@ -6,6 +6,7 @@ import junit.framework.TestSuite;
 
 import gr.demokritos.biographs.*;
 import java.io.File;
+import java.util.Set;
 
 /**
  * Unit test for simple App.
@@ -31,16 +32,13 @@ public class InvertedTest
         return new TestSuite( InvertedTest.class );
     }
 	
-	static InvertedIndex nclData;
-
 	/**
-	 * Test that the {@link TrieDatabase} class works properly.
+	 * Test that the {@link InvertedIndex} class works properly.
 	 */
-	public void testCreateTrieIndex() {
+	public void testInvertedIndex() {
 		String nclIndex = "/3061_consistent_nucleosomes.fa";
 
-		nclData = new InvertedIndex();
-
+		InvertedIndex nclData = new InvertedIndex();
 		BioGraph[] nclBgs = null;
 		try {
 			// build database index 
@@ -58,6 +56,29 @@ public class InvertedTest
 		for (BioGraph b: nclBgs) {
 			assertNotNull(nclData.getMatches(b));
 			assertTrue(nclData.getMatches(b).size() > 0);
+		}
+	}
+
+	public void testRandomIndex() {
+		String nclIndex = "/3061_consistent_nucleosomes.fa";
+		RandomInvertedIndex rndIndex = new RandomInvertedIndex();
+		BioGraph[] nclBgs = null;
+		try {
+			// build database index 
+			File resNCL = new File(getClass().getResource(nclIndex).toURI());
+			rndIndex.buildIndex(resNCL);
+			nclBgs = BioGraph.fastaFileToGraphs(resNCL);
+			assertTrue(true); // succeed
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			assertTrue(false); // fail
+		}
+		/* make sure the graphs were read properly */
+		assertNotNull(nclBgs);
+		for (BioGraph b: nclBgs) {
+			Set<BioGraph> matches = rndIndex.getMatches(b);
+			assertNotNull(matches);
+			assertTrue(matches.size() > 0);
 		}
 	}
 }

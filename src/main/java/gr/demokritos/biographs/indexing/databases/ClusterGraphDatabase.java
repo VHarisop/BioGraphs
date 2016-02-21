@@ -414,11 +414,11 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	protected BioGraph getClosestInCluster(BioGraph bg, int centroidIndex) {
 		HashVector centroid = centroids.get(centroidIndex);
 		List<BioGraph> cand = clusters.get(centroid);
-		double minDist = ClusterDistance.clusterDistance(bg, cand.get(0));
+		double minDist = ClusterDistance.hamming(bg, cand.get(0));
 		int minIndex = 0, currIndex = 0;
 
 		for (BioGraph cGraph: cand) {
-			double dist = ClusterDistance.clusterDistance(bg, cGraph);
+			double dist = ClusterDistance.hamming(bg, cGraph);
 			if (dist < minDist) {
 				minDist = dist;
 				minIndex = currIndex;

@@ -252,18 +252,6 @@ public class Main {
 		return buildAndPrint(trdSim, bgs, "similarity_and_canonical_code");
 	}
 
-	public static Stats checkHashVectorSim(BioGraph[] bgs) {
-		TreeDatabase<String> trd = 
-			new TreeDatabase<String>(new VertexHashComparator(26)) {
-				@Override
-				public String getGraphFeature(BioGraph bG) {
-					return bG.getLabel();
-				}
-			};
-
-		return buildAndPrint(trd, bgs, "vertex_hash");
-	}
-
 	public static Stats checkSimpleSim(BioGraph[] bgs) {
 		/* simple s-similarity indexing */
 		TreeDatabase<String> trdSim = 

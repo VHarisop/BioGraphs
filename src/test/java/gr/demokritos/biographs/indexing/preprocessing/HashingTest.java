@@ -1,6 +1,7 @@
 package gr.demokritos.biographs.indexing.preprocessing;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.indexing.GraphDatabase;
 import gr.demokritos.iit.jinsect.structs.*;
 
 import junit.framework.Test;
@@ -40,20 +41,22 @@ public class HashingTest
 		uvg.add(new NGramVertex("CTA"));
 		uvg.add(new NGramVertex("AGT"));
 
-		VertexHashVector vHashVec = new VertexHashVector().withBins(20);
-		int[] graphEnc = vHashVec.encodeGraph(uvg);
-		assertNotNull(graphEnc);
-		assertTrue(graphEnc.length == 20);
+		/* make sure that the hash vector for DNA data has
+		 * length 10 */
+		DefaultHashVector vHashVec = 
+			new DefaultHashVector(GraphDatabase.GraphType.DNA);
+		assertEquals(10, vHashVec.encodeGraph(uvg).length);
 
-		HashingStrategy<JVertex> dvh = new DefaultHashStrategy(); int key;
+		/* make sure that hashing based on dinucleotides
+		 * is performed */
+		DnaHashStrategy hashSg = new DnaHashStrategy();
+		int a = hashSg.hash(new NGramVertex("ACT"));
+		int b = hashSg.hash(new NGramVertex("CAG"));
+		assertEquals(a, b);
 
-		/* get hash of "A" */
-		key = dvh.hash(new NGramVertex("ACT")) % 20;
-		assertEquals(graphEnc[key], 2);
-
-		/* and hash of "C" */
-		key = dvh.hash(new NGramVertex("CTA")) % 20;
-		assertEquals(graphEnc[key], 1);
+		a = hashSg.hash(new NGramVertex("TTG"));
+		b = hashSg.hash(new NGramVertex("TAC"));
+		assertFalse(a == b);
 	}
 
 	/**
@@ -62,13 +65,13 @@ public class HashingTest
 	public void testGraphHash() {
 		BioGraph bgA = new BioGraph("reforests");
 		BioGraph bgB = new BioGraph("renounces");
+		DefaultHashVector hVec = 
+			new DefaultHashVector(GraphDatabase.GraphType.WORD);
 
-		VertexHashVector vHash = new VertexHashVector().withPartialSums();
-		
-		int[] graphEnc = vHash.encodeGraph(bgA.getGraph());
+		double[] graphEnc = hVec.encodeGraph(bgA.getGraph());
 		assertNotNull(graphEnc);
 
-		graphEnc = vHash.encodeGraph(bgB.getGraph());
+		graphEnc = hVec.encodeGraph(bgB.getGraph());
 		assertNotNull(graphEnc);
 	}
 }

@@ -9,8 +9,8 @@ import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
  */
 public class ClusterDistance {
 	/**
-	 * Computes the clustering distance between two graphs, which is
-	 * assumed to be the hamming distance of their hash-encoded vectors.
+	 * Computes the hamming distance between two graphs, which is assumed
+	 * to be the hamming distance of their hash-encoded vectors.
 	 *
 	 * @param bgA the first graph
 	 * @param bgB the second graph
@@ -18,11 +18,35 @@ public class ClusterDistance {
 	 * vectors. If an exception occurs during the computation, the max
 	 * value for doubles is returned.
 	 */
-	public static double clusterDistance(BioGraph bgA, BioGraph bgB) {
+	public static double hamming(BioGraph bgA, BioGraph bgB) {
 		DefaultHashVector vHash = new DefaultHashVector();
 		double dist;
 		try {
 			dist = Utils.getHammingDistance(
+					vHash.encodeGraph(bgA),
+					vHash.encodeGraph(bgB));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			dist = Double.MAX_VALUE;
+		}
+		return dist;
+	}
+
+	/**
+	 * Computes the euclidean distance between two graphs, which is assumed
+	 * to be the euclidean distance of their hash-encoded vectors.
+	 *
+	 * @param bgA the first graph
+	 * @param bgB the second graph
+	 * @return the euclidean distance between the two graphs' hash encoded
+	 * vectors. If an exception occurs during the computation, the maximum
+	 * value for doubles is returned.
+	 */
+	public static double euclidean(BioGraph bgA, BioGraph bgB) {
+		DefaultHashVector vHash = new DefaultHashVector();
+		double dist;
+		try {
+			dist = Utils.getEuclideanDistance(
 					vHash.encodeGraph(bgA),
 					vHash.encodeGraph(bgB));
 		} catch (Exception ex) {

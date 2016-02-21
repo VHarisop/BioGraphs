@@ -19,7 +19,11 @@ import gr.demokritos.iit.jinsect.structs.JVertex;
 
 /**
  * The default class used for hashing the labels of JVertex objects that
- * are used to encode biological data.
+ * are used to encode biological data. The first two letters of each label
+ * are identified as a dinucleotide pair and then assigned a distinct hash
+ * value.
+ *
+ * @author VHarisop
  */
 public final class DnaHashStrategy
 	implements HashingStrategy<JVertex> 

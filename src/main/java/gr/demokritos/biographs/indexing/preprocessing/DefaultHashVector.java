@@ -19,6 +19,7 @@ import java.util.TreeMap;
 
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.Utils;
+import gr.demokritos.biographs.indexing.GraphDatabase;
 import gr.demokritos.iit.jinsect.structs.*;
 
 /**
@@ -64,12 +65,32 @@ public class DefaultHashVector {
 	}
 
 	/**
+	 * Creates an empty DefaultHashVector object using the default method
+	 * for hashing based on a specified graph type. If the graph type
+	 * suggests using with biological data, the default hash strategy is
+	 * a {@link DnaHashStrategy} object, while in the other case the hash
+	 * strategy used is {@link DefaultHashStrategy}. Vector size differs
+	 * as well, with 10 being the default value for DNA and 26 for words.
+	 *
+	 * @param gType the graph type to base the hash strategy on
+	 */
+	public DefaultHashVector(GraphDatabase.GraphType gType) {
+		if (gType == GraphDatabase.GraphType.DNA) {
+			hashStrategy = new DnaHashStrategy();
+			initParameters(10);
+		}
+		else {
+			hashStrategy = new DefaultHashStrategy();
+			initParameters(26);
+		}
+	}
+
+	/**
 	 * Creates an empty LabelHash object using a specified hash method.
 	 *
 	 * @param hashSg the hash method to use
 	 */
-	public DefaultHashVector(
-			HashingStrategy<JVertex> hashSg) 
+	public DefaultHashVector(HashingStrategy<JVertex> hashSg) 
 	{
 		hashStrategy = hashSg;
 		initParameters();
@@ -78,6 +99,12 @@ public class DefaultHashVector {
 	private void initParameters() {
 		vertexMap = new TreeMap<Integer, Double>();
 		usePartial = false;
+	}
+
+	private void initParameters(int bins) {
+		vertexMap = new TreeMap<Integer, Double>();
+		usePartial = false;
+		K = bins;
 	}
 
 	/**
@@ -150,7 +177,6 @@ public class DefaultHashVector {
 			vertexMap.put(hashVal, previous.doubleValue() + code);
 		}
 	}
-	/* TODO: Add an encoding strategy for vector cells! */
 
 	/**
 	 * Encodes a {@link UniqueJVertexGraph} object using label hashing on each
