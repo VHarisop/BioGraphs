@@ -102,6 +102,7 @@ public final class Utils {
 	 * @param vecA the first vector
 	 * @param vecB the second vector
 	 * @return the hamming distance of the two vectors
+	 * @throws Exception if the lengths of the two vectors differ
 	 */
 	public static int getHammingDistance(int[] vecA, int[] vecB) 
 		throws Exception {
@@ -121,6 +122,7 @@ public final class Utils {
 	 * @param vecA the first vector
 	 * @param vecB the second vector
 	 * @return the hamming distance of the two vectors
+	 * @throws Exception if the lengths of the two vectors differ
 	 */
 	public static double getHammingDistance(double[] vecA, double[] vecB) 
 		throws Exception {
@@ -136,10 +138,31 @@ public final class Utils {
 
 	/**
 	 * Computes the euclidean distance between two encoding vectors
+	 * containing integers.
+	 * @param vecA the first vector
+	 * @param vecB the second vector
+	 * @return the euclidean distance of the two vectors
+	 * @throws Exception if the lengths of the two vectors differ
+	 */
+	public static int getEuclideanDistance(int[] vecA, int[] vecB) 
+		throws Exception {
+		if (vecA.length != vecB.length) {
+			throw new Exception("Encoding vector lengths differ!");
+		}
+		int diffs = 0;
+		for (int i = 0; i < vecA.length; ++i) {
+			diffs += (vecA[i] - vecB[i]) * (vecA[i] - vecB[i]);
+		}
+		return diffs;
+	}
+
+	/**
+	 * Computes the euclidean distance between two encoding vectors
 	 * of floating point numeric type.
 	 * @param vecA the first vector
 	 * @param vecB the second vector
 	 * @return the euclidean distance of the two vectors
+	 * @throws Exception if the lengths of the two vectors differ
 	 */
 	public static double getEuclideanDistance(double[] vecA, double[] vecB) 
 		throws Exception {
