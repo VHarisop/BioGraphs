@@ -169,7 +169,7 @@ public class DefaultHashVector {
 	 * @param toAdd the vertex to be added
 	 * @param uvg the graph that the vertex resides in
 	 */
-	protected void addVertex(JVertex toAdd, UniqueJVertexGraph uvg) {
+	protected void addVertex(JVertex toAdd, UniqueVertexGraph uvg) {
 		/* hash value modulo K */
 		int hashVal = (hashStrategy.hash(toAdd) % this.K);
 		Double previous = vertexMap.get(hashVal);
@@ -186,13 +186,13 @@ public class DefaultHashVector {
 	}
 
 	/**
-	 * Encodes a {@link UniqueJVertexGraph} object using label hashing on each
+	 * Encodes a {@link UniqueVertexGraph} object using label hashing on each
 	 * of its vertices.
 	 *
 	 * @param uvg the graph to encode
 	 * @return a double vector that encodes the graph
 	 */
-	public double[] encodeGraph(UniqueJVertexGraph uvg) {
+	public double[] encodeGraph(UniqueVertexGraph uvg) {
 		/* make sure the map is reset before encoding */
 		this.clear();
 

@@ -95,21 +95,8 @@ public class DnaTest {
 		return buildAndPrintTrie(trd, bgs);
 	}
 
-	static Stats checkEntropy(BioGraph[] bgs) {
-		TreeDatabase<String> entData = 
-			new TreeDatabase<String>(new TotalEntropyComparator()) {
-				@Override
-				public String getGraphFeature(BioGraph bG) {
-					return bG.getLabel();
-				}
-			};
-
-		return buildAndPrint(entData, bgs, "entropy");
-	}
-	
 	static Stats checkSimTrie(BioGraph[] bgs) {
-		Comparator<BioGraph> bgComp = 
-			new SimilarityComparator();
+		Comparator<BioGraph> bgComp = new SimilarityComparator();
 
 		TreeDatabase<BioGraph> trdVar = 
 			new TreeDatabase<BioGraph>(bgComp) {
@@ -152,46 +139,6 @@ public class DnaTest {
 		return stat;
 	}
 
-	static Stats checkVariance(BioGraph[] bgs) {
-		/* Comparator that uses the ratio of degree variances */
-		Comparator<BioGraph> bgComp = 
-			new VarianceComparator(VarianceComparator.Type.RATIO);
-
-		TreeDatabase<String> trdVar = 
-			new TreeDatabase<String>(bgComp) {
-				@Override
-				public String getGraphFeature(BioGraph bG) {
-					return bG.getLabel();
-				}
-			};
-
-		/* build index and print results */
-		return buildAndPrint(trdVar, bgs, "variance");
-	}
-
-	static Stats checkRatio(BioGraph[] bgs) {
-		/* Custom comparator based on the degree ratio sum */
-		Comparator<BioGraph> bgComp = new Comparator<BioGraph>() {
-			@Override
-			public int compare(BioGraph bgA, BioGraph bgB) {
-				return Double.compare(
-						bgA.getGraph().getDegreeRatioSum(),
-						bgB.getGraph().getDegreeRatioSum());
-
-			}
-		};
-
-		TreeDatabase<String> trdSim = 
-			new TreeDatabase<String>(bgComp) {
-				@Override
-				public String getGraphFeature(BioGraph bG) {
-					return bG.getLabel();
-				}
-			};
-
-		return buildAndPrint(trdSim, bgs, "degree_ratio");
-	}
-
 	static Stats checkSim(BioGraph[] bgs) {
 		/* Create a TreeDatabase ordered by a two-level comparator
 		 * that uses s-similarity first and the graph's canonical
@@ -205,14 +152,6 @@ public class DnaTest {
 			};
 	
 		return buildAndPrint(trdSim, bgs, "similarity_and_canonical_code");
-	}
-
-	static Stats checkSimpleSim(BioGraph[] bgs) {
-		/* simple s-similarity indexing */
-		TreeDatabase<String> trdSim = 
-			new SimilarityDatabase();
-
-		return buildAndPrint(trdSim, bgs, "similarity");
 	}
 
 	static Stats checkNearest(BioGraph[] bgs, ClusterHybridDatabase cgd) {

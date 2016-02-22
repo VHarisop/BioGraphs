@@ -16,11 +16,11 @@
 package gr.demokritos.biographs.indexing.preprocessing;
 
 import gr.demokritos.iit.jinsect.structs.JVertex;
-import gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph;
+import gr.demokritos.iit.jinsect.structs.UniqueVertexGraph;
 
 /**
  * The default encoding strategy that operates on the vertices of a
- * {@link UniqueJVertexGraph}, assigning to each vertex an encoding
+ * {@link UniqueVertexGraph}, assigning to each vertex an encoding
  * value equal to the sum of its incident weights.
  * 
  * @author VHarisop
@@ -35,7 +35,7 @@ public final class DefaultEncodingStrategy
 	 * @param uvGraph the graph that the vertex resides in
 	 * @return the vertex's assigned encoding value
 	 */
-	public Double encode(JVertex vCurr, UniqueJVertexGraph uvGraph) {
+	public Double encode(JVertex vCurr, UniqueVertexGraph uvGraph) {
 		return uvGraph.weightSumOf(vCurr);
 	}
 }

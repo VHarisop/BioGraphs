@@ -19,16 +19,14 @@ package gr.demokritos.biographs;
 import gr.demokritos.iit.jinsect.representations.NGramJGraph;
 import gr.demokritos.iit.jinsect.structs.JVertex;
 import gr.demokritos.iit.jinsect.structs.Edge;
-import gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph;
+import gr.demokritos.iit.jinsect.structs.UniqueVertexGraph;
 
 import java.util.HashMap;
 import java.util.Set;
 import java.lang.Math;
 
 /* TODO: 
- * 1) update IsomorphismTester to implement IIsomorphism, by adding
- *    a constructor and providing non-static methods.
- * 2) expand IsomorphismTester to use caching.
+ * 1) expand IsomorphismTester to use caching.
  */
 
 /**
@@ -134,7 +132,7 @@ public class IsomorphismTester {
 	 * @return true only if uvgA is graph isomorphic to uvgB
 	 */
 	protected static boolean graphAux
-	(UniqueJVertexGraph uvgA, UniqueJVertexGraph uvgB)
+	(UniqueVertexGraph uvgA, UniqueVertexGraph uvgB)
 	{
 		/* get the Edge maps of both graphs */
 		Set<Edge> edgA = uvgA.edgeSet();
@@ -176,7 +174,7 @@ public class IsomorphismTester {
 	 * @return true only if uvgA is a subgraph of and isomorphic to uvgB
 	 */
 	protected static boolean subgraphAux
-	(UniqueJVertexGraph uvgA, UniqueJVertexGraph uvgB)
+	(UniqueVertexGraph uvgA, UniqueVertexGraph uvgB)
 	{
 		/* get vertex maps for both graphs */
 		HashMap<String, JVertex> vcmA = uvgA.UniqueVertices;

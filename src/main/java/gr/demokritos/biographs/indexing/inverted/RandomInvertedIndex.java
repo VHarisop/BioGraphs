@@ -134,7 +134,7 @@ public class RandomInvertedIndex extends GraphDatabase {
 		 * incoming weight sum
 		 * 
 		 */
-		UniqueJVertexGraph uvG = bg.getGraph();
+		UniqueVertexGraph uvG = bg.getGraph();
 		for (JVertex v: uvG.vertexSet()) {
 			FreqTree vTree;
 			
@@ -217,7 +217,7 @@ public class RandomInvertedIndex extends GraphDatabase {
 		 *     resulting set
 		 * 5 - return the graph as an answer
 		 */
-		UniqueJVertexGraph uvG = bG.getGraph();
+		UniqueVertexGraph uvG = bG.getGraph();
 		int epsilon = bG.getWindowSize() + tolerance;
 
 		/* initial set of results */
@@ -268,7 +268,7 @@ public class RandomInvertedIndex extends GraphDatabase {
 	(BioGraph bQuery, Collection<JVertex> vertices, int epsilon) 
 	{
 		/* get the underlying unique vertex graph of the query graph */
-		UniqueJVertexGraph uvG = bQuery.getGraph();
+		UniqueVertexGraph uvG = bQuery.getGraph();
 		int currIndex = 0,
 			sizeMax = vertices.size() - 1;
 

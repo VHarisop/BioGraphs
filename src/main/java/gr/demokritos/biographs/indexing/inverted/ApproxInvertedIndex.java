@@ -163,7 +163,7 @@ public class ApproxInvertedIndex extends GraphDatabase {
 		 * incoming weight sum
 		 * 
 		 */
-		UniqueJVertexGraph uvG = bg.getGraph();
+		UniqueVertexGraph uvG = bg.getGraph();
 		for (JVertex v: uvG.vertexSet()) {
 			FreqTree vTree;
 			
@@ -244,7 +244,7 @@ public class ApproxInvertedIndex extends GraphDatabase {
 		 * 3 - take the intersection of all lists retrieved in step 2
 		 * 4 - return this list as an answer
 		 */
-		UniqueJVertexGraph uvG = bG.getGraph();
+		UniqueVertexGraph uvG = bG.getGraph();
 		int epsilon = bG.getWindowSize() + tolerance;
 
 		/* initial set of results and a flag indicating if it

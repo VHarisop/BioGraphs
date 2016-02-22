@@ -19,6 +19,7 @@ import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.Utils;
 import gr.demokritos.ntree.NodeComparator;
 import gr.demokritos.ntree.Node;
+import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
 
 /**
@@ -35,6 +36,23 @@ public class DefaultHashComparator
 	 */
 	protected DefaultHashVector vHash;
 
+	/**
+	 * Creates a new {@link DefaultHashComparator} that uses a specified
+	 * {@link DefaultHashVector} to compute encoding vectors for the
+	 * graphs it will compare.
+	 *
+	 * @param hVec the {@link DefaultHashVector} to use in comparisons
+	 */
+	public DefaultHashComparator(DefaultHashVector hVec) {
+		this.vHash = hVec;
+	}
+
+	/**
+	 * Creates a new {@link DefaultHashComparator} that uses a default
+	 * hash vector object, with a specified number of bins.
+	 *
+	 * @param numBins the number of bins to use in hashing
+	 */
 	public DefaultHashComparator(int numBins) {
 		this.vHash = 
 			new DefaultHashVector().withBins(numBins);
@@ -43,21 +61,12 @@ public class DefaultHashComparator
 	 * @see NodeComparator#getDistance 
 	 */
 	public double getDistance(Node<BioGraph> ndA, Node<BioGraph> ndB) {
-		BioGraph bgA = ndA.getKey(),
-				 bgB = ndB.getKey();
-
+		BioGraph bgA = ndA.getKey(), bgB = ndB.getKey();
 		double[] vecA = this.vHash.encodeGraph(bgA.getGraph());
 		double[] vecB = this.vHash.encodeGraph(bgB.getGraph());
 
-		double ret = 0.0;
 		/* compute the sum of absolute vector differences */
-		try {
-			ret = Utils.getHammingDistance(vecA, vecB);
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return ret;
+		return ClusterDistance.hamming(vecA, vecB);
 	}
 
 	@Override

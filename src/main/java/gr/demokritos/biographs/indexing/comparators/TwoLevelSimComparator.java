@@ -17,10 +17,11 @@
 package gr.demokritos.biographs.indexing.comparators;
 
 import gr.demokritos.biographs.*;
+import java.util.Comparator;
 import gr.demokritos.iit.jinsect.jutils;
 
 public class TwoLevelSimComparator 
-extends SimilarityComparator
+	implements Comparator<BioGraph>
 {
 	@Override
 	public int compare(BioGraph bgA, BioGraph bgB) {

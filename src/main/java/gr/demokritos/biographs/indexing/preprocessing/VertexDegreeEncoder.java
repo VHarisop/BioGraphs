@@ -26,9 +26,9 @@ public final class VertexDegreeEncoder
 	implements EncodingStrategy<Integer> 
 {
 	/**
-	 * @see EncodingStrategy#encode(JVertex, UniqueJVertexGraph) encode
+	 * @see EncodingStrategy#encode(JVertex, UniqueVertexGraph) encode
 	 */
-	public Integer encode(JVertex vCurr, UniqueJVertexGraph uvGraph) {
+	public Integer encode(JVertex vCurr, UniqueVertexGraph uvGraph) {
 		return uvGraph.edgesOf(vCurr).size();
 	}
 }

@@ -76,7 +76,7 @@ public class HashedInvertedIndex extends GraphDatabase {
 		hashVec.setHashStrategy(new SimpleDnaHash());
 		hashVec.setEncodingStrategy(new EncodingStrategy<Double>() {
 			@Override
-			public Double encode(JVertex vCurr, UniqueJVertexGraph uvGraph) {
+			public Double encode(JVertex vCurr, UniqueVertexGraph uvGraph) {
 				return uvGraph.incomingWeightSumOf(vCurr);
 			}
 		});

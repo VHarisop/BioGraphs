@@ -48,55 +48,6 @@ public final class Utils {
 	}
 
 	/**
-	 * Computes the edit distance (also known as levenshtein distance)
-	 * between two words, using the well - known dynamic programming
-	 * algorithm.
-	 *
-	 * @param wordA the first word
-	 * @param wordB the second word
-	 * @return an integer indicating the minimum edit distance between
-	 * the two words
-	 */
-	public static int editDistance(String wordA, String wordB) {
-		int lenA = wordA.length();
-		int lenB = wordB.length();
-	 
-		// lenA + 1, lenB + 1, because DP
-		int[][] dp = new int[lenA + 1][lenB + 1];
-	 
-		for (int i = 0; i <= lenA; i++) {
-			dp[i][0] = i;
-		}
-	 
-		for (int j = 0; j <= lenB; j++) {
-			dp[0][j] = j;
-		}
-	 
-		/* backwards iteration, starting from last char */
-		for (int i = 0; i < lenA; i++) {
-			char c1 = wordA.charAt(i);
-			for (int j = 0; j < lenB; j++) {
-				char c2 = wordB.charAt(j);
-	 
-				/* if characters are equal, no penalty is added */
-				if (c1 == c2) {
-					dp[i + 1][j + 1] = dp[i][j];
-				} 
-				else {
-					int replace = dp[i][j] + 1;
-					int insert = dp[i][j + 1] + 1;
-					int delete = dp[i + 1][j] + 1;
-					int min = replace > insert ? insert : replace;
-					min = delete > min ? min : delete;
-					dp[i + 1][j + 1] = min;
-				}
-			}
-		}
-	 
-		return dp[lenA][lenB];
-	}
-	
-	/**
 	 * Computes the hamming distance between two encoding vectors
 	 * of integral numeric type.
 	 * @param vecA the first vector

@@ -96,18 +96,6 @@ public class Main {
 		return buildAndPrintTrie(trd, bgs);
 	}
 
-	public static Stats checkEntropy(BioGraph[] bgs) {
-		TreeDatabase<String> entData = 
-			new TreeDatabase<String>(new TotalEntropyComparator()) {
-				@Override
-				public String getGraphFeature(BioGraph bG) {
-					return bG.getLabel();
-				}
-			};
-
-		return buildAndPrint(entData, bgs, "entropy");
-	}
-	
 	public static Stats checkSimNTree(BioGraph[] bgs) {
 		Comparator<BioGraph> bgComp = 
 			new SimilarityComparator();
@@ -197,23 +185,6 @@ public class Main {
 		return stat;
 	}
 
-	public static Stats checkVariance(BioGraph[] bgs) {
-		/* Comparator that uses the ratio of degree variances */
-		Comparator<BioGraph> bgComp = 
-			new VarianceComparator(VarianceComparator.Type.RATIO);
-
-		TreeDatabase<String> trdVar = 
-			new TreeDatabase<String>(bgComp) {
-				@Override
-				public String getGraphFeature(BioGraph bG) {
-					return bG.getLabel();
-				}
-			};
-
-		/* build index and print results */
-		return buildAndPrint(trdVar, bgs, "variance");
-	}
-
 	public static Stats checkRatio(BioGraph[] bgs) {
 		/* Custom comparator based on the degree ratio sum */
 		Comparator<BioGraph> bgComp = new Comparator<BioGraph>() {
@@ -252,51 +223,6 @@ public class Main {
 		return buildAndPrint(trdSim, bgs, "similarity_and_canonical_code");
 	}
 
-	public static Stats checkSimpleSim(BioGraph[] bgs) {
-		/* simple s-similarity indexing */
-		TreeDatabase<String> trdSim = 
-			new SimilarityDatabase();
-
-		return buildAndPrint(trdSim, bgs, "similarity");
-	}
-
-	public static Stats checkQuant(BioGraph[] bgs) {
-		QuantTreeDatabase<String> qtd = 
-			new QuantTreeDatabase<String>() {
-				@Override
-				public String getGraphFeature(BioGraph bG) {
-					return bG.getLabel();
-				}
-			};
-
-		try {
-			qtd.buildWordIndex(dataFile);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return null;
-		}
-
-		Stats stat = new Stats("quantization");
-		for (BioGraph bG: bgs) {
-			List<String> ans;
-			try {
-				ans = qtd.getKNearestNeighbours(bG, true, numNeighbours);
-			} catch (Exception ex) {
-				System.out.printf("Crash on %s!\n", bG.getLabel());
-				continue;
-			}
-			if (ans == null) {
-				throw new NullPointerException();
-			}
-			else {
-				stat.addResult(
-						bG.getLabel(),
-						ans.toArray(new String[ans.size()]));
-			}
-		}
-		return stat;
-	}
-
 	public static void main(String[] args) 
 	throws NumberFormatException 
 	{
@@ -322,12 +248,8 @@ public class Main {
 			/* check the performance of the custom comparators */
 			statList.add(checkRatio(bGraphs));
 			statList.add(checkSim(bGraphs));
-			statList.add(checkSimpleSim(bGraphs));
-			statList.add(checkQuant(bGraphs));
 			statList.add(checkTrie(bGraphs));
-			statList.add(checkVariance(bGraphs));
 			statList.add(checkSimTrie(bGraphs));
-			statList.add(checkEntropy(bGraphs));
 			statList.add(checkSimNTree(bGraphs));
 			
 			/* print all the stats */

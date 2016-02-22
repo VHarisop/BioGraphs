@@ -204,18 +204,18 @@ public class BioGraph extends NGramJGraph {
 	}
 
 	/**
-	 * Returns the underlying {@link UniqueJVertexGraph} object that 
+	 * Returns the underlying {@link UniqueVertexGraph} object that 
 	 * implements the N-gram graph representation. By definition, it is
 	 * the zero-index graph in the vertex graph array.
-	 * @return the underlying UniqueJVertexGraph 
+	 * @return the underlying UniqueVertexGraph 
 	 */
-	public UniqueJVertexGraph getGraph() {
+	public UniqueVertexGraph getGraph() {
 		return getGraphLevel(0);
 	}
 
 	/**
 	 * Returns the sum of normalized edge weights of the underlying 
-	 * {@link gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph} 
+	 * {@link gr.demokritos.iit.jinsect.structs.UniqueVertexGraph} 
 	 * object, which is a positive double value.
 	 *
 	 * @return the sum of normalized edge weights
@@ -291,7 +291,7 @@ public class BioGraph extends NGramJGraph {
 
 	/**
 	 * Returns a string representation of the list of ordered vertex pairs.
-	 * @see UniqueJVertexGraph#getOrderedWeightPairs 
+	 * @see UniqueVertexGraph#getOrderedWeightPairs 
 	 *
 	 * @return the string representation of the weight-ordered vertices
 	 */

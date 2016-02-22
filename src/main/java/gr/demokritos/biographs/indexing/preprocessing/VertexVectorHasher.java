@@ -139,7 +139,7 @@ public class VertexVectorHasher {
 	 *
 	 * @param toAdd the vertex to be added
 	 */
-	protected void addVertex(JVertex toAdd, UniqueJVertexGraph uvg) {
+	protected void addVertex(JVertex toAdd, UniqueVertexGraph uvg) {
 		/* hash value modulo K */
 		int hashVal = (hashStrategy.hash(toAdd) % this.K);
 		Double previous = vertexMap.get(hashVal);
@@ -166,13 +166,13 @@ public class VertexVectorHasher {
 	}
 
 	/**
-	 * Encodes a {@link UniqueJVertexGraph} object using label hashing on
+	 * Encodes a {@link UniqueVertexGraph} object using label hashing on
 	 * each of its vertices.
 	 *
 	 * @param uvg the graph to encode
 	 * @return a double vector that encodes the graph
 	 */
-	protected double[] encodeGraph(UniqueJVertexGraph uvg) {
+	protected double[] encodeGraph(UniqueVertexGraph uvg) {
 		/* make sure the map is reset before encoding */
 		this.clear();
 
