@@ -391,12 +391,12 @@ public class BioGraph extends NGramJGraph {
 		if (hashEncoding == null) {
 			DefaultHashVector hVec;
 			if (usesDna) {
-				hVec =
-					new DefaultHashVector(new DinucleotideHash()).withBins(nBins);
+				hVec = new DefaultHashVector(
+						Strategies.dinucleotideHash()).withBins(nBins);
 			}
 			else {
-				hVec = 
-					new DefaultHashVector().withBins(nBins);
+				hVec = new DefaultHashVector(
+						Strategies.alphabetHash()).withBins(nBins);
 			}
 			hashEncoding = hVec.encodeGraph(this);
 		}

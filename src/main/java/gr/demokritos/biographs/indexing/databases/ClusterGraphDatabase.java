@@ -146,13 +146,13 @@ public class ClusterGraphDatabase extends GraphDatabase {
 		switch (type) {
 			case WORD:
 				this.usesDna = false;
-				dhv = new DefaultHashVector().withBins(26);
+				dhv = new DefaultHashVector(GraphType.WORD);
 				buildWordIndex(fPath);
 				break;
 			case DNA:
 			default:
 				this.usesDna = true;
-				dhv = new DefaultHashVector(new DinucleotideHash()).withBins(10);
+				dhv = new DefaultHashVector(GraphType.DNA);
 				this.bgComp = new DefaultHashComparator(10);
 				buildIndex(fPath);
 		}
@@ -219,7 +219,7 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	protected void initClusters(BioGraph[] graphs) {
 		if (this.usesDna) {
 			graphClusterer = 
-				new Clustering(graphs, numClusters, iters, new DinucleotideHash());
+				new Clustering(graphs, numClusters, iters, Strategies.dinucleotideHash());
 		}
 		else {
 			graphClusterer = 

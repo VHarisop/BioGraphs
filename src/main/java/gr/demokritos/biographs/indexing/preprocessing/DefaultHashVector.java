@@ -60,7 +60,7 @@ public class DefaultHashVector {
 	 * for hashing.
 	 */
 	public DefaultHashVector() {
-		hashStrategy = new DefaultHashStrategy();
+		hashStrategy = Strategies.alphabetHash();
 		initParameters();
 	}
 
@@ -68,19 +68,19 @@ public class DefaultHashVector {
 	 * Creates an empty DefaultHashVector object using the default method
 	 * for hashing based on a specified graph type. If the graph type
 	 * suggests using with biological data, the default hash strategy is
-	 * a {@link DinucleotideHash} object, while in the other case the hash
-	 * strategy used is {@link DefaultHashStrategy}. Vector size differs
+	 * hashing based on dinucleotides, while in the other case the hash
+	 * strategy used is an alphabetic hash. Vector size differs
 	 * as well, with 10 being the default value for DNA and 26 for words.
 	 *
 	 * @param gType the graph type to base the hash strategy on
 	 */
 	public DefaultHashVector(GraphDatabase.GraphType gType) {
 		if (gType == GraphDatabase.GraphType.DNA) {
-			hashStrategy = new DinucleotideHash();
+			hashStrategy = Strategies.dinucleotideHash();
 			initParameters(10);
 		}
 		else {
-			hashStrategy = new DefaultHashStrategy();
+			hashStrategy = Strategies.alphabetHash();
 			initParameters(26);
 		}
 	}

@@ -25,7 +25,6 @@ import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.*;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.biographs.indexing.preprocessing.*;
-import gr.demokritos.iit.jinsect.structs.*;
 
 /**
  * An abstract class that implements a graph database using graph similarity.
@@ -73,13 +72,8 @@ public class HashedInvertedIndex extends GraphDatabase {
 	protected void initIndex() {
 		invIndex = new HashMap<Integer, FreqTree>();
 		hashVec = new DefaultHashVector(GraphType.DNA);
-		hashVec.setHashStrategy(new SimpleDnaHash());
-		hashVec.setEncodingStrategy(new EncodingStrategy<Double>() {
-			@Override
-			public Double encode(JVertex vCurr, UniqueVertexGraph uvGraph) {
-				return uvGraph.incomingWeightSumOf(vCurr);
-			}
-		});
+		hashVec.setHashStrategy(Strategies.simpleDnaHash());
+		hashVec.setEncodingStrategy(Strategies.incomingWeightEncoding());
 		hashVec.setBins(4);
 	}
 

@@ -18,10 +18,11 @@ package gr.demokritos.biographs.experiments;
 
 import gr.demokritos.iit.jinsect.comparators.NGramGraphComparator;
 import gr.demokritos.iit.jinsect.representations.NGramJGraph;
-import gr.demokritos.iit.jinsect.structs.JVertex;
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.biographs.indexing.preprocessing.*;
 import gr.demokritos.biographs.indexing.structs.Stats;
+import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 
 import java.io.File;
 
@@ -44,19 +45,11 @@ public class DnaTestHashNaive {
 	 * vector encodings.
 	 */
 	static double distance(BioGraph a, BioGraph b) {
-		HashingStrategy<JVertex> hsg = new DinucleotideHash();
-		DefaultHashVector vHash = 
-			new DefaultHashVector(hsg).withBins(10);
+		DefaultHashVector vHash = new DefaultHashVector(GraphType.DNA);
 
 		double[] vecA = vHash.encodeGraph(a.getGraph());
 		double[] vecB = vHash.encodeGraph(b.getGraph());
-		double ret = 0.0;
-		try {
-			ret = Utils.getHammingDistance(vecA, vecB);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return ret;
+		return ClusterDistance.hamming(vecA, vecB);
 	}
 
 	/**

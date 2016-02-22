@@ -67,7 +67,7 @@ public class VertexVectorHasher {
 		 * Creates a new Builder object with default parameters.
 		 */
 		public Builder() {
-			this.hashSg = new DefaultHashStrategy();
+			this.hashSg = Strategies.alphabetHash();
 			this.K = 26;
 			this.usePartial = false;
 		}

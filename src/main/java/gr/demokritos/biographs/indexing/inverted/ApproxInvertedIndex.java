@@ -250,15 +250,16 @@ public class ApproxInvertedIndex extends GraphDatabase {
 		/* initial set of results and a flag indicating if it
 		 * has been initialized or not */
 		Set<BioGraph> soFar = null;
-		boolean unset = true;
-		int nBins = 10;
+		boolean unset = true; int nBins;
 
 		DefaultHashVector hVec;
 		if (usesDna) {
-			hVec = new DefaultHashVector(new DinucleotideHash()).withBins(nBins);
+			hVec = new DefaultHashVector(GraphType.DNA);
+			nBins = 10;
 		}
 		else {
-			hVec = new DefaultHashVector().withBins(26);
+			hVec = new DefaultHashVector(GraphType.WORD);
+			nBins = 26;
 		}
 
 		double[] vgM = hVec.encodeGraph(bG);

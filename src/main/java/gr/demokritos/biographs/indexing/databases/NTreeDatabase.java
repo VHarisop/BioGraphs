@@ -157,9 +157,7 @@ public class NTreeDatabase extends GraphDatabase {
 	 */
 	@Override
 	public void addGraph(BioGraph bg) {
-		if (!(treeIndex.addData(bg))) {
-			System.out.println(bg.getLabel() + " was not inserted!");
-		}
+		treeIndex.addData(bg);
 	}
 
 	/**
