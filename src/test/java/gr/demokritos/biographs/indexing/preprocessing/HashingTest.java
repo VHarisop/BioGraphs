@@ -35,7 +35,7 @@ public class HashingTest
 	}
 	
 	public void testDefaultHash() {
-		UniqueJVertexGraph uvg = new UniqueJVertexGraph();
+		UniqueVertexGraph uvg = new UniqueVertexGraph();
 		uvg.add(new NGramVertex("ACT"));
 		uvg.add(new NGramVertex("TCA"));
 		uvg.add(new NGramVertex("CTA"));

@@ -5,13 +5,10 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
-import gr.demokritos.biographs.indexing.databases.MemSimilarityDatabase;
-import gr.demokritos.biographs.indexing.databases.SimilarityDatabase;
 import gr.demokritos.biographs.indexing.databases.TrieDatabase;
 import gr.demokritos.iit.jinsect.structs.NGramVertex;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Unit test for simple App.
@@ -37,14 +34,6 @@ public class GeneralTest
         return new TestSuite( GeneralTest.class );
     }
 	
-	// similarity databases to be shared amongst tests
-	static SimilarityDatabase nfrData;
-	static SimilarityDatabase nclData;
-
-	// in-memory similarity databases
-	static MemSimilarityDatabase nfrMem;
-	static MemSimilarityDatabase nclMem;
-
 	/**
 	 * Verify that subgraph isomorphism test works
 	 * for comparing BioGraphs.
@@ -52,21 +41,20 @@ public class GeneralTest
 	public void testIsomorphism() {
 		BioGraph bgx = new BioGraph("ACTA");
 		BioGraph bgy = new BioGraph("ACTAG");
-		IsomorphismComparator iCmp = new IsomorphismComparator();
 
 		// bgx is initially subgraph isomorphic but not graph isomorphic
-		assertTrue(iCmp.subgraphIsomorphic(bgx, bgy));
-		assertFalse(iCmp.graphIsomorphic(bgx, bgy));
+		assertTrue(IsomorphismTester.subgraphIsomorphic(bgx, bgy));
+		assertFalse(IsomorphismTester.graphIsomorphic(bgx, bgy));
 
 		// make the two graphs non-isomorphic
 		bgx.setDataString("AGTA");
-		assertFalse(iCmp.subgraphIsomorphic(bgx, bgy));
-		assertFalse(iCmp.graphIsomorphic(bgx, bgy));
+		assertFalse(IsomorphismTester.subgraphIsomorphic(bgx, bgy));
+		assertFalse(IsomorphismTester.graphIsomorphic(bgx, bgy));
 
 		// now the two are completely isomorphic
 		bgx.setDataString("ACTAG");
-		assertTrue(iCmp.graphIsomorphic(bgx, bgy));
-		assertTrue(iCmp.subgraphIsomorphic(bgx, bgy));
+		assertTrue(IsomorphismTester.graphIsomorphic(bgx, bgy));
+		assertTrue(IsomorphismTester.subgraphIsomorphic(bgx, bgy));
 	}
 
 
@@ -148,18 +136,15 @@ public class GeneralTest
 		assertTrue(gData.exposeKeys().size() == 3);
 	}
 	/**
-	 * Verify that {@link TrieDatabase.buildIndex()} and 
-	 * {@link SimilarityDatabase.buildIndex()} work properly.
+	 * Verify that {@link TrieDatabase.buildIndex()} works properly. 
 	 */
 	public void testIndex() {
 		// String fName = "/testFile01.fasta";
 		String fName = "/files";
 		TrieDatabase gData = new TrieDatabase();
-		SimilarityDatabase gSimData = new SimilarityDatabase();
 		try {
 			File res = new File(getClass().getResource(fName).toURI());
 			gData.build(res, GraphType.DNA);
-			gSimData.build(res, GraphType.DNA);
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
@@ -167,110 +152,6 @@ public class GeneralTest
 
 		// make sure 3 different keys exist
 		assertTrue(gData.exposeKeys().size() == 3);
-		assertTrue(gSimData.exposeKeys().size() == 3);
-	}
-
-	public void testCreateSimIndex() {
-		String nfrIndex = "/1099_consistent_NFR.fa";
-		String nclIndex = "/3061_consistent_nucleosomes.fa";
-		try {
-			// build database index 
-			File resNFR = new File(getClass().getResource(nfrIndex).toURI());
-			File resNCL = new File(getClass().getResource(nclIndex).toURI());
-			
-			nfrData = new SimilarityDatabase();
-			nclData = new SimilarityDatabase();
-
-			nfrData.build(resNFR, GraphType.DNA);
-			nclData.build(resNCL, GraphType.DNA);
-			assertTrue(true); // succeed
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false); // fail
-		}
-	}
-
-	public void testCreateMemSimIndex() {
-		String nfrIndex = "/1099_consistent_NFR.fa";
-		String nclIndex = "/3061_consistent_nucleosomes.fa";
-		try {
-			// build database index 
-			File resNFR = new File(getClass().getResource(nfrIndex).toURI());
-			File resNCL = new File(getClass().getResource(nclIndex).toURI());
-
-			nfrMem = new MemSimilarityDatabase();
-			nclMem = new MemSimilarityDatabase();
-
-			nfrMem.build(resNFR, GraphType.DNA);
-			nclMem.build(resNCL, GraphType.DNA);
-
-			assertTrue(true); // succeed
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false); // fail
-		}
-	}
-
-	/**
-	 * Test that index building and retrieval works properly
-	 * for {@link SimilarityDatabase} classes.
-	 */
-	public void testReadSimIndex() {
-		String sTest = "/testFile01.fasta";
-		try {
-			// build the test graph
-			File res = new File(getClass().getResource(sTest).toURI());
-			BioGraph bgTest = BioGraph.fromFastaFile(res);
-
-			// assert that querying an existing graph gives non-null labels
-			List<String> labels = nfrData.getNodes(bgTest);
-			assertNotNull(labels); 
-			
-			// assert that the existing graph is found in the returned list
-			boolean found = false;
-			for (String s: labels) {
-				if (s.equals("chr1:39666-39676")) {
-					found = true;
-					break;
-				}
-			}
-			assertTrue(found);
-
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Test that index building and retrieval works properly
-	 * for {@link MemSimilarityDatabase} classes.
-	 */
-	public void testReadMemSimIndex() {
-		String sTest = "/testFile01.fasta";
-		try {
-			// build the test graph
-			File res = new File(getClass().getResource(sTest).toURI());
-			BioGraph bgTest = BioGraph.fromFastaFile(res);
-
-			// assert that querying an existing graph gives non-null labels
-			List<BioGraph> nodes = nfrMem.getNodes(bgTest);
-			assertNotNull(nodes); 
-
-			// assert that the existing graph is found in the returned list
-			boolean found = false;
-			for (BioGraph b: nodes) {
-				if (b.bioLabel.equals("chr1:39666-39676")) {
-					found = true;
-					break;
-				}
-			}
-			assertTrue(found);
-
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-		}
 	}
 
 	/**
