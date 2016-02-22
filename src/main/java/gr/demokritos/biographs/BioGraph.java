@@ -19,6 +19,7 @@ package gr.demokritos.biographs;
 import gr.demokritos.iit.jinsect.representations.NGramJGraph;
 import gr.demokritos.iit.jinsect.structs.*;
 import gr.demokritos.iit.jinsect.encoders.*;
+import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.biographs.indexing.preprocessing.*;
 import gr.demokritos.iit.jinsect.jutils;
 import gr.demokritos.iit.jinsect.io.LineReader;
@@ -391,12 +392,10 @@ public class BioGraph extends NGramJGraph {
 		if (hashEncoding == null) {
 			DefaultHashVector hVec;
 			if (usesDna) {
-				hVec = new DefaultHashVector(
-						Strategies.dinucleotideHash()).withBins(nBins);
+				hVec = new DefaultHashVector(GraphType.DNA).withBins(nBins);
 			}
 			else {
-				hVec = new DefaultHashVector(
-						Strategies.alphabetHash()).withBins(nBins);
+				hVec = new DefaultHashVector(GraphType.WORD).withBins(nBins);
 			}
 			hashEncoding = hVec.encodeGraph(this);
 		}
