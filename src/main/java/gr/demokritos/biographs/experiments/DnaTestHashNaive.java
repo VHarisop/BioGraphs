@@ -44,7 +44,7 @@ public class DnaTestHashNaive {
 	 * vector encodings.
 	 */
 	static double distance(BioGraph a, BioGraph b) {
-		HashingStrategy<JVertex> hsg = new DnaHashStrategy();
+		HashingStrategy<JVertex> hsg = new DinucleotideHash();
 		DefaultHashVector vHash = 
 			new DefaultHashVector(hsg).withBins(10);
 

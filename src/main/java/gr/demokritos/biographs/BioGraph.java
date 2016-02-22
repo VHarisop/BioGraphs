@@ -54,6 +54,11 @@ public class BioGraph extends NGramJGraph {
 	 * A cached copy of this graph's hash encoding.
 	 */
 	protected double[] hashEncoding = null;
+
+	/**
+	 * A cached copy of this graph's index hash encoding.
+	 */
+	protected double[] indexEncoding = null;
 	
 	/**
 	 * Creates a BioGraph object to represent a given string.
@@ -387,13 +392,25 @@ public class BioGraph extends NGramJGraph {
 			DefaultHashVector hVec;
 			if (usesDna) {
 				hVec =
-					new DefaultHashVector(new DnaHashStrategy()).withBins(nBins);
+					new DefaultHashVector(new DinucleotideHash()).withBins(nBins);
 			}
 			else {
 				hVec = 
 					new DefaultHashVector().withBins(nBins);
 			}
 			hashEncoding = hVec.encodeGraph(this);
+		}
+	}
+	
+	/**
+	 * Calculates and the graph's index hash encoding using a specified
+	 * {@link DefaultHashVector} encoder and caches it.
+	 *
+	 * @param hVec the {@link DefaultHashVector} to use
+	 */
+	public void computeIndexEncoding(DefaultHashVector hVec) {
+		if (indexEncoding == null) {
+			indexEncoding = hVec.encodeGraph(this);
 		}
 	}
 	
@@ -409,6 +426,18 @@ public class BioGraph extends NGramJGraph {
 	public double[] getHashEncoding(boolean usesDna, int nBins) {
 		computeHashEncoding(usesDna, nBins);
 		return hashEncoding;
+	}
+
+	/**
+	 * Calculates and returns the graph's index hash encoding using
+	 * a specified {@link DefaultHashVector}.
+	 *
+	 * @param hVec the {@link DefaultHashVector} to use
+	 * @return a double array containing the graph's hash encoding
+	 */
+	public double[] getIndexEncoding(DefaultHashVector hVec) {
+		computeIndexEncoding(hVec);
+		return indexEncoding;
 	}
 
 	@Override

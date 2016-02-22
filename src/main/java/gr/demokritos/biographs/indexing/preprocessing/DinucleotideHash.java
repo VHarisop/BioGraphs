@@ -25,13 +25,13 @@ import gr.demokritos.iit.jinsect.structs.JVertex;
  *
  * @author VHarisop
  */
-public final class DnaHashStrategy
+public final class DinucleotideHash
 	implements HashingStrategy<JVertex> 
 {
 	/**
 	 * Creates a new DnaHashStrategy object.
 	 */
-	public DnaHashStrategy() {}
+	public DinucleotideHash() {}
 
 	/**
 	 * Computes the hash value of a JVertex object from a biograph

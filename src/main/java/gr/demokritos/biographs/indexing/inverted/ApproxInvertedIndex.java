@@ -255,7 +255,7 @@ public class ApproxInvertedIndex extends GraphDatabase {
 
 		DefaultHashVector hVec;
 		if (usesDna) {
-			hVec = new DefaultHashVector(new DnaHashStrategy()).withBins(nBins);
+			hVec = new DefaultHashVector(new DinucleotideHash()).withBins(nBins);
 		}
 		else {
 			hVec = new DefaultHashVector().withBins(26);

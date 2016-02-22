@@ -152,7 +152,7 @@ public class ClusterGraphDatabase extends GraphDatabase {
 			case DNA:
 			default:
 				this.usesDna = true;
-				dhv = new DefaultHashVector(new DnaHashStrategy()).withBins(10);
+				dhv = new DefaultHashVector(new DinucleotideHash()).withBins(10);
 				this.bgComp = new DefaultHashComparator(10);
 				buildIndex(fPath);
 		}
@@ -219,7 +219,7 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	protected void initClusters(BioGraph[] graphs) {
 		if (this.usesDna) {
 			graphClusterer = 
-				new Clustering(graphs, numClusters, iters, new DnaHashStrategy());
+				new Clustering(graphs, numClusters, iters, new DinucleotideHash());
 		}
 		else {
 			graphClusterer = 

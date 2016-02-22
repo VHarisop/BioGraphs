@@ -68,7 +68,7 @@ public class DefaultHashVector {
 	 * Creates an empty DefaultHashVector object using the default method
 	 * for hashing based on a specified graph type. If the graph type
 	 * suggests using with biological data, the default hash strategy is
-	 * a {@link DnaHashStrategy} object, while in the other case the hash
+	 * a {@link DinucleotideHash} object, while in the other case the hash
 	 * strategy used is {@link DefaultHashStrategy}. Vector size differs
 	 * as well, with 10 being the default value for DNA and 26 for words.
 	 *
@@ -76,7 +76,7 @@ public class DefaultHashVector {
 	 */
 	public DefaultHashVector(GraphDatabase.GraphType gType) {
 		if (gType == GraphDatabase.GraphType.DNA) {
-			hashStrategy = new DnaHashStrategy();
+			hashStrategy = new DinucleotideHash();
 			initParameters(10);
 		}
 		else {
@@ -105,17 +105,6 @@ public class DefaultHashVector {
 		vertexMap = new TreeMap<Integer, Double>();
 		usePartial = false;
 		K = bins;
-	}
-
-	/**
-	 * Sets the {@link #encodingStrategy} to be used when adding a new vertex.
-	 *
-	 * @param encSg the encoding strategy to be used
-	 * @return the modified DefaultHashVector
-	 */
-	public DefaultHashVector withEncoding(EncodingStrategy<Double> encSg) {
-		this.encodingStrategy = encSg;
-		return this;
 	}
 
 	/**
@@ -156,17 +145,35 @@ public class DefaultHashVector {
 	public void setHashStrategy(HashingStrategy<JVertex> newSg) {
 		hashStrategy = newSg;
 	}
+	
+	/**
+	 * Sets a new encoding strategy to be followed when adding vertices.
+	 * @param encSg the new strategy to use
+	 */
+	public void setEncodingStrategy(EncodingStrategy<Double> encSg) {
+		encodingStrategy = encSg;
+	}
+
+	/**
+	 * Sets the number of bins to be used in hashing.
+	 *
+	 * @param newNum the new number of bins
+	 */
+	public void setBins(int newNum) {
+		K = newNum;
+	}
 
 	/**
 	 * Adds a new vertex to the hash vector.
 	 *
 	 * @param toAdd the vertex to be added
+	 * @param uvg the graph that the vertex resides in
 	 */
-	protected void addVertex(JVertex toAdd) {
+	protected void addVertex(JVertex toAdd, UniqueJVertexGraph uvg) {
 		/* hash value modulo K */
 		int hashVal = (hashStrategy.hash(toAdd) % this.K);
 		Double previous = vertexMap.get(hashVal);
-		Double code = encodingStrategy.encode(toAdd);
+		Double code = encodingStrategy.encode(toAdd, uvg);
 
 		/* if the hash key is new, it only occured once so far */
 		if (previous == null) {
@@ -190,11 +197,11 @@ public class DefaultHashVector {
 		this.clear();
 
 		/* create a new encoding strategy */
-		encodingStrategy = new DefaultEncodingStrategy(uvg);
+		encodingStrategy = new DefaultEncodingStrategy();
 		
 		/* hash each of the graph's vertices */
 		for (JVertex v: uvg.vertexSet()) {
-			addVertex(v);
+			addVertex(v, uvg);
 		}
 
 		/* populate the vector according to the values stored in the map */

@@ -139,11 +139,11 @@ public class VertexVectorHasher {
 	 *
 	 * @param toAdd the vertex to be added
 	 */
-	protected void addVertex(JVertex toAdd) {
+	protected void addVertex(JVertex toAdd, UniqueJVertexGraph uvg) {
 		/* hash value modulo K */
 		int hashVal = (hashStrategy.hash(toAdd) % this.K);
 		Double previous = vertexMap.get(hashVal);
-		Double code = encodingStrategy.encode(toAdd);
+		Double code = encodingStrategy.encode(toAdd, uvg);
 
 		/* if the hash key is new, it only occured once so far */
 		if (previous == null) {
@@ -177,11 +177,11 @@ public class VertexVectorHasher {
 		this.clear();
 
 		/* create a new default encoding strategy */
-		encodingStrategy = new DefaultEncodingStrategy(uvg);
+		encodingStrategy = new DefaultEncodingStrategy();
 		
 		/* hash each of the graph's vertices */
 		for (JVertex v: uvg.vertexSet()) {
-			addVertex(v);
+			addVertex(v, uvg);
 		}
 
 		/* populate the vector according to the values stored in the map */

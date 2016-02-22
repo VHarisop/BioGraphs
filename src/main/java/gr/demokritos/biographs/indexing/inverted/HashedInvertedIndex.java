@@ -24,6 +24,8 @@ import java.util.*;
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.*;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
+import gr.demokritos.biographs.indexing.preprocessing.*;
+import gr.demokritos.iit.jinsect.structs.*;
 
 /**
  * An abstract class that implements a graph database using graph similarity.
@@ -33,7 +35,6 @@ import gr.demokritos.biographs.indexing.distances.ClusterDistance;
  * @author VHarisop
  */
 public class HashedInvertedIndex extends GraphDatabase {
-
 	/**
 	 * A hashmap that matches string to Tree maps that contain integer to
 	 * biograph list pairs. The integer keys are frequency counts and count
@@ -41,6 +42,12 @@ public class HashedInvertedIndex extends GraphDatabase {
 	 * which graph.
 	 */
 	protected HashMap<Integer, FreqTree> invIndex;
+
+	/**
+	 * The {@link DefaultHashVector} used internally by this database to hash
+	 * added graphs' vertices.
+	 */
+	protected DefaultHashVector hashVec;
 
 	/**
 	 * Creates a blank HashedInvertedIndex object.
@@ -65,6 +72,15 @@ public class HashedInvertedIndex extends GraphDatabase {
 	 */
 	protected void initIndex() {
 		invIndex = new HashMap<Integer, FreqTree>();
+		hashVec = new DefaultHashVector(GraphType.DNA);
+		hashVec.setHashStrategy(new SimpleDnaHash());
+		hashVec.setEncodingStrategy(new EncodingStrategy<Double>() {
+			@Override
+			public Double encode(JVertex vCurr, UniqueJVertexGraph uvGraph) {
+				return uvGraph.incomingWeightSumOf(vCurr);
+			}
+		});
+		hashVec.setBins(4);
 	}
 
 	public void build(File path, GraphType gType) throws Exception {
@@ -143,11 +159,12 @@ public class HashedInvertedIndex extends GraphDatabase {
 	public void addGraph(BioGraph bg) {
 		/**
 		 * <i>METHOD</i>:
-		 * 1 - get hash encoding of the graph
+		 * 1 - get index hash encoding of the graph
 		 * 2 - for every index in the encoding, associate the graph with
 		 * the FreqTree that corresponds to the index's encoding value.
 		 */
-		double[] vecEnc = bg.getHashEncoding(true, 10);
+		double[] vecEnc = bg.getIndexEncoding(hashVec);
+		bg.computeHashEncoding(true, 10);
 		for (int i = 0; i < vecEnc.length; ++i) {
 			int hVal = (int) Math.round(vecEnc[i]);
 			FreqTree vTree;
@@ -224,7 +241,7 @@ public class HashedInvertedIndex extends GraphDatabase {
 		 * 4 - return this list as an answer
 		 */
 		int epsilon = bG.getWindowSize() + tolerance;
-		double[] vecEnc = bG.getHashEncoding(true, 10);
+		double[] vecEnc = bG.getIndexEncoding(hashVec);
 
 		/* initial set of results and a flag indicating if it
 		 * has been initialized or not */
@@ -287,14 +304,18 @@ public class HashedInvertedIndex extends GraphDatabase {
 	 * @return the approximation of the nearest neighbouring graph
 	 */
 	public BioGraph getNearestNeighbour(BioGraph bQuery, int tolerance) {
+		DefaultHashVector hvOptim = 
+			new DefaultHashVector(GraphType.DNA).withBins(10);
 		Set<BioGraph> bCandidates = getMatches(bQuery, tolerance);
-		double[] vecEnc = bQuery.getHashEncoding(true, 10);
+		double[] vecEnc = hvOptim.encodeGraph(bQuery);
 		BioGraph bgMin = null; double minDist = Double.MAX_VALUE, dist;
 
 		/* iterate to find the graph, among the set, which minimizes the
 		 * hamming distance of the encodings */
 		for (BioGraph b: bCandidates) {
-			dist = ClusterDistance.hamming(vecEnc, b.getHashEncoding(true, 10));
+			dist = ClusterDistance.hamming(
+					vecEnc,
+					b.getHashEncoding(true, 10));
 			if (dist < minDist) {
 				minDist = dist;
 				bgMin = b;
@@ -307,6 +328,6 @@ public class HashedInvertedIndex extends GraphDatabase {
 	 * @see #getMatches(BioGraph, int) getMatches
 	 */
 	public Set<BioGraph> getMatches(BioGraph bQuery) {
-		return getMatches(bQuery, 0);
+		return getMatches(bQuery, 3);
 	}
 }

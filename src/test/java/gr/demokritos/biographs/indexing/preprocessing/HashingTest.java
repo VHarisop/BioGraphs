@@ -49,7 +49,7 @@ public class HashingTest
 
 		/* make sure that hashing based on dinucleotides
 		 * is performed */
-		DnaHashStrategy hashSg = new DnaHashStrategy();
+		DinucleotideHash hashSg = new DinucleotideHash();
 		int a = hashSg.hash(new NGramVertex("ACT"));
 		int b = hashSg.hash(new NGramVertex("CAG"));
 		assertEquals(a, b);

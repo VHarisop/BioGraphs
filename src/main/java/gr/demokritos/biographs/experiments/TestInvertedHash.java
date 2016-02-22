@@ -46,8 +46,8 @@ public class TestInvertedHash {
 			/* measure per-item query time to extract maximum and mean
 			 * query times */
 			long startTime = System.currentTimeMillis();
-			Set<BioGraph> ans = new HashSet<BioGraph>(); 
-			ans.add(invInd.getNearestNeighbour(bg, tolerance));
+			// Set<BioGraph> ans = new HashSet<BioGraph>();
+			Set<BioGraph> ans = invInd.getMatches(bg, tolerance);
 			long stopTime = System.currentTimeMillis();
 			if ((stopTime - startTime) > maxTime) {
 				maxTime = stopTime - startTime;

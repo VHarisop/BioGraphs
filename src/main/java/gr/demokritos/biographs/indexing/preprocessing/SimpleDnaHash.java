@@ -16,26 +16,44 @@
 package gr.demokritos.biographs.indexing.preprocessing;
 
 import gr.demokritos.iit.jinsect.structs.JVertex;
-import gr.demokritos.iit.jinsect.structs.UniqueJVertexGraph;
 
 /**
- * The default encoding strategy that operates on the vertices of a
- * {@link UniqueJVertexGraph}, assigning to each vertex an encoding
- * value equal to the sum of its incident weights.
- * 
+ * A simple {@link HashingStrategy} that encodes a vertex from a graph that
+ * represents biological data by hashing its label's possible initial letters
+ * to consecutive values.
+ *
  * @author VHarisop
  */
-public final class DefaultEncodingStrategy
-	implements EncodingStrategy<Double> {
+public final class SimpleDnaHash
+	implements HashingStrategy<JVertex> 
+{
 	/**
-	 * Returns the sum of a vertex's incoming and outgoing
-	 * weights as an encoding.
-	 *
-	 * @param vCurr the vertex to encode
-	 * @param uvGraph the graph that the vertex resides in
-	 * @return the vertex's assigned encoding value
+	 * Creates a new SimpleDnaHash object.
 	 */
-	public Double encode(JVertex vCurr, UniqueJVertexGraph uvGraph) {
-		return uvGraph.weightSumOf(vCurr);
+	public SimpleDnaHash() {}
+
+	/**
+	 * Computes the hash value of a JVertex object from a biograph
+	 * encoding biological data by grouping its pairs of dinucleotides.
+	 *
+	 * @param toHash the vertex to be hashed
+	 * @return the hash value
+	 */
+	public int hash(JVertex toHash) {
+		char c = toHash.getLabel().charAt(0);
+		int ret;
+		switch (c) {
+			case 'A':
+				ret = 0; break;
+			case 'C':
+				ret = 1; break;
+			case 'G':
+				ret = 2; break;
+			case 'T':
+				ret = 3; break;
+			default:
+				ret = 4;
+		}
+		return ret;
 	}
 }

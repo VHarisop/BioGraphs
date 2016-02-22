@@ -29,7 +29,8 @@ public interface EncodingStrategy<V> {
 	 * Encodes a vertex from a given {@link UniqueJVertexGraph} or 
 	 * a {@link gr.demokritos.biographs.BioGraph} object.
 	 * @param vCurr the vertex to encode
+	 * @param uvg the graph that the vertex resides in
 	 * @return the vertex's assigned encoding value
 	 */
-	public V encode(JVertex vCurr);
+	public V encode(JVertex vCurr, UniqueJVertexGraph uvg);
 }
