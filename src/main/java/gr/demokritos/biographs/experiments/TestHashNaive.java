@@ -99,7 +99,7 @@ public class TestHashNaive {
 			for (BioGraph bg: bGraphsTest) {
 				int minInd = findMin(bg, bGraphsData);
 				String res = bGraphsData[minInd].getLabel();
-				stat.addResult(bg.getLabel(), new String[] { res });
+				stat.addResult(bg.getLabel(), res);
 			}
 			statList[0] = stat;
 			System.out.println(gson.toJson(statList));

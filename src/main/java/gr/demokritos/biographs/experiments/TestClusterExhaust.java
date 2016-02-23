@@ -66,7 +66,7 @@ public class TestClusterExhaust {
 		Stats stat = new Stats("cluster_exhaustive");
 		for (BioGraph bg: bgs) {
 			BioGraph res = cgd.getNearestNeighbour(bg);
-			stat.addResult(bg.getLabel(), new String[] { res.getLabel() });
+			stat.addResult(bg.getLabel(), res.getLabel());
 		}
 		stat.setBins(cgd.getClusterSizes());
 		return stat;

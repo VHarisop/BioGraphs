@@ -158,7 +158,7 @@ public class DnaTest {
 		Stats stat = new Stats("cluster");
 		for (BioGraph bg : bgs) {
 			BioGraph bGraph = cgd.getNearestNeighbour(bg);
-			stat.addResult(bg.getLabel(), new String[] { bGraph.getLabel() });
+			stat.addResult(bg.getLabel(), bGraph.getLabel());
 		}
 		stat.setBins(cgd.getClusterSizes());
 		return stat;

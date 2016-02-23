@@ -229,8 +229,6 @@ public class InvertedIndex extends GraphDatabase {
 	 * @return a set of matching graphs, or null if none exist
 	 */
 	public Set<BioGraph> getMatches(BioGraph bG, int tolerance) {
-		// throw new UnsupportedOperationException("Not implemented!");
-
 		/**
 		 * <i>METHOD</i>:
 		 * 1 - for each of the query graph's vertices, get inWeightSum

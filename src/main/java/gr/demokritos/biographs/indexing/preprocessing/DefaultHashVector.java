@@ -197,7 +197,7 @@ public class DefaultHashVector {
 		this.clear();
 
 		/* create a new encoding strategy */
-		encodingStrategy = new DefaultEncodingStrategy();
+		encodingStrategy = Strategies.weightEncoding();
 		
 		/* hash each of the graph's vertices */
 		for (JVertex v: uvg.vertexSet()) {

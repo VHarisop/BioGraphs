@@ -147,10 +147,10 @@ public class DnaTestHashNaive {
 				int minSimInd = findBaselineMin(bg, bGraphsData);
 				
 				res = bGraphsData[minInd].getLabel();
-				statA.addResult(bg.getLabel(), new String[] { res });
+				statA.addResult(bg.getLabel(), res);
 
 				res = bGraphsData[minSimInd].getLabel();
-				statB.addResult(bg.getLabel(), new String[] { res });
+				statB.addResult(bg.getLabel(), res);
 			}
 
 			/* output the results to json */

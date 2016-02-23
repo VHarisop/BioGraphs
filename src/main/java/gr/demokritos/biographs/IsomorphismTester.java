@@ -17,9 +17,7 @@
 package gr.demokritos.biographs;
 
 import gr.demokritos.iit.jinsect.representations.NGramJGraph;
-import gr.demokritos.iit.jinsect.structs.JVertex;
-import gr.demokritos.iit.jinsect.structs.Edge;
-import gr.demokritos.iit.jinsect.structs.UniqueVertexGraph;
+import gr.demokritos.iit.jinsect.structs.*;
 
 import java.util.HashMap;
 import java.util.Set;

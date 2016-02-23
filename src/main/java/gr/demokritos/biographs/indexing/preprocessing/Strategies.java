@@ -30,7 +30,7 @@ public final class Strategies {
 	 *
 	 * @return the hashing strategy described above
 	 */
-	public static HashingStrategy<JVertex> simpleDnaHash() {
+	public static final HashingStrategy<JVertex> simpleDnaHash() {
 		return new HashingStrategy<JVertex>() {
 			@Override
 			public int hash(JVertex vCurr) {
@@ -58,7 +58,7 @@ public final class Strategies {
 	 *
 	 * @return the {@link HashingStrategy<JVertex>} object described above
 	 */
-	public static HashingStrategy<JVertex> dinucleotideHash() {
+	public static final HashingStrategy<JVertex> dinucleotideHash() {
 		return new HashingStrategy<JVertex>() {
 			@Override
 			public int hash(JVertex vCurr) {
@@ -104,7 +104,7 @@ public final class Strategies {
 	 *
 	 * @return the {@link HashingStrategy<JVertex>} described above
 	 */
-	public static HashingStrategy<JVertex> alphabetHash() {
+	public static final HashingStrategy<JVertex> alphabetHash() {
 		return new HashingStrategy<JVertex>() {
 			@Override
 			public int hash(JVertex vCurr) {
@@ -121,7 +121,7 @@ public final class Strategies {
 	 *
 	 * @return the {@link EncodingStrategy<Double>} described above
 	 */
-	public static EncodingStrategy<Double> weightEncoding() {
+	public static final EncodingStrategy<Double> weightEncoding() {
 		return new EncodingStrategy<Double>() {
 			@Override
 			public Double encode(JVertex vCurr, UniqueVertexGraph uvG) {
@@ -136,7 +136,7 @@ public final class Strategies {
 	 *
 	 * @return the {@link EncodingStrategy<Double>} described above
 	 */
-	public static EncodingStrategy<Double> incomingWeightEncoding() {
+	public static final EncodingStrategy<Double> incomingWeightEncoding() {
 		return new EncodingStrategy<Double>() {
 			@Override
 			public Double encode(JVertex vCurr, UniqueVertexGraph uvG) {
@@ -151,7 +151,7 @@ public final class Strategies {
 	 *
 	 * @return the {@link EncodingStrategy<Integer>} described above
 	 */
-	public static EncodingStrategy<Integer> degreeEncoding() {
+	public static final EncodingStrategy<Integer> degreeEncoding() {
 		return new EncodingStrategy<Integer>() {
 			@Override
 			public Integer encode(JVertex vCurr, UniqueVertexGraph uvG) {

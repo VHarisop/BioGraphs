@@ -62,9 +62,7 @@ public class TestTree {
 				String.valueOf(numBranches));
 		for (BioGraph bg : bgs) {
 			String res = ntd.getNearestNeighbour(bg).getLabel();
-			stat.addResult(
-					bg.getLabel(),
-					new String[] { res });
+			stat.addResult(bg.getLabel(), res);
 		}
 		return stat;
 	}
