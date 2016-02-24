@@ -381,7 +381,7 @@ public class BioGraph extends NGramJGraph {
 	}
 	/**
 	 * Calculates and the graph's hash encoding using a
-	 * {@link DefaultHashVector} encoder and caches it.
+	 * {@link HashedVector} encoder and caches it.
 	 *
 	 * @param usesDna a boolean indicating whether this graph encodes
 	 * biological sequences or not
@@ -390,12 +390,12 @@ public class BioGraph extends NGramJGraph {
 	 */
 	public void computeHashEncoding(boolean usesDna, int nBins) {
 		if (hashEncoding == null) {
-			DefaultHashVector hVec;
+			HashedVector hVec;
 			if (usesDna) {
-				hVec = new DefaultHashVector(GraphType.DNA).withBins(nBins);
+				hVec = new HashedVector(GraphType.DNA).withBins(nBins);
 			}
 			else {
-				hVec = new DefaultHashVector(GraphType.WORD).withBins(nBins);
+				hVec = new HashedVector(GraphType.WORD).withBins(nBins);
 			}
 			hashEncoding = hVec.encodeGraph(this);
 		}
@@ -403,11 +403,11 @@ public class BioGraph extends NGramJGraph {
 	
 	/**
 	 * Calculates and the graph's index hash encoding using a specified
-	 * {@link DefaultHashVector} encoder and caches it.
+	 * {@link HashedVector} encoder and caches it.
 	 *
-	 * @param hVec the {@link DefaultHashVector} to use
+	 * @param hVec the {@link HashedVector} to use
 	 */
-	public void computeIndexEncoding(DefaultHashVector hVec) {
+	public void computeIndexEncoding(HashedVector hVec) {
 		if (indexEncoding == null) {
 			indexEncoding = hVec.encodeGraph(this);
 		}
@@ -415,7 +415,7 @@ public class BioGraph extends NGramJGraph {
 	
 	/**
 	 * Calculates and returns the graph's hash encoding using a
-	 * {@link DefaultHashVector} encoder.
+	 * {@link HashedVector} encoder.
 	 *
 	 * @param usesDna a boolean indicating whether this graph encodes
 	 * biological sequences or not
@@ -429,12 +429,12 @@ public class BioGraph extends NGramJGraph {
 
 	/**
 	 * Calculates and returns the graph's index hash encoding using
-	 * a specified {@link DefaultHashVector}.
+	 * a specified {@link HashedVector}.
 	 *
-	 * @param hVec the {@link DefaultHashVector} to use
+	 * @param hVec the {@link HashedVector} to use
 	 * @return a double array containing the graph's hash encoding
 	 */
-	public double[] getIndexEncoding(DefaultHashVector hVec) {
+	public double[] getIndexEncoding(HashedVector hVec) {
 		computeIndexEncoding(hVec);
 		return indexEncoding;
 	}

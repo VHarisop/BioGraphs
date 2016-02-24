@@ -89,7 +89,7 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	 * by {@link #usesDna} since a different hashing strategy is used
 	 * for DNA graph vertices.
 	 */
-	protected DefaultHashVector dhv;
+	protected HashedVector dhv;
 	
 	/**
 	 * Creates a blank ClusterGraphDatabase object with a specified
@@ -146,13 +146,13 @@ public class ClusterGraphDatabase extends GraphDatabase {
 		switch (type) {
 			case WORD:
 				this.usesDna = false;
-				dhv = new DefaultHashVector(GraphType.WORD);
+				dhv = new HashedVector(GraphType.WORD);
 				buildWordIndex(fPath);
 				break;
 			case DNA:
 			default:
 				this.usesDna = true;
-				dhv = new DefaultHashVector(GraphType.DNA);
+				dhv = new HashedVector(GraphType.DNA);
 				this.bgComp = new DefaultHashComparator(10);
 				buildIndex(fPath);
 		}

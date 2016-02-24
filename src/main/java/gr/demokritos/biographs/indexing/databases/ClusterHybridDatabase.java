@@ -25,7 +25,7 @@ import gr.demokritos.biographs.Utils;
 import gr.demokritos.biographs.algorithms.*;
 import gr.demokritos.ntree.*;
 import gr.demokritos.biographs.indexing.GraphDatabase;
-import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
+import gr.demokritos.biographs.indexing.preprocessing.HashedVector;
 
 
 /**
@@ -285,7 +285,7 @@ public class ClusterHybridDatabase extends GraphDatabase {
 	 * of a BioGraph.
 	 */
 	private int findClosestCluster(BioGraph bG) {
-		DefaultHashVector dhv = new DefaultHashVector().withBins(26);
+		HashedVector dhv = new HashedVector().withBins(26);
 		double[] graphVec = dhv.encodeGraph(bG);
 
 		boolean unset = true;

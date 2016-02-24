@@ -1,7 +1,7 @@
 package gr.demokritos.biographs.indexing.distances;
 
 import gr.demokritos.biographs.*;
-import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
+import gr.demokritos.biographs.indexing.preprocessing.HashedVector;
 
 /**
  * A class computing the distance between two graphs that is intended
@@ -57,7 +57,7 @@ public class ClusterDistance {
 	 * value for doubles is returned.
 	 */
 	public static double hamming(BioGraph bgA, BioGraph bgB) {
-		DefaultHashVector vHash = new DefaultHashVector();
+		HashedVector vHash = new HashedVector();
 		return hamming(vHash.encodeGraph(bgA), vHash.encodeGraph(bgB));
 	}
 
@@ -72,7 +72,7 @@ public class ClusterDistance {
 	 * value for doubles is returned.
 	 */
 	public static double euclidean(BioGraph bgA, BioGraph bgB) {
-		DefaultHashVector vHash = new DefaultHashVector();
+		HashedVector vHash = new HashedVector();
 		return euclidean(vHash.encodeGraph(bgA), vHash.encodeGraph(bgB));
 	}
 }

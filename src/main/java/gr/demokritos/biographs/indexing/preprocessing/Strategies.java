@@ -115,6 +115,49 @@ public final class Strategies {
 	}
 
 	/**
+	 * Creates a new {@link HashingStrategy} that encodes vertices based on
+	 * the two initial letters of their labels, for DNA labels.
+	 *
+	 * @return the {@link HashingStrategy<JVertex>} described above
+	 */
+	public static final HashingStrategy<JVertex> dnaHash() {
+		return new HashingStrategy<JVertex>() {
+			@Override
+			public int hash(JVertex vCurr) {
+				char cA = vCurr.getLabel().toUpperCase().charAt(0);
+				char cB = vCurr.getLabel().toUpperCase().charAt(1);
+
+				int retA, retB;
+				switch (cA) {
+					case 'A':
+						retA = 0; break;
+					case 'C':
+						retA = 1; break;
+					case 'G':
+						retA = 2; break;
+					case 'T':
+						retA = 3; break;
+					default:
+						retA = -1;
+				}
+				switch (cB) {
+					case 'A':
+						retB = 0; break;
+					case 'C':
+						retB = 1; break;
+					case 'G':
+						retB = 2; break;
+					case 'T':
+						retB = 3; break;
+					default:
+						retB = -1;
+				}
+				return retA * 4 + retB;
+			}
+		};
+	}
+
+	/**
 	 * Creates a new {@link EncodingStrategy} that assigns the sum of
 	 * incident weights (from incoming + outgoing edges) to each
 	 * {@link JVertex}.
@@ -147,7 +190,7 @@ public final class Strategies {
 	
 	/**
 	 * Creates a new {@link EncodingStrategy} that assigns the number
-	 * incoming edges to each {@link JVertex}.
+	 * of incident edges to each {@link JVertex}.
 	 *
 	 * @return the {@link EncodingStrategy<Integer>} described above
 	 */
@@ -156,6 +199,21 @@ public final class Strategies {
 			@Override
 			public Integer encode(JVertex vCurr, UniqueVertexGraph uvG) {
 				return uvG.edgesOf(vCurr).size();
+			}
+		};
+	}
+	
+	/**
+	 * Creates a new {@link EncodingStrategy} that assigns the number
+	 * of incoming edges to each {@link JVertex}.
+	 *
+	 * @return the {@link EncodingStrategy<Integer>} described above
+	 */
+	public static final EncodingStrategy<Integer> inDegreeEncoding() {
+		return new EncodingStrategy<Integer>() {
+			@Override
+			public Integer encode(JVertex vCurr, UniqueVertexGraph uvG) {
+				return uvG.incomingEdgesOf(vCurr).size();
 			}
 		};
 	}

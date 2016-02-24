@@ -20,7 +20,7 @@ import gr.demokritos.biographs.Utils;
 import gr.demokritos.ntree.NodeComparator;
 import gr.demokritos.ntree.Node;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
-import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
+import gr.demokritos.biographs.indexing.preprocessing.HashedVector;
 
 /**
  * A custom comparator that encodes each graph using a 
@@ -34,16 +34,16 @@ public class DefaultHashComparator
 	/**
 	 * The VertexHashVector object used internally by the comparator.
 	 */
-	protected DefaultHashVector vHash;
+	protected HashedVector vHash;
 
 	/**
 	 * Creates a new {@link DefaultHashComparator} that uses a specified
-	 * {@link DefaultHashVector} to compute encoding vectors for the
+	 * {@link HashedVector} to compute encoding vectors for the
 	 * graphs it will compare.
 	 *
-	 * @param hVec the {@link DefaultHashVector} to use in comparisons
+	 * @param hVec the {@link HashedVector} to use in comparisons
 	 */
-	public DefaultHashComparator(DefaultHashVector hVec) {
+	public DefaultHashComparator(HashedVector hVec) {
 		this.vHash = hVec;
 	}
 
@@ -55,7 +55,7 @@ public class DefaultHashComparator
 	 */
 	public DefaultHashComparator(int numBins) {
 		this.vHash = 
-			new DefaultHashVector().withBins(numBins);
+			new HashedVector().withBins(numBins);
 	}
 	/**
 	 * @see NodeComparator#getDistance 

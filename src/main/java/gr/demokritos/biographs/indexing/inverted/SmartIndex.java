@@ -33,7 +33,7 @@ import gr.demokritos.biographs.indexing.preprocessing.*;
  *
  * @author VHarisop
  */
-public class HashedInvertedIndex extends GraphDatabase {
+public class SmartIndex extends GraphDatabase {
 	/**
 	 * A hashmap that matches string to Tree maps that contain integer to
 	 * biograph list pairs. The integer keys are frequency counts and count
@@ -49,19 +49,25 @@ public class HashedInvertedIndex extends GraphDatabase {
 	protected HashedVector hashVec;
 
 	/**
-	 * Creates a blank HashedInvertedIndex object.
+	 * The {@link IndexVector} used internally by this database to find
+	 * graph indexes.
 	 */
-	public HashedInvertedIndex() { 
+	protected IndexVector indVec;
+
+	/**
+	 * Creates a blank SmartIndex object.
+	 */
+	public SmartIndex() { 
 		super();
 		initIndex();
 	}
 
 	/**
-	 * Creates a new HashedInvertedIndex object for maintaining
+	 * Creates a new SmartIndex object for maintaining
 	 * a database in a given directory.
 	 * @param path the directory in which the database resides
 	 */
-	public HashedInvertedIndex(String path) {
+	public SmartIndex(String path) {
 		super(path);
 		initIndex();
 	}
@@ -75,6 +81,10 @@ public class HashedInvertedIndex extends GraphDatabase {
 		hashVec.setHashStrategy(Strategies.simpleDnaHash());
 		hashVec.setEncodingStrategy(Strategies.incomingWeightEncoding());
 		hashVec.setBins(4);
+
+		indVec = new IndexVector(GraphType.DNA);
+		indVec.setHashStrategy(Strategies.dnaHash());
+		indVec.setBins(16);
 	}
 
 	public void build(File path, GraphType gType) throws Exception {
@@ -157,10 +167,10 @@ public class HashedInvertedIndex extends GraphDatabase {
 		 * 2 - for every index in the encoding, associate the graph with
 		 * the FreqTree that corresponds to the index's encoding value.
 		 */
-		double[] vecEnc = bg.getIndexEncoding(hashVec);
+		int[] vecEnc = indVec.encodeGraph(bg);
 		bg.computeHashEncoding(true, 10);
 		for (int i = 0; i < vecEnc.length; ++i) {
-			int hVal = (int) Math.round(vecEnc[i]);
+			int hVal = vecEnc[i];
 			FreqTree vTree;
 			if (!(invIndex.containsKey(i))) {
 				vTree = new FreqTree();
@@ -235,7 +245,7 @@ public class HashedInvertedIndex extends GraphDatabase {
 		 * 4 - return this list as an answer
 		 */
 		int epsilon = bG.getWindowSize() + tolerance;
-		double[] vecEnc = bG.getIndexEncoding(hashVec);
+		int[] vecEnc = indVec.encodeGraph(bG);
 
 		/* initial set of results and a flag indicating if it
 		 * has been initialized or not */
@@ -254,29 +264,20 @@ public class HashedInvertedIndex extends GraphDatabase {
 
 			/* get incoming weight of vertex, get containments with epsilon
 			 * equal to the window size */
-			int vWeight = (int) Math.round(vecEnc[i]);
-			Set<BioGraph> contain = 
-				vTree.getFreq(vWeight, epsilon);
+			int vWeight = vecEnc[i];
+			//Set<BioGraph> contain = 
+			//	vTree.getFreq(vWeight, epsilon);
 
 			/* if set of results is unset, initialize now
 			 * and skip to next iteration */
 			if (unset) {
-				soFar = contain;
+				soFar = vTree.getFreq(vWeight, epsilon);
 				unset = false;
 				continue;
 			}
 			else {
-				/* compute the intersection of the sets - use a temporary
-				 * copy to return last valid set if at some point the result
-				 * is null */
-				Set<BioGraph> backup = new HashSet<BioGraph>(soFar);
-				backup.retainAll(contain);
-				if (backup.size() == 0) {
-					return soFar;
-				}
-				else {
-					soFar = new HashSet<BioGraph>(backup);
-				}
+				/* compute the intersection of the sets */
+				soFar.retainAll(vTree.getFreq(vWeight, epsilon));
 				
 				/* if, at some point, result set is empty, skip next iteration
 				 * and return the result which is null itself */

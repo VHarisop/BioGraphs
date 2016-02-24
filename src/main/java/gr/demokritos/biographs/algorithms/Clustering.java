@@ -17,7 +17,7 @@ package gr.demokritos.biographs.algorithms;
 
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.Utils;
-import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
+import gr.demokritos.biographs.indexing.preprocessing.HashedVector;
 import gr.demokritos.biographs.indexing.preprocessing.HashingStrategy;
 import gr.demokritos.iit.jinsect.structs.JVertex;
 
@@ -87,7 +87,7 @@ public final class Clustering {
 
 		/* add the vectors of all graphs to the data points */
 		for (BioGraph bg: bGraphs) {
-			double[] points = new DefaultHashVector().encodeGraph(bg);
+			double[] points = new HashedVector().encodeGraph(bg);
 			HashVector vec = new HashVector(points); vec.setGraph(bg);
 			dataPoints.add(vec);
 		}
@@ -122,7 +122,7 @@ public final class Clustering {
 			int iters,
 			HashingStrategy<JVertex> hsg)
 	{
-		DefaultHashVector hvec = new DefaultHashVector(hsg).withBins(10);
+		HashedVector hvec = new HashedVector(hsg).withBins(10);
 		dataPoints = new ArrayList<HashVector>(bGraphs.length);
 
 		/* add the vectors of all graphs to the data points */

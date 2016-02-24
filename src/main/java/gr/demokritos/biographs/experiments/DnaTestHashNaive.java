@@ -45,7 +45,7 @@ public class DnaTestHashNaive {
 	 * vector encodings.
 	 */
 	static double distance(BioGraph a, BioGraph b) {
-		DefaultHashVector vHash = new DefaultHashVector(GraphType.DNA);
+		HashedVector vHash = new HashedVector(GraphType.DNA);
 
 		double[] vecA = vHash.encodeGraph(a.getGraph());
 		double[] vecB = vHash.encodeGraph(b.getGraph());

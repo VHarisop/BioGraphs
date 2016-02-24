@@ -26,7 +26,7 @@ import gr.demokritos.iit.jinsect.structs.*;
  * A class that hashes vertex labels based on an arbitrary hash function
  * and creates a vector that maps each hash value to a number of occurences.
  */
-public class DefaultHashVector {
+public class HashedVector {
 	/**
 	 * The underlying {@link java.util.TreeMap}, where the hash - count
 	 * mappings are stored when a new vertex is added.
@@ -59,7 +59,7 @@ public class DefaultHashVector {
 	 * Creates an empty DefaultHashVector object using the default method
 	 * for hashing.
 	 */
-	public DefaultHashVector() {
+	public HashedVector() {
 		hashStrategy = Strategies.alphabetHash();
 		initParameters();
 	}
@@ -74,7 +74,7 @@ public class DefaultHashVector {
 	 *
 	 * @param gType the graph type to base the hash strategy on
 	 */
-	public DefaultHashVector(GraphDatabase.GraphType gType) {
+	public HashedVector(GraphDatabase.GraphType gType) {
 		if (gType == GraphDatabase.GraphType.DNA) {
 			hashStrategy = Strategies.dinucleotideHash();
 			initParameters(10);
@@ -90,7 +90,7 @@ public class DefaultHashVector {
 	 *
 	 * @param hashSg the hash method to use
 	 */
-	public DefaultHashVector(HashingStrategy<JVertex> hashSg) 
+	public HashedVector(HashingStrategy<JVertex> hashSg) 
 	{
 		hashStrategy = hashSg;
 		initParameters();
@@ -113,7 +113,7 @@ public class DefaultHashVector {
 	 *
 	 * @return the modified DefaultHashVector
 	 */
-	public DefaultHashVector withPartialSums() {
+	public HashedVector withPartialSums() {
 		this.usePartial = true;
 		return this;
 	}
@@ -125,7 +125,7 @@ public class DefaultHashVector {
 	 * @param newK the new number of bins
 	 * @return the modified DefaultHashVector
 	 */
-	public DefaultHashVector withBins(int newK) {
+	public HashedVector withBins(int newK) {
 		this.K = newK;
 		return this;
 	}

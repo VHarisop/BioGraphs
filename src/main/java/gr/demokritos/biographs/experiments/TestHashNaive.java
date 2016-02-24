@@ -17,7 +17,7 @@
 package gr.demokritos.biographs.experiments;
 
 import gr.demokritos.biographs.*;
-import gr.demokritos.biographs.indexing.preprocessing.DefaultHashVector;
+import gr.demokritos.biographs.indexing.preprocessing.HashedVector;
 import gr.demokritos.biographs.indexing.structs.Stats;
 
 import java.io.File;
@@ -39,7 +39,7 @@ public class TestHashNaive {
 	static File testFile = null, dataFile = null;
 
 	private static double distance(BioGraph a, BioGraph b) {
-		DefaultHashVector vHash = new DefaultHashVector().withBins(numBins);
+		HashedVector vHash = new HashedVector().withBins(numBins);
 		double[] vecA = vHash.encodeGraph(a.getGraph());
 		double[] vecB = vHash.encodeGraph(b.getGraph());
 		double ret = 0.0;
