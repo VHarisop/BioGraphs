@@ -25,6 +25,7 @@ import java.util.*;
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.comparators.*;
 import gr.demokritos.biographs.indexing.structs.*;
+import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.iit.jinsect.jutils;
 
 
@@ -294,15 +295,8 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 		
 		/* get the distance of similarities of both the lower and
 		 * higher keys */
-		double distLo = 
-			Math.abs(jutils.graphStructuralSimilarity(
-						bQuery.getGraph(),
-						lower.getGraph()));
-		double distHi = 
-			Math.abs(jutils.graphStructuralSimilarity(
-						bQuery.getGraph(), 
-						higher.getGraph()));
-
+		double distLo = getDistBetween(bQuery, lower);
+		double distHi = getDistBetween(bQuery, higher);
 
 		/* return the nodes of the "closest" distance, or both if the
 		 * distances are equal */
@@ -319,8 +313,6 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 			return Collections.unmodifiableList(getNodes(higher));
 		}
 	}
-	
-	/* FIXME: getKNearestNeighbours returns empty lists for some queries! */
 
 	/**
 	 * Gets the node list corresponding to the K keys nearest to the query
@@ -395,13 +387,8 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 
 			/* if none of the maps is depleted yet, 
 			 * we must compare at each step */
-			distLo = Math.abs(jutils.graphStructuralSimilarity(
-						bQuery.getGraph(),
-						low.getKey().getGraph()));
-
-			distHi = Math.abs(jutils.graphStructuralSimilarity(
-						bQuery.getGraph(),
-						high.getKey().getGraph()));
+			distLo = getDistBetween(bQuery, low.getKey());
+			distHi = getDistBetween(bQuery, high.getKey());
 
 			/* Compare similarity difference and return the values of the
 			 * key with the minimum difference */
@@ -439,4 +426,26 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @return a graph feature
 	 */
 	public abstract V getGraphFeature(BioGraph bg);
+
+	/**
+	 * Returns a double value indicating the distance between two {@link BioGraph}
+	 * objects. This method is used in comparisons such as those needed in nearest
+	 * neighbour queries.
+	 *
+	 * @param bgA the first graph
+	 * @param bgB the second graph
+	 * @return the distance between the two graphs
+	 */
+	protected double getDistBetween(BioGraph bgA, BioGraph bgB) {
+		double[] encA; double[] encB;
+		if (type == GraphType.DNA) {
+			encA = bgA.getHashEncoding(true, 10);
+			encB = bgB.getHashEncoding(true, 10);
+		}
+		else {
+			encA = bgA.getHashEncoding(false, 26);
+			encB = bgB.getHashEncoding(false, 26);
+		}
+		return ClusterDistance.hamming(encA, encB);
+	}
 }

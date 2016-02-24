@@ -21,6 +21,8 @@ import gr.demokritos.biographs.indexing.*;
 import gr.demokritos.biographs.indexing.comparators.*;
 import gr.demokritos.biographs.indexing.databases.*;
 import gr.demokritos.biographs.indexing.structs.Stats;
+import gr.demokritos.iit.jinsect.encoders.*;
+import gr.demokritos.iit.jinsect.structs.*;
 
 import java.io.File;
 import java.util.*;
@@ -49,7 +51,7 @@ public class DnaTest {
 			BioGraph[] bgs)
 	{
 		try {
-			trd.buildIndex(dataFile);
+			trd.build(dataFile, GraphDatabase.GraphType.DNA);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return null;
@@ -69,7 +71,7 @@ public class DnaTest {
 			String methodLabel)
 	{
 		try {
-			trd.buildIndex(dataFile);
+			trd.build(dataFile, GraphDatabase.GraphType.DNA);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return null;
@@ -177,7 +179,6 @@ public class DnaTest {
 			numNeighbours = Integer.parseInt(args[2]);
 		}
 
-		ClusterHybridDatabase cgd = new ClusterHybridDatabase(50, 150);
 		BioGraph[] bGraphs = null;
 		gson = new GsonBuilder().setPrettyPrinting().create();
 		try {
@@ -186,11 +187,9 @@ public class DnaTest {
 			bGraphs = BioGraph.fastaFileToGraphs(testFile);
 
 			List<Stats> statList = new ArrayList<Stats>();
-			
-			cgd.buildIndex(dataFile);
 			/* check the performance of the custom comparators */
 			statList.add(checkTrie(bGraphs));
-			statList.add(checkNearest(bGraphs, cgd));
+			statList.add(checkSim(bGraphs));
 			
 			/* print all the stats */
 			System.out.println(

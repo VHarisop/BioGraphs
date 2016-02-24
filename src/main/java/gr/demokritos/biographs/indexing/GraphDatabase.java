@@ -42,36 +42,17 @@ public abstract class GraphDatabase {
 	 */
 	protected String path;
 
-	/** 
-	 * flag indicating if the database resides in RAM
-	 */
-	protected boolean inMem;
-
 	/**
 	 * A field indicating the type of the data that the graphs in
 	 * this database actually represent (words or biosequences).
 	 */
 	protected GraphType type;
 
-	/** 
-	 * an array list of graphs to be kept in memory 
-	 */
-	protected ArrayList<BioGraph> graphArray;
-
-	/**
-	 * the current index of {@link GraphDatabase#graphArray} 
-	 */
-	protected int arrayIndex;
-	
 	/**
 	 * Creates a blank GraphDatabase object.
 	 */
 	public GraphDatabase() { 
 		path = null;
-		inMem = true;
-
-		graphArray = new ArrayList<BioGraph>();
-		arrayIndex = -1;
 	}
 
 	/**
@@ -81,33 +62,6 @@ public abstract class GraphDatabase {
 	 */
 	public GraphDatabase(String path) {
 		this.path = path;
-		inMem = false;
-
-		graphArray = new ArrayList<BioGraph>();
-		arrayIndex = -1;
-	}
-
-	/**
-	 * Gets the BioGraph located at a given index in the graph array.
-	 * If the index is larger than the current array size, returns null instead.
-	 *
-	 * @param graphIndex the index of the graph we want to retrieve
-	 * @return the biograph at the given index, or null if no such graph exists.
-	 */
-	public BioGraph getGraph(int graphIndex) {
-		if (arrayIndex > graphIndex) 
-			return null;
-
-		return graphArray.get(graphIndex);
-	}
-
-	/**
-	 * Checks if the graph database is empty by checking arrayIndex.
-	 * 
-	 * @return true if the graph array is empty, otherwise false.
-	 */
-	public boolean isEmpty() {
-		return (arrayIndex > -1);
 	}
 
 	/**

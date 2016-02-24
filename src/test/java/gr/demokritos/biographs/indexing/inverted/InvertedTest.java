@@ -5,6 +5,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
+
 import java.io.File;
 import java.util.Set;
 
@@ -33,18 +35,17 @@ public class InvertedTest
     }
 	
 	/**
-	 * Test that the {@link InvertedIndex} class works properly.
+	 * Test that the {@link HashedInvertedIndex} class works properly.
 	 */
-	public void testInvertedIndex() {
+	public void testHashedInvertedIndex() {
 		String nclIndex = "/3061_consistent_nucleosomes.fa";
 
-		InvertedIndex nclData = new InvertedIndex();
+		HashedInvertedIndex nclData = new HashedInvertedIndex();
 		BioGraph[] nclBgs = null;
 		try {
 			// build database index 
 			File resNCL = new File(getClass().getResource(nclIndex).toURI());
-
-			nclData.buildIndex(resNCL);
+			nclData.build(resNCL, GraphType.DNA);
 			nclBgs = BioGraph.fastaFileToGraphs(resNCL);
 			assertTrue(true); // succeed
 		} catch (Exception ex) {
@@ -54,12 +55,16 @@ public class InvertedTest
 		/* make sure the graphs were read properly */
 		assertNotNull(nclBgs);
 		for (BioGraph b: nclBgs) {
-			assertNotNull(nclData.getMatches(b));
-			assertTrue(nclData.getMatches(b).size() > 0);
+			Set<BioGraph> matches = nclData.getMatches(b);
+			assertNotNull(matches);
+			assertTrue(matches.size() > 0);
 		}
 	}
 
-	public void testRandomIndex() {
+	/**
+	 * Verify that the {@link RandomInvertedIndex} class works properly.
+	 */
+	public void testRandomInvertedIndex() {
 		String nclIndex = "/3061_consistent_nucleosomes.fa";
 		RandomInvertedIndex rndIndex = new RandomInvertedIndex();
 		BioGraph[] nclBgs = null;
