@@ -40,7 +40,7 @@ public class SmartTest {
 	static int tolerance = 0;
 
 	static Stats checkIndex(BioGraph[] bgs, SmartIndex invInd) {
-		Stats stat = new Stats("hashed_inv_index");
+		Stats stat = new Stats("smart_index");
 		long maxTime = 0L, sumTime = 0L;
 		for (BioGraph bg : bgs) {
 			/* measure per-item query time to extract maximum and mean

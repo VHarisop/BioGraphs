@@ -27,9 +27,8 @@ import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.biographs.indexing.preprocessing.*;
 
 /**
- * An abstract class that implements a graph database using graph similarity.
- * Here, the similarity measure used is the graphs' structural similarity, as is
- * implemented in {@link gr.demokritos.iit.jinsect.jutils}
+ * A class that implements an inverted index that maps hash vector values
+ * to the graphs that contain them, using a vertex's in degree for encoding.
  *
  * @author VHarisop
  */
@@ -262,11 +261,9 @@ public class SmartIndex extends GraphDatabase {
 			if (vTree == null || vTree.size() == 0)
 				continue;
 
-			/* get incoming weight of vertex, get containments with epsilon
-			 * equal to the window size */
+			/* get indegree of vertex and containments using
+			 * epsilon equal to the window size + tolerance */
 			int vWeight = vecEnc[i];
-			//Set<BioGraph> contain = 
-			//	vTree.getFreq(vWeight, epsilon);
 
 			/* if set of results is unset, initialize now
 			 * and skip to next iteration */

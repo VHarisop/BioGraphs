@@ -27,9 +27,8 @@ import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.biographs.indexing.preprocessing.*;
 
 /**
- * An abstract class that implements a graph database using graph similarity.
- * Here, the similarity measure used is the graphs' structural similarity, as is
- * implemented in {@link gr.demokritos.iit.jinsect.jutils}
+ * A class that implements an inverted index that maps hash vector values
+ * to graphs that contain them.
  *
  * @author VHarisop
  */

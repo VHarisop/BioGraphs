@@ -70,7 +70,7 @@ public class FreqTree extends TreeMap<Integer, Set<BioGraph>> {
 		{
 			results.addAll(ent.getValue());
 		}
-		return new HashSet<BioGraph>(results);
+		return results;
 	}
 
 	/**
