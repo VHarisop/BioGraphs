@@ -22,8 +22,8 @@ import java.io.FileFilter;
 import java.util.*;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.Utils;
 import gr.demokritos.biographs.indexing.*;
-import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.biographs.indexing.preprocessing.*;
 import gr.demokritos.biographs.indexing.structs.GraphIndexEntry;
 
@@ -110,7 +110,11 @@ public class EntryInvertedIndex extends GraphDatabase {
 	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
 			if (type == GraphType.DNA) {
-				addAllGraphs(BioGraph.fastaFileToGraphs(fPath));
+				for (GraphIndexEntry e: 
+						Utils.fastaFileToEntries(fPath, indVec)) 
+				{
+					addEntry(e);
+				}
 			}
 			else {
 				addAllGraphs(BioGraph.fromWordFile(fPath));
@@ -127,7 +131,11 @@ public class EntryInvertedIndex extends GraphDatabase {
 			// add them all to the database
 			for (File f: fileList) {
 				if (type == GraphType.DNA) {
-					addAllGraphs(BioGraph.fastaFileToGraphs(f));
+					for (GraphIndexEntry e:
+							Utils.fastaFileToEntries(f, indVec))
+					{
+						addEntry(e);
+					}
 				}
 				else {
 					addAllGraphs(BioGraph.fromWordFile(f));
@@ -150,21 +158,26 @@ public class EntryInvertedIndex extends GraphDatabase {
 
 	/**
 	 * Adds a new graph to the database, updating the inverted index.
-	 * For each vertex in the graph, this graph is added as an entry to
-	 * the list of graphs associated with the vertex's incoming weight
-	 * sum.
-	 * 
-	 * @param bg the BioGraph object to be added
+	 *
+	 * @param bg the {@link BioGraph} to be added
 	 */
 	@Override
 	public void addGraph(BioGraph bg) {
+		addEntry(new GraphIndexEntry(bg, indVec));
+	}
+
+	/**
+	 * Adds a new entry to the database.
+	 * 
+	 * @param entry the {@link GraphIndexEntry} to be added
+	 */
+	public void addEntry(GraphIndexEntry entry) {
 		/**
 		 * <i>METHOD</i>:
 		 * 1 - get index hash encoding of the graph
 		 * 2 - for every index in the encoding, associate the graph with
 		 * the EntryFreqTree that corresponds to the index's encoding value.
 		 */
-		GraphIndexEntry entry = new GraphIndexEntry(bg, indVec);
 		int[] vecEnc = entry.getEncoding();
 		for (int i = 0; i < vecEnc.length; ++i) {
 			int hVal = vecEnc[i];

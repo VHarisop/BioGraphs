@@ -1,5 +1,12 @@
 package gr.demokritos.biographs;
 
+import java.io.File;
+import java.util.*;
+import gr.demokritos.biographs.indexing.preprocessing.*;
+import gr.demokritos.biographs.indexing.structs.*;
+
+import org.biojava.nbio.core.sequence.DNASequence;
+
 /**
  * A class containing various utilities used in preprocessing
  * tasks necessary for several indexing methods.
@@ -157,5 +164,28 @@ public final class Utils {
 			znew[i] = (vec[i] - means[i]) / devs[i];
 		}
 		return znew;
+	}
+
+	/**
+	 * Given a {@link HashedVector} and a FASTA file, returns an array of
+	 * database entries read from that file using the hashed vector.
+	 *
+	 * @param path the file containing FASTA entries
+	 * @param hVec the hashed vector to use
+	 * @return an array of {@link GraphIndexEntry}
+	 * @throws Exception if an error occurs when reading the file
+	 */
+	public static GraphIndexEntry[]
+	fastaFileToEntries(File path, IndexVector hVec) throws Exception {
+		List<GraphIndexEntry> gis = new ArrayList<GraphIndexEntry>();
+		for (Map.Entry<String, DNASequence> e:
+				BioGraph.readFastaFile(path).entrySet())
+		{
+			gis.add(new GraphIndexEntry(
+						BioGraph.fromSequence(e.getValue(), e.getKey()),
+						hVec)
+			);
+		}
+		return gis.toArray(new GraphIndexEntry[gis.size()]);
 	}
 }
