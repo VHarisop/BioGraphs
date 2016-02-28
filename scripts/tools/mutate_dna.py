@@ -56,15 +56,13 @@ if __name__ == "__main__":
 
     with open(fasta_file, 'r') as f, open(out_name, 'w') as w:
         mutated_sequences = []
-        fasta_sequences = SeqIO.parse(f, 'fasta')
-        for fasta in fasta_sequences:
+        fasta_sequences = list(SeqIO.parse(f, 'fasta'))
+
+        # pick some fasta sequences at random to be mutated
+        random_picks = sample(fasta_sequences, len(fasta_sequences) / 20)
+        for fasta in random_picks:
             name, seq = fasta.id, mutate(fasta.seq.tomutable(), mutation_num)
             mutated_sequences.append(SeqRecord(seq, name, '', ''))
 
-        # include a random tenth percentile from the mutated sequences
-        final_sequences = sample(
-                mutated_sequences,
-                len(mutated_sequences) / 10)
-
         # write mutated sequences to output file
-        SeqIO.write(final_sequences, w, 'fasta')
+        SeqIO.write(mutated_sequences, w, 'fasta')
