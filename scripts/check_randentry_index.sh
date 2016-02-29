@@ -4,7 +4,7 @@ num_kgraphs=${1:-10}
 max_tolerance=${2:-3}
 
 BASE_DIR="${HOME}/demokritos/BioGraphs"
-EXPERIMENT="gr.demokritos.biographs.experiments.EntryTest"
+EXPERIMENT="gr.demokritos.biographs.experiments.RandEntryTest"
 DATA_DIR="${BASE_DIR}/scripts/datasets/synthetic_${num_kgraphs}K"
 
 # result directory - if it doesn't exist, create it!
@@ -30,10 +30,10 @@ for mutations in 1 2 3 4; do
 		-Dexec.mainClass=${EXPERIMENT} \
 		-Dexec.args="${NCL_FILE} ${mut_file} ${max_tolerance}" \
 		| grep -v -e "INFO" -e "WARNING" \
-		> "${RESULT_DIR}/res_${max_tolerance}_${mutations}.json"
+		> "${RESULT_DIR}/res_rand_${max_tolerance}_${mutations}.json"
 	echo -n "Mutations: ${mutations} - "
 	python3 ${SCRIPT} \
-		-r ${RESULT_DIR}/res_${max_tolerance}_${mutations}.json \
+		-r ${RESULT_DIR}/res_rand_${max_tolerance}_${mutations}.json \
 		| awk -F ' ' '{print $2}' \
 		| xargs printf "%s\n"
 done

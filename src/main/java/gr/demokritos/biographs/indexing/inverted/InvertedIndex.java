@@ -28,9 +28,8 @@ import gr.demokritos.biographs.indexing.*;
 import gr.demokritos.iit.jinsect.structs.*;
 
 /**
- * An abstract class that implements a graph database using graph similarity.
- * Here, the similarity measure used is the graphs' structural similarity, as is
- * implemented in {@link gr.demokritos.iit.jinsect.jutils}
+ * An implementation of a {@link GraphDatabase} that utilizes an inverted
+ * index, storing containing graphs for each vertex.
  *
  * @author VHarisop
  */

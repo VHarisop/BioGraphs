@@ -43,12 +43,6 @@ public class EntryInvertedIndex extends GraphDatabase {
 	protected HashMap<Integer, EntryFreqTree> invIndex;
 
 	/**
-	 * The {@link HashedVector} used internally by this database to hash
-	 * added graphs' vertices.
-	 */
-	protected HashedVector hashVec;
-
-	/**
 	 * The {@link IndexVector} used internally by this database to find
 	 * graph indexes.
 	 */
@@ -84,10 +78,18 @@ public class EntryInvertedIndex extends GraphDatabase {
 		indVec.setBins(16);
 	}
 
+	/**
+	 * Builds a graph database index from a given file or directory
+	 * for graphs that encode a specified data type.
+	 *
+	 * @param path the file or directory to read the data from
+	 * @param gType the type of data contained in the graphs
+	 */
 	public void build(File path, GraphType gType) throws Exception {
 		this.type = gType;
 		buildIndex(path);
 	}
+	
 	/**
 	 * Builds a graph database index from a given file or directory
 	 * of files.
@@ -229,8 +231,8 @@ public class EntryInvertedIndex extends GraphDatabase {
 	public int[] binSizes() {
 		int[] bins = new int[invIndex.size()];
 		int iCnt = 0;
-		for (Map.Entry<Integer, EntryFreqTree> ent: invIndex.entrySet()) {
-			bins[iCnt++] = ent.getValue().size();
+		for (EntryFreqTree eTree: invIndex.values()) {
+			bins[iCnt++] = eTree.size();
 		}
 		return bins;
 	}

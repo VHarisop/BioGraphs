@@ -28,6 +28,25 @@ public class ClusterDistance {
 	}
 
 	/**
+	 * Computes the hamming distance between two integer vectors, returning
+	 * the system's max value for integers if their lengths differ.
+	 *
+	 * @param encA the first vector
+	 * @param encB the second vector
+	 * @return the hamming distance between the two vectors
+	 */
+	public static int hamming(int[] encA, int[] encB) {
+		int dist;
+		try {
+			dist = Utils.getHammingDistance(encA, encB);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			dist = Integer.MAX_VALUE;
+		}
+		return dist;
+	}
+
+	/**
 	 * Computes the hamming distance between two vectors, returning
 	 * the system's max value for doubles if their lengths differ.
 	 *
