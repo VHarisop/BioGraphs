@@ -35,33 +35,6 @@ public class InvertedTest
     }
 	
 	/**
-	 * Test that the {@link HashedInvertedIndex} class works properly.
-	 */
-	public void testHashedInvertedIndex() {
-		String nclIndex = "/3061_consistent_nucleosomes.fa";
-
-		HashedInvertedIndex nclData = new HashedInvertedIndex();
-		BioGraph[] nclBgs = null;
-		try {
-			// build database index 
-			File resNCL = new File(getClass().getResource(nclIndex).toURI());
-			nclData.build(resNCL, GraphType.DNA);
-			nclBgs = BioGraph.fastaFileToGraphs(resNCL);
-			assertTrue(true); // succeed
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			assertTrue(false); // fail
-		}
-		/* make sure the graphs were read properly */
-		assertNotNull(nclBgs);
-		for (BioGraph b: nclBgs) {
-			Set<BioGraph> matches = nclData.getMatches(b);
-			assertNotNull(matches);
-			assertTrue(matches.size() > 0);
-		}
-	}
-
-	/**
 	 * Verify that the {@link RandomInvertedIndex} class works properly.
 	 */
 	public void testRandomInvertedIndex() {
