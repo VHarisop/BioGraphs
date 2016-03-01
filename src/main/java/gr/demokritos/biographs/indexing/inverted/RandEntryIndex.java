@@ -277,7 +277,11 @@ public class RandEntryIndex extends GraphDatabase {
 			from = subSize * i;
 			to = Math.min(from + subSize, iSize);
 			List<Integer> keys = indices.subList(from, to);
-			results.addAll(intersectAndFind(vecEnc, keys, epsilon));
+			GraphIndexEntry eFound = intersectAndFind(vecEnc, keys, epsilon);
+			if (null == eFound)
+				continue;
+			else
+				results.add(eFound);
 		}
 		return results;
 
@@ -292,10 +296,10 @@ public class RandEntryIndex extends GraphDatabase {
 	 * @param vecEnc the index vector of the query graph
 	 * @param indices the indices to be used as keys
 	 * @param epsilon the search index frequency tolerance
-	 * @return a single-element set that contains the biograph closest
+	 * @return a single element that contains the entry closest
 	 * to the query graph, in terms of hash vector distance
 	 */
-	private Set<GraphIndexEntry> intersectAndFind
+	private GraphIndexEntry intersectAndFind
 	(int[] vecEnc, Collection<Integer> indices, int epsilon) 
 	{
 		int currIndex = 0,
@@ -344,18 +348,16 @@ public class RandEntryIndex extends GraphDatabase {
 				/* if I have performed enough intersections, compute the
 				 * minimum graph to return to the caller */
 				if (currIndex > sizeMax) {
-					bgFound = getClosest(vecEnc, backup);
-					Set<GraphIndexEntry> res = new HashSet<GraphIndexEntry>(1);
-					res.add(bgFound);
-					return res;
+					return getClosest(vecEnc, backup);
 				}
 				/* otherwise, go ahead with the intersections */
 				backup.retainAll(contain);
 				if (backup.size() == 0) {
-					return soFar;
+					return getClosest(vecEnc, soFar);
 				}
 				else {
-					soFar = new HashSet<GraphIndexEntry>(backup);
+					/* soFar becomes the result of the intersection */
+					soFar = backup;
 				}
 
 				/* if, at some point, result set is empty, skip next iteration
@@ -365,7 +367,7 @@ public class RandEntryIndex extends GraphDatabase {
 				}
 			}
 		}
-		return soFar;
+		return getClosest(vecEnc, soFar);
 	}
 
 	/**
