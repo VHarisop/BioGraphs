@@ -39,6 +39,7 @@ def parse_json(json_string):
     # create list of method - accuracy pairs
     for method in decoded_results:
         method_label = method['MethodLabel']
+        method_res = method['ResultList']
         try:
             bin_sizes = method['binSizes']
             if all(i == 1 for i in bin_sizes):
@@ -46,19 +47,41 @@ def parse_json(json_string):
         except KeyError:
             bin_sizes = 'undefined'
 
-        hits = sum(hit(i) for i in method['ResultList'])
-        accuracy = float(hits) / len(method['ResultList'])
+        hits = sum(hit(i) for i in method_res)
+        accuracy = float(hits) / len(method_res)
 
+        # extract average and maximum query time
         try:
             max_time, mean_time = method['maxTime'], method['meanTime']
         except KeyError:
-            mean_time = max_time = "unmeasured"
+            mean_time = max_time = "N/A"
+
+        # extract the maximum and mean answer set size
+        max_answer_size = max(len(i['results']) for i in method_res)
+        mean_answer_size = sum(len(i['results']) for i in method_res)
+        mean_answer_size /= len(method_res)
+
+        # extract info about mutations in queries, if available
+        try:
+            mutations = method['mutations']
+        except KeyError:
+            mutations = "N/A"
+
+        # extract info about database size, if available
+        try:
+            database_size = method['DatabaseSize']
+        except KeyError:
+            database_size = "N/A"
 
         result_list.append({
             'method': method_label,
             'accuracy': accuracy,
             'mean_time': mean_time,
             'max_time': max_time,
+            'mean_answer_size': mean_answer_size,
+            'max_answer_size': max_answer_size,
+            'mutations': mutations,
+            'database_size': database_size,
             'bins': bin_sizes})
 
     return result_list
@@ -67,7 +90,7 @@ def parse_json(json_string):
 if __name__ == '__main__':
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(
-            description='Analyzes test results given a truth and a result file')
+            description='Analyzes test results given a result file')
 
     parser.add_argument('-r', '--result_file', nargs=1,
             required=True,
@@ -78,10 +101,6 @@ if __name__ == '__main__':
     result_file = args['result_file'][0]
     
     with open(result_file, 'r') as f:
-        # read all lines into file
-        json_lines = ''.join(i for i in f)
-
-        for i in parse_json(json_lines):
-            time_label = 'mean: %s, max: %s' % (i['mean_time'], i['max_time'])
-            print(i['method'], i['accuracy'], 'bins:', i['bins'],
-                    'times: ', time_label)
+        # read all lines into file and print all results
+        for i in parse_json(''.join(ln for ln in f)):
+            print(i)
