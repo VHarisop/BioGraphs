@@ -1,6 +1,5 @@
-# ignore target and resources
+# ignore target
 target/
-src/test/resources/
 
 # ignore .classpath and .project files
 .classpath

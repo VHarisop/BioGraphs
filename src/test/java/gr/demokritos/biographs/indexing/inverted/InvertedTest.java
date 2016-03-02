@@ -38,7 +38,7 @@ public class InvertedTest
 	 * Verify that the {@link RandomInvertedIndex} class works properly.
 	 */
 	public void testRandomInvertedIndex() {
-		String nclIndex = "/3061_consistent_nucleosomes.fa";
+		String nclIndex = "/synth.fa";
 		RandomInvertedIndex rndIndex = new RandomInvertedIndex();
 		BioGraph[] nclBgs = null;
 		try {

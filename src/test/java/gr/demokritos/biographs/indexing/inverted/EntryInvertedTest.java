@@ -1,18 +1,20 @@
-package gr.demokritos.biographs.indexing;
+package gr.demokritos.biographs.indexing.inverted;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import gr.demokritos.biographs.*;
-import gr.demokritos.biographs.indexing.databases.TrieDatabase;
+import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
+import gr.demokritos.biographs.indexing.structs.GraphIndexEntry;
 
 import java.io.File;
+import java.util.Set;
 
 /**
  * Unit test for simple App.
  */
-public class TrieTest 
+public class EntryInvertedTest
     extends TestCase
 {
     /**
@@ -20,7 +22,7 @@ public class TrieTest
      *
      * @param testName name of the test case
      */
-    public TrieTest( String testName )
+    public EntryInvertedTest( String testName )
     {
         super( testName );
     }
@@ -30,44 +32,34 @@ public class TrieTest
      */
     public static Test suite()
     {
-        return new TestSuite( TrieTest.class );
+        return new TestSuite( EntryInvertedTest.class );
     }
 	
-	// similarity databases to be shared amongst tests
-	static TrieDatabase nfrData;
-	static TrieDatabase nclData;
-
 	/**
-	 * Test that the {@link TrieDatabase} class works properly.
+	 * Test that the {@link EntryInvertedIndex} class works properly.
 	 */
-	public void testCreateTrieIndex() {
+	public void testEntryInvertedIndex() {
 		String nclIndex = "/synth.fa";
-		nclData = new TrieDatabase() {
-			@Override
-			protected String getGraphCode(BioGraph bGraph) {
-				return bGraph.getCanonicalCode();
-			}
-		};
 
+		EntryInvertedIndex nclData = new EntryInvertedIndex();
 		BioGraph[] nclBgs = null;
 		try {
 			// build database index 
 			File resNCL = new File(getClass().getResource(nclIndex).toURI());
-
-			nclData.buildIndex(resNCL);
+			nclData.build(resNCL, GraphType.DNA);
 			nclBgs = BioGraph.fastaFileToGraphs(resNCL);
 			assertTrue(true); // succeed
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			assertTrue(false); // fail
 		}
-		/* make sure the graphs were read properly */
+		/* make sure the graphs were read properly and that all queries for
+		 * already existing graphs return a result. */
 		assertNotNull(nclBgs);
-
-		/* make sure that retrieval works for graphs that exist in the trie */
 		for (BioGraph b: nclBgs) {
-			assertNotNull(nclData.getNodes(b));
-			assertTrue(nclData.getNodes(b).size() > 0);
+			Set<GraphIndexEntry> matches = nclData.getMatches(b);
+			assertNotNull(matches);
+			assertTrue(matches.size() > 0);
 		}
 	}
 }

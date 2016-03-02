@@ -49,7 +49,7 @@ public class KnnTest
 	}
 	
 	public void testBuild() {
-		String fileName = "/3061_consistent_nucleosomes.fa";
+		String fileName = "/synth.fa";
 		try {
 			// build index
 			File res = new File(getClass().getResource(fileName).toURI());

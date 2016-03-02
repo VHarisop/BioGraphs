@@ -86,25 +86,25 @@ public class GeneralTest
 		catch (Exception ex) {
 			ex.printStackTrace();
 		}
-
-		fName = "/1099_consistent_NFR.fa";
+		fName = "/synth.fa";
 		assertNotNull("Test file missing", getClass().getResource(fName));
 
 		try {
 			File res = new File(getClass().getResource(fName).toURI());
 			BioGraph[] bgs = BioGraph.fastaFileToGraphs(res);
 
-			// assert that all graphs have been read
-			assertTrue(bgs.length == 1099);
+			/* assert that all graphs have been read */
+			int currIndex = 0;
+			assertTrue(bgs.length == 500);
 			for (BioGraph b: bgs) {
 				assertNotNull(b);
 				assertNotNull(b.bioLabel);
-			}
 
-			// assert that labels have been read properly
-			assertTrue(bgs[0].bioLabel.equals("chr1:37519-37552"));
-			assertTrue(bgs[2].bioLabel.equals("chr1:38881-38901"));
-			assertTrue(bgs[5].bioLabel.equals("chr1:52499-52513"));
+				/* assert labels have been read properly */
+				assertTrue(b.bioLabel.equals("test_" +
+							String.valueOf(currIndex)));
+				currIndex++;
+			}
 		} 
 		catch (Exception ex) {
 			ex.printStackTrace();
@@ -139,7 +139,6 @@ public class GeneralTest
 	 * Verify that {@link TrieDatabase.buildIndex()} works properly. 
 	 */
 	public void testIndex() {
-		// String fName = "/testFile01.fasta";
 		String fName = "/files";
 		TrieDatabase gData = new TrieDatabase();
 		try {
