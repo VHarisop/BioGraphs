@@ -174,6 +174,8 @@ public class EntryInvertedIndex extends GraphDatabase {
 	 * @param entry the {@link GraphIndexEntry} to be added
 	 */
 	public void addEntry(GraphIndexEntry entry) {
+		/* Don't forget to update our size! */
+		this.size++;
 		/**
 		 * <i>METHOD</i>:
 		 * 1 - get index hash encoding of the graph

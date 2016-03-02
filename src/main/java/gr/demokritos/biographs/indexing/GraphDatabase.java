@@ -49,9 +49,15 @@ public abstract class GraphDatabase {
 	protected GraphType type;
 
 	/**
+	 * The number of graphs this database contains.
+	 */
+	protected int size;
+
+	/**
 	 * Creates a blank GraphDatabase object.
 	 */
-	public GraphDatabase() { 
+	public GraphDatabase() {
+		size = 0;
 		path = null;
 	}
 
@@ -61,6 +67,7 @@ public abstract class GraphDatabase {
 	 * @param path the directory in which the database resides
 	 */
 	public GraphDatabase(String path) {
+		size = 0;
 		this.path = path;
 	}
 
@@ -74,6 +81,16 @@ public abstract class GraphDatabase {
 	 */
 	public static boolean compareDouble(double a, double b) {
 		return (Math.abs(a - b) < 0.0000001);
+	}
+
+	/**
+	 * Returns the number of the graphs that this database
+	 * contains.
+	 *
+	 * @return the database's size
+	 */
+	public int getSize() {
+		return this.size;
 	}
 
 	/**

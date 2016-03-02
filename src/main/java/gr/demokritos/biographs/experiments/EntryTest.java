@@ -38,10 +38,13 @@ public class EntryTest {
 	 */
 	static File testFile = null, dataFile = null;
 	static int maxTolerance = 0;
+	static int mutationNumber = 0;
 
 	static Stats 
 	checkIndex(BioGraph[] bgs, EntryInvertedIndex invInd, int tolerance) {
 		Stats stat = new Stats("entry_smart_index");
+		stat.setDatabaseSize(invInd.getSize());
+		stat.setMutations(mutationNumber);
 		long maxTime = 0L, sumTime = 0L;
 		for (BioGraph bg : bgs) {
 			/* measure per-item query time to extract maximum and mean
@@ -82,6 +85,10 @@ public class EntryTest {
 		
 		if (args.length >= 3) {
 			maxTolerance = Integer.parseInt(args[2]);
+		}
+
+		if (args.length >= 4) {
+			mutationNumber = Integer.parseInt(args[3]);
 		}
 
 		EntryInvertedIndex invInd = new EntryInvertedIndex();

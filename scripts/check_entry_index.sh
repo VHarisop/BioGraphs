@@ -28,7 +28,7 @@ for mutations in 1 2 3 4; do
 	mut_file="${DATA_DIR}/mut_${mutations}.fa"
 	mvn exec:java \
 		-Dexec.mainClass=${EXPERIMENT} \
-		-Dexec.args="${NCL_FILE} ${mut_file} ${max_tolerance}" \
+		-Dexec.args="${NCL_FILE} ${mut_file} ${max_tolerance} ${mutations}" \
 		| grep -v -e "INFO" -e "WARNING" \
 		> "${RESULT_DIR}/res_${max_tolerance}_${mutations}.json"
 	echo -n "Mutations: ${mutations} - "

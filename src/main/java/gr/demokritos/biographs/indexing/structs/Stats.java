@@ -48,6 +48,16 @@ public final class Stats {
 	protected double maxTime;
 
 	/**
+	 * Contains the size of the queried database
+	 */
+	protected int DatabaseSize;
+
+	/**
+	 * Contains the number of mutations in the queries
+	 */
+	protected int mutations;
+
+	/**
 	 * Contains the mean query time in seconds
 	 */
 	protected double meanTime;
@@ -90,6 +100,20 @@ public final class Stats {
 	 */
 	public void setBins(int[] bins) {
 		binSizes = bins;
+	}
+
+	/**
+	 * Sets the {@link DatabaseSize} field of the object.
+	 */
+	public void setDatabaseSize(int size) {
+		DatabaseSize = size;
+	}
+
+	/**
+	 * Sets the {@link mutations} field of the object.
+	 */
+	public void setMutations(int mutations) {
+		this.mutations = mutations;
 	}
 
 	/**
