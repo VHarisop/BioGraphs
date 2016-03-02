@@ -45,6 +45,7 @@ public class EntryTest {
 		Stats stat = new Stats("entry_smart_index");
 		stat.setDatabaseSize(invInd.getSize());
 		stat.setMutations(mutationNumber);
+		stat.setTolerance(tolerance);
 		long maxTime = 0L, sumTime = 0L;
 		for (BioGraph bg : bgs) {
 			/* measure per-item query time to extract maximum and mean

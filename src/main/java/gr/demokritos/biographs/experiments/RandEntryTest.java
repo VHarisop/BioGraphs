@@ -42,10 +42,10 @@ public class RandEntryTest {
 
 	static Stats checkIndex
 	(BioGraph[] bgs, RandEntryIndex invInd, int tolerance) {
-		Stats stat =
-			new Stats("entry_rand_index_tol" + String.valueOf(tolerance));
+		Stats stat = new Stats("entry_rand_index_tol");
 		stat.setDatabaseSize(invInd.getSize());
 		stat.setMutations(mutationNumber);
+		stat.setTolerance(tolerance);
 		long maxTime = 0L, sumTime = 0L;
 		for (BioGraph bg : bgs) {
 			/* measure per-item query time to extract maximum and mean

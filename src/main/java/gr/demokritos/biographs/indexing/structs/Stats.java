@@ -43,22 +43,27 @@ public final class Stats {
 	protected int[] binSizes;
 
 	/**
-	 * Contains the maximum query time in seconds
+	 * Contains the maximum query time in seconds.
 	 */
 	protected double maxTime;
 
 	/**
-	 * Contains the size of the queried database
+	 * Contains the size of the queried database.
 	 */
 	protected int DatabaseSize;
 
 	/**
-	 * Contains the number of mutations in the queries
+	 * Contains the number of mutations in the queries.
 	 */
 	protected int mutations;
 
 	/**
-	 * Contains the mean query time in seconds
+	 * Contains the search tolerance value for queries.
+	 */
+	protected int tolerance;
+
+	/**
+	 * Contains the mean query time in seconds.
 	 */
 	protected double meanTime;
 
@@ -103,17 +108,24 @@ public final class Stats {
 	}
 
 	/**
-	 * Sets the {@link DatabaseSize} field of the object.
+	 * Sets the {@link #DatabaseSize} field of the object.
 	 */
 	public void setDatabaseSize(int size) {
 		DatabaseSize = size;
 	}
 
 	/**
-	 * Sets the {@link mutations} field of the object.
+	 * Sets the {@link #mutations} field of the object.
 	 */
 	public void setMutations(int mutations) {
 		this.mutations = mutations;
+	}
+
+	/**
+	 * Sets the {@link #tolerance} field of the object.
+	 */
+	public void setTolerance(int tol) {
+		this.tolerance = tol;
 	}
 
 	/**
