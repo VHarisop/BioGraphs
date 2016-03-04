@@ -240,6 +240,56 @@ public class EntryInvertedIndex extends GraphDatabase {
 	}
 
 	/**
+	 * Returns a set of graphs entries whose index vectors are an
+	 * exact match with the index vector of a query graph. If the 
+	 * graph was originally part of the database, it is guaranteed
+	 * to return a non-empty set of results containing the original
+	 * graph - otherwise, the result may be null.
+	 * This method is the <i>fastest</i> way to retrieve a graph
+	 * for which containment is certain.
+	 *
+	 * @param bG the query graph
+	 * @return a set of {@link GraphIndexEntry} objects whose index
+	 * vectors match exactly the query's index vector
+	 */
+	public Set<GraphIndexEntry> getExactMatches(BioGraph bG) {
+		int epsilon = 0;
+		int[] vecEnc = indVec.encodeGraph(bG);
+
+		/* initial set of results and a flag indicating if
+		 * it has been initialised or not */
+		Set<GraphIndexEntry> soFar = null;
+		boolean unset = true;
+
+		for (int i = 0; i < vecEnc.length; ++i) {
+			EntryFreqTree vTree = invIndex.get(i);
+			/* should not happen unless the graph was not
+			 * originally part of the database */
+			if (null == vTree || vTree.size() == 0)
+				continue;
+
+			/* initialize result set */
+			if (unset) {
+				soFar = vTree.getFreq(vecEnc[i], epsilon);
+				unset = false;
+				continue;
+			}
+			else {
+				/* if graph belongs to the database, this intersection
+				 * is guaranteed to be non-empty */
+				soFar.retainAll(vTree.getFreq(vecEnc[i], epsilon));
+
+				/* if, at some point, the intersection result is empty,
+				 * it means that the graph was not originally part of
+				 * the database - therefore, we return null */
+				if (soFar.size() == 0)
+					return null;
+			}
+		}
+		return soFar;
+	}
+
+	/**
 	 * Gets the matches of a query graph with a specified tolerance to
 	 * containment frequences.
 	 *
