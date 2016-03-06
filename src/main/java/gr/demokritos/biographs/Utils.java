@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.*;
 import gr.demokritos.biographs.indexing.preprocessing.*;
 import gr.demokritos.biographs.indexing.structs.*;
+import gr.demokritos.iit.jinsect.io.LineReader;
 
 import org.biojava.nbio.core.sequence.DNASequence;
 
@@ -188,4 +189,90 @@ public final class Utils {
 		}
 		return gis.toArray(new GraphIndexEntry[gis.size()]);
 	}
+
+	/**
+	 * Given a {@link IndexVector} and a normal text file, returns an
+	 * array of database entries read from that file using the index
+	 * vector.
+	 *
+	 * @param path the file containing the entries
+	 * @param hVec the index vector to use
+	 * @return an array of {@link GraphIndexEntry}
+	 * @throws Exception if an error occurs when reading the file
+	 */
+	public static GraphIndexEntry[]
+	wordFileToEntries(File path, IndexVector hVec) throws Exception {
+		List<GraphIndexEntry> gis = new ArrayList<GraphIndexEntry>();
+		for (String s: new LineReader().getLines(path)) {
+			gis.add(new GraphIndexEntry(
+						new BioGraph(s, s),
+						hVec)
+			);
+		}
+		return gis.toArray(new GraphIndexEntry[gis.size()]);
+	}
+
+	/**
+	 * Function that creates 4 nested loops for intersecting DNA indices
+	 * whose loop variables iterate among
+	 * [center - range, center + range].
+	 *
+	 * @param center the center of the loop
+	 * @param range the range of the loop variables
+	 * @param sum the desired sum of the loop variables
+	 */
+	public static List<Integer[]> 
+	dnaIndexLoop(int center, int range, int sum) {
+		List<Integer[]> indices = new ArrayList<Integer[]>();
+		for (int i = -range; i <= range; ++i) {
+			for (int j = -range; j <= range; ++j) {
+				if (i + j > sum)
+					break;
+				for (int k = -range; k <= range; ++k) {
+					if (i + j + k > sum)
+						break;
+					for (int l = -range; l <= range; ++l) {
+						if (l + k + j + i > sum)
+							break;
+						if (l + k + j + i < sum)
+							continue;
+						indices.add(new Integer[] {
+							center + i,
+							center + j,
+							center + k,
+							center + l
+						});
+					}
+				}
+			}
+		}
+		return indices;
+	}
+
+	/**
+	 * Function that creates 4 nested loops for intersecting DNA indices.
+	 * @param range the range of the loop variables
+	 * @param sum the desired sum of the loop variables
+	 */
+	public static List<Integer[]> dnaIndexLoop(int range, int sum) {
+		List<Integer[]> indices = new ArrayList<Integer[]>();
+		for (int i = 0; i < range; ++i) {
+			for (int j = 0; j < range; ++j) {
+				if (i + j > sum)
+					break;
+				for (int k = 0; k < range; ++k) {
+					if (i + j + k > sum)
+						break;
+					for(int l = 0; l < range; ++l) {
+						if (l + k + j + i > sum)
+							break;
+						if (l + k + j + i < sum)
+							continue;
+						indices.add(new Integer[] {i, j, k, l});
+					}
+				}
+			}
+		}
+		return indices;
+	}	
 }

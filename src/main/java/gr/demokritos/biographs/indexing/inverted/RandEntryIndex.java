@@ -41,7 +41,7 @@ public class RandEntryIndex extends GraphDatabase {
 	 * biograph list pairs. The integer keys are frequency counts and count
 	 * how many times the hashmap's key (vertex) has been seen in which graph.
 	 */
-	protected HashMap<Integer, EntryFreqTree> invIndex;
+	protected HashMap<Integer, FreqTree<GraphIndexEntry>> invIndex;
 
 	/**
 	 * The {@link IndexVector} used internally by this database to hash
@@ -71,7 +71,7 @@ public class RandEntryIndex extends GraphDatabase {
 	 * Initialize the inverted index.
 	 */
 	protected void initIndex() {
-		invIndex = new HashMap<Integer, EntryFreqTree>();
+		invIndex = new HashMap<Integer, FreqTree<GraphIndexEntry>>();
 
 		/* create the default index vector for DNA data */
 		indVec = new IndexVector(GraphType.DNA);
@@ -179,9 +179,9 @@ public class RandEntryIndex extends GraphDatabase {
 		 */
 		int[] vecEnc = entry.getEncoding();
 		for (int i = 0; i < vecEnc.length; ++i) {
-			EntryFreqTree vTree;
+			FreqTree<GraphIndexEntry> vTree;
 			if (!(invIndex.containsKey(i))) {
-				vTree = new EntryFreqTree();
+				vTree = new FreqTree<GraphIndexEntry>();
 				vTree.addGraph(vecEnc[i], entry);
 			}
 			else {
@@ -206,7 +206,7 @@ public class RandEntryIndex extends GraphDatabase {
 	 *
 	 * @return a set containing all of the entries of the map
 	 */
-	public Set<Map.Entry<Integer, EntryFreqTree>> exposeEntries() {
+	public Set<Map.Entry<Integer, FreqTree<GraphIndexEntry>>> exposeEntries() {
 		return invIndex.entrySet();
 	}
 
@@ -220,7 +220,7 @@ public class RandEntryIndex extends GraphDatabase {
 	public int[] binSizes() {
 		int[] bins = new int[invIndex.size()];
 		int iCnt = 0;
-		for (EntryFreqTree eTree: invIndex.values()) {
+		for (FreqTree<GraphIndexEntry> eTree: invIndex.values()) {
 			bins[iCnt++] = eTree.size();
 		}
 		return bins;
@@ -316,7 +316,7 @@ public class RandEntryIndex extends GraphDatabase {
 			currIndex++;
 
 			/* get matching freq tree to the current index */
-			EntryFreqTree vTree = invIndex.get(iCurr);
+			FreqTree<GraphIndexEntry> vTree = invIndex.get(iCurr);
 
 			/* if no FreqTree exists for this vertex, it must be a newly
 			 * encountered vertex - skip intersection phase! */

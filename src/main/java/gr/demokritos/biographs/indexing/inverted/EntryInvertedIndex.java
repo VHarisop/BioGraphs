@@ -40,7 +40,7 @@ public class EntryInvertedIndex extends GraphDatabase {
 	 * how many times the hashmap's key (vertex label letter) has been seen in
 	 * which graph.
 	 */
-	protected HashMap<Integer, EntryFreqTree> invIndex;
+	protected HashMap<Integer, FreqTree<GraphIndexEntry>> invIndex;
 
 	/**
 	 * The {@link IndexVector} used internally by this database to find
@@ -70,7 +70,7 @@ public class EntryInvertedIndex extends GraphDatabase {
 	 * Initialize the inverted index.
 	 */
 	protected void initIndex() {
-		invIndex = new HashMap<Integer, EntryFreqTree>();
+		invIndex = new HashMap<Integer, FreqTree<GraphIndexEntry>>();
 
 		/* create the default index vector for DNA data */
 		indVec = new IndexVector(GraphType.DNA);
@@ -172,21 +172,21 @@ public class EntryInvertedIndex extends GraphDatabase {
 		 * <i>METHOD</i>:
 		 * 1 - get index hash encoding of the graph
 		 * 2 - for every index in the encoding, associate the graph with
-		 * the EntryFreqTree that corresponds to the index's encoding value.
+		 * the FreqTree that corresponds to the index's encoding value.
 		 */
 		int[] vecEnc = entry.getEncoding();
 		for (int i = 0; i < vecEnc.length; ++i) {
 			int hVal = vecEnc[i];
-			EntryFreqTree vTree;
+			FreqTree<GraphIndexEntry> vTree;
 			if (!(invIndex.containsKey(i))) {
-				vTree = new EntryFreqTree();
+				vTree = new FreqTree<GraphIndexEntry>();
 				/* associate the encoding value of the vector at the
-				 * current index with this graph and let EntryFreqTree handle
+				 * current index with this graph and let FreqTree handle
 				 * the additions */
 				vTree.addGraph(hVal, entry);
 			}
 			else {
-				/* pick up the already existing EntryFreqTree and add the graph
+				/* pick up the already existing FreqTree and add the graph
 				 * to the list of graphs already associated with that value
 				 * */
 				vTree = invIndex.get(i);
@@ -211,7 +211,7 @@ public class EntryInvertedIndex extends GraphDatabase {
 	 *
 	 * @return a set containing all of the entries of the map
 	 */
-	public Set<Map.Entry<Integer, EntryFreqTree>> exposeEntries() {
+	public Set<Map.Entry<Integer, FreqTree<GraphIndexEntry>>> exposeEntries() {
 		return invIndex.entrySet();
 	}
 
@@ -225,7 +225,7 @@ public class EntryInvertedIndex extends GraphDatabase {
 	public int[] binSizes() {
 		int[] bins = new int[invIndex.size()];
 		int iCnt = 0;
-		for (EntryFreqTree eTree: invIndex.values()) {
+		for (FreqTree<GraphIndexEntry> eTree: invIndex.values()) {
 			bins[iCnt++] = eTree.size();
 		}
 		return bins;
@@ -254,7 +254,7 @@ public class EntryInvertedIndex extends GraphDatabase {
 		boolean unset = true;
 
 		for (int i = 0; i < vecEnc.length; ++i) {
-			EntryFreqTree vTree = invIndex.get(i);
+			FreqTree<GraphIndexEntry> vTree = invIndex.get(i);
 			/* should not happen unless the graph was not
 			 * originally part of the database */
 			if (null == vTree || vTree.size() == 0)
@@ -294,9 +294,9 @@ public class EntryInvertedIndex extends GraphDatabase {
 		 * <i>METHOD</i>:
 		 * 1 - get the query graph's int hash encoding
 		 * 2 - use this vector as a key to look up containing graphs in the
-		 *     index's corresponding EntryFreqTree, with tolerance (epsilon)
+		 *     index's corresponding FreqTree, with tolerance (epsilon)
 		 *     equal to the n-gram size used in the graph - if the index's value
-		 *     has no associated EntryFreqTree, simply go to next vertex
+		 *     has no associated FreqTree, simply go to next vertex
 		 * 3 - take the intersection of all lists retrieved in step 2
 		 * 4 - return this list as an answer
 		 */
@@ -311,7 +311,7 @@ public class EntryInvertedIndex extends GraphDatabase {
 		/* Lookup lists of containments for all encoding values and intersect them
 		 * step by step. The initial list is unset */
 		for (int i = 0; i < vecEnc.length; ++i) {
-			EntryFreqTree vTree = invIndex.get(i);
+			FreqTree<GraphIndexEntry> vTree = invIndex.get(i);
 
 			/* if no EntryFreqTree exists for this vertex, it must be a newly
 			 * encountered vertex - skip intersection phase! */

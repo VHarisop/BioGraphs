@@ -40,7 +40,7 @@ public class InvertedIndex extends GraphDatabase {
 	 * biograph list pairs. The integer keys are frequency counts and count
 	 * how many times the hashmap's key (vertex) has been seen in which graph.
 	 */
-	protected HashMap<JVertex, FreqTree> invIndex;
+	protected HashMap<JVertex, FreqTree<BioGraph>> invIndex;
 
 	/**
 	 * Creates a blank InvertedIndex object.
@@ -64,7 +64,7 @@ public class InvertedIndex extends GraphDatabase {
 	 * Initialize the inverted index.
 	 */
 	protected void initIndex() {
-		invIndex = new HashMap<JVertex, FreqTree>();
+		invIndex = new HashMap<JVertex, FreqTree<BioGraph>>();
 	}
 
 	/**
@@ -161,14 +161,14 @@ public class InvertedIndex extends GraphDatabase {
 		 */
 		UniqueVertexGraph uvG = bg.getGraph();
 		for (JVertex v: uvG.vertexSet()) {
-			FreqTree vTree;
+			FreqTree<BioGraph> vTree;
 			
 			/* get the vertex's incoming weight sum */
 			int vInWeight = (int) uvG.incomingWeightSumOf(v);
 
 			/* if FreqTree for this vertex didn't exist, create it */
 			if (!(invIndex.containsKey(v))) {
-				vTree = new FreqTree();
+				vTree = new FreqTree<BioGraph>();
 				/* associate the inweight of the vertex with this graph
 				 * and let FreqTree handle the additions */
 				vTree.addGraph(vInWeight, bg);
@@ -198,7 +198,7 @@ public class InvertedIndex extends GraphDatabase {
 	 *
 	 * @return a set containing all of the entries of the map
 	 */
-	public Set<Map.Entry<JVertex, FreqTree>> exposeEntries() {
+	public Set<Map.Entry<JVertex, FreqTree<BioGraph>>> exposeEntries() {
 		return invIndex.entrySet();
 	}
 
@@ -212,7 +212,7 @@ public class InvertedIndex extends GraphDatabase {
 	public int[] binSizes() {
 		int[] bins = new int[invIndex.size()];
 		int iCnt = 0;
-		for (Map.Entry<JVertex, FreqTree> ent: invIndex.entrySet()) {
+		for (Map.Entry<JVertex, FreqTree<BioGraph>> ent: invIndex.entrySet()) {
 			bins[iCnt++] = ent.getValue().size();
 		}
 
@@ -249,7 +249,7 @@ public class InvertedIndex extends GraphDatabase {
 		/* Lookup lists of containments for all vertices and intersect them
 		 * step by step. The initial list is unset */
 		for (JVertex v: uvG.vertexSet()) {
-			FreqTree vTree = invIndex.get(v);
+			FreqTree<BioGraph> vTree = invIndex.get(v);
 
 			/* if no FreqTree exists for this vertex, it must be a newly
 			 * encountered vertex - skip intersection phase! */
