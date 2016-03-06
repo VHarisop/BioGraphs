@@ -69,18 +69,6 @@ public class RandomInvertedIndex extends GraphDatabase {
 
 	/**
 	 * Builds a graph database index from a given file or directory
-	 * for a specified data type.
-	 *
-	 * @param path the file or directory
-	 * @param gType the type of the encoded data
-	 */
-	public void build(File path, GraphType gType) throws Exception {
-		this.type = gType;
-		buildIndex(path);
-	}
-
-	/**
-	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *
 	 * @param path a string containing a path to a file or directory

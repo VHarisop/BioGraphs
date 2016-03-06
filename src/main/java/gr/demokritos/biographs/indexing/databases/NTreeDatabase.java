@@ -75,18 +75,6 @@ public class NTreeDatabase extends GraphDatabase {
 	}
 
 	/**
-	 * Builds a graph database index from a given file or directory,
-	 * representing a specified type of data.
-	 *
-	 * @param path the file or directory
-	 * @param gType the type of the encoded data
-	 */
-	public void build(File path, GraphType gType) throws Exception {
-		this.type = gType;
-		buildIndex(path);
-	}
-
-	/**
 	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *

@@ -80,18 +80,6 @@ public class EntryInvertedIndex extends GraphDatabase {
 
 	/**
 	 * Builds a graph database index from a given file or directory
-	 * for graphs that encode a specified data type.
-	 *
-	 * @param path the file or directory to read the data from
-	 * @param gType the type of data contained in the graphs
-	 */
-	public void build(File path, GraphType gType) throws Exception {
-		this.type = gType;
-		buildIndex(path);
-	}
-	
-	/**
-	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *
 	 * @param path a string containing a path to a file or directory

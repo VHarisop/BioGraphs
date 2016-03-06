@@ -62,18 +62,6 @@ public class TrieDatabase extends GraphDatabase {
 	}
 
 	/**
-	 * Builds a graph database from graphs found in a specified file or
-	 * directory, containing a given type of data.
-	 *
-	 * @param path the file or directory to index from
-	 * @param gType the data type of the graphs
-	 * @throws Exception if data cannot be read or if a file doesn't exist
-	 */
-	public void build(File path, GraphType gType) throws Exception {
-		this.type = gType;
-		buildIndex(path);
-	}
-	/**
 	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *

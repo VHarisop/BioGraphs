@@ -95,6 +95,30 @@ public abstract class GraphDatabase {
 
 	/**
 	 * Builds a graph database index from a given file or directory
+	 * of files for graphs that represent a specified type of data.
+	 *
+	 * @param path the path of the file or directory
+	 * @param gType the type of the graph data
+	 * @throws Exception if an error occurs when reading the data
+	 */
+	public void build(File path, GraphType gType) throws Exception {
+		this.type = gType;
+		buildIndex(path);
+	}
+
+	/**
+	 * @see #build(File, GraphType) build
+	 *
+	 * @param path a string containing the path of the file or directory
+	 * @param gType the type of the graph data
+	 * @throws Exception if an error occurs when reading the data
+	 */
+	public void build(String path, GraphType gType) throws Exception {
+		build(new File(path), gType);
+	}
+
+	/**
+	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *
 	 * @param path a string containing a path to a file or directory

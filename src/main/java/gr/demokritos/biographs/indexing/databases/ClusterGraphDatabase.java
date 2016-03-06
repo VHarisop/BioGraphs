@@ -142,6 +142,7 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	 * @throws Exception in case the file or directory doesn't exist or
 	 * the data cannot be read
 	 */
+	@Override
 	public void build(File fPath, GraphType type) throws Exception {
 		switch (type) {
 			case WORD:
@@ -161,6 +162,7 @@ public class ClusterGraphDatabase extends GraphDatabase {
 	/**
 	 * @see #build(File, GraphType) build
 	 */
+	@Override
 	public void build(String path, GraphType type) throws Exception {
 		build(new File(path), type);
 	}
