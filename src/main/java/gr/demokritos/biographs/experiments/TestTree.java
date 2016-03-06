@@ -18,6 +18,7 @@ package gr.demokritos.biographs.experiments;
 
 import gr.demokritos.biographs.*;
 import gr.demokritos.biographs.indexing.databases.NTreeDatabase;
+import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.biographs.indexing.structs.Stats;
 
 import java.io.File;
@@ -94,7 +95,7 @@ public class TestTree {
 			testFile = new File(args[1]);
 			bGraphsTest = BioGraph.fromWordFile(testFile);
 
-			ntD.buildWordIndex(dataFile);
+			ntD.build(dataFile, GraphType.WORD);
 			statList[0] = checkNearest(bGraphsTest, ntD);
 			System.out.println(gson.toJson(statList));
 		} catch (Exception ex) {

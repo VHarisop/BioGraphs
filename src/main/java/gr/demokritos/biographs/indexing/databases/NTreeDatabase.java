@@ -75,6 +75,18 @@ public class NTreeDatabase extends GraphDatabase {
 	}
 
 	/**
+	 * Builds a graph database index from a given file or directory,
+	 * representing a specified type of data.
+	 *
+	 * @param path the file or directory
+	 * @param gType the type of the encoded data
+	 */
+	public void build(File path, GraphType gType) throws Exception {
+		this.type = gType;
+		buildIndex(path);
+	}
+
+	/**
 	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *
@@ -95,9 +107,13 @@ public class NTreeDatabase extends GraphDatabase {
 	@Override
 	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
-			BioGraph[] bgs = BioGraph.fastaFileToGraphs(fPath);
-			for (BioGraph bG: bgs) {
-				addGraph(bG);
+			if (this.type == GraphType.DNA) {
+				for (BioGraph bG: BioGraph.fastaFileToGraphs(fPath)) 
+					addGraph(bG);
+			}
+			else {
+				for (BioGraph bG: BioGraph.fromWordFile(fPath))
+					addGraph(bG);
 			}
 		}
 		else {
@@ -110,41 +126,13 @@ public class NTreeDatabase extends GraphDatabase {
 
 			// add them all to the database
 			for (File f: fileList) {
-				BioGraph[] bgs = BioGraph.fastaFileToGraphs(f);
-				for (BioGraph bG: bgs) {
-					addGraph(bG);
+				if (this.type == GraphType.DNA) {
+					for (BioGraph bG: BioGraph.fastaFileToGraphs(f))
+						addGraph(bG);
 				}
-			}
-		}
-	}
-
-	/**
-	 * Builds a graph database index from a given file or directory 
-	 * of files which contain words without extra labels, as in the
-	 * case of FASTA files.
-	 *
-	 * @param fPath a path pointing to a file or directory 
-	 */
-	public void buildWordIndex(File fPath) throws Exception {
-		if (!fPath.isDirectory()) {
-			BioGraph[] bgs = BioGraph.fromWordFile(fPath);
-			for (BioGraph bG: bgs) {
-				addGraph(bG);
-			}
-		}
-		else {
-			// get all files in a list
-			File[] fileList = fPath.listFiles(new FileFilter() {
-				public boolean accept(File toFilter) {
-					return toFilter.isFile();
-				}
-			});
-
-			// add them all to the database
-			for (File f: fileList) {
-				BioGraph[] bgs = BioGraph.fromWordFile(f);
-				for (BioGraph bG: bgs) {
-					addGraph(bG);
+				else {
+					for (BioGraph bG: BioGraph.fromWordFile(f))
+						addGraph(bG);
 				}
 			}
 		}

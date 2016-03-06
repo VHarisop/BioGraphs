@@ -69,6 +69,18 @@ public class RandomInvertedIndex extends GraphDatabase {
 
 	/**
 	 * Builds a graph database index from a given file or directory
+	 * for a specified data type.
+	 *
+	 * @param path the file or directory
+	 * @param gType the type of the encoded data
+	 */
+	public void build(File path, GraphType gType) throws Exception {
+		this.type = gType;
+		buildIndex(path);
+	}
+
+	/**
+	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *
 	 * @param path a string containing a path to a file or directory
@@ -88,7 +100,14 @@ public class RandomInvertedIndex extends GraphDatabase {
 	@Override
 	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
-			addAllGraphs(BioGraph.fastaFileToGraphs(fPath));
+			if (type == GraphType.DNA) {
+				for (BioGraph b: BioGraph.fastaFileToGraphs(fPath))
+					addGraph(b);
+			}
+			else {
+				for (BioGraph b: BioGraph.fromWordFile(fPath))
+					addGraph(b);
+			}
 		}
 		else {
 			// get all files in a list
@@ -100,21 +119,15 @@ public class RandomInvertedIndex extends GraphDatabase {
 
 			// add them all to the database
 			for (File f: fileList) {
-				addAllGraphs(BioGraph.fastaFileToGraphs(f));
+				if (type == GraphType.DNA) {
+					for (BioGraph b: BioGraph.fastaFileToGraphs(f))
+						addGraph(b);
+				}
+				else {
+					for (BioGraph b: BioGraph.fromWordFile(f))
+						addGraph(b);
+				}
 			}
-		}
-	}
-
-	/**
-	 * Helper function that adds an array {@link BioGraph} objects
-	 * to the database's index.
-	 *
-	 * @see #addGraph(BioGraph) addGraph
-	 */
-	private void addAllGraphs(BioGraph[] bgs) {
-		for (BioGraph bg: bgs) {
-			bg.computeHashEncoding(true, 10);
-			addGraph(bg);
 		}
 	}
 
@@ -134,6 +147,7 @@ public class RandomInvertedIndex extends GraphDatabase {
 		 * incoming weight sum
 		 * 
 		 */
+		bg.computeHashEncoding(true, 10);
 		UniqueVertexGraph uvG = bg.getGraph();
 		for (JVertex v: uvG.vertexSet()) {
 			FreqTree<BioGraph> vTree;

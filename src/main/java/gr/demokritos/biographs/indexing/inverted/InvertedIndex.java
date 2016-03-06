@@ -69,6 +69,19 @@ public class InvertedIndex extends GraphDatabase {
 
 	/**
 	 * Builds a graph database index from a given file or directory
+	 * for a specified data type.
+	 *
+	 * @param path the file or directory
+	 * @param gType the type of the encoded data
+	 * @throws Exception if an error occurs when reading the data
+	 */
+	public void build(File path, GraphType gType) throws Exception {
+		this.type = gType;
+		buildIndex(path);
+	}
+
+	/**
+	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *
 	 * @param path a string containing a path to a file or directory
@@ -88,7 +101,14 @@ public class InvertedIndex extends GraphDatabase {
 	@Override
 	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
-			addAllGraphs(BioGraph.fastaFileToGraphs(fPath));
+			if (type == GraphType.DNA) {
+				for (BioGraph b: BioGraph.fastaFileToGraphs(fPath))
+					addGraph(b);
+			}
+			else {
+				for (BioGraph b: BioGraph.fromWordFile(fPath))
+					addGraph(b);
+			}
 		}
 		else {
 			// get all files in a list
@@ -100,46 +120,15 @@ public class InvertedIndex extends GraphDatabase {
 
 			// add them all to the database
 			for (File f: fileList) {
-				addAllGraphs(BioGraph.fastaFileToGraphs(f));
-			}
-		}
-	}
-
-	/**
-	 * Builds a graph database index from a given file or directory 
-	 * of files which contain words without extra labels, as in the
-	 * case of FASTA files.
-	 *
-	 * @param fPath a path pointing to a file or directory 
-	 */
-	public void buildWordIndex(File fPath) throws Exception {
-		if (!fPath.isDirectory()) {
-			addAllGraphs(BioGraph.fromWordFile(fPath));
-		}
-		else {
-			// get all files in a list
-			File[] fileList = fPath.listFiles(new FileFilter() {
-				public boolean accept(File toFilter) {
-					return toFilter.isFile();
+				if (type == GraphType.DNA) {
+					for (BioGraph b: BioGraph.fastaFileToGraphs(f))
+						addGraph(b);
 				}
-			});
-
-			// add them all to the database
-			for (File f: fileList) {
-				addAllGraphs(BioGraph.fromWordFile(f));
+				else {
+					for (BioGraph b: BioGraph.fromWordFile(f))
+						addGraph(b);
+				}
 			}
-		}
-	}
-
-	/**
-	 * Helper function that adds an array {@link BioGraph} objects
-	 * to the database's index.
-	 *
-	 * @see #addGraph(BioGraph) addGraph
-	 */
-	private void addAllGraphs(BioGraph[] bgs) {
-		for (BioGraph bg: bgs) {
-			addGraph(bg);
 		}
 	}
 
