@@ -112,14 +112,16 @@ public class EntryInvertedIndex extends GraphDatabase {
 	public void buildIndex(File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
 			if (type == GraphType.DNA) {
-				for (GraphIndexEntry e: 
-						Utils.fastaFileToEntries(fPath, indVec)) 
+				for (GraphIndexEntry e: Utils.fastaFileToEntries(fPath, indVec)) 
 				{
 					addEntry(e);
 				}
 			}
 			else {
-				addAllGraphs(BioGraph.fromWordFile(fPath));
+				for (GraphIndexEntry e: Utils.wordFileToEntries(fPath, indVec))
+				{
+					addEntry(e);
+				}
 			}
 		}
 		else {
@@ -133,28 +135,18 @@ public class EntryInvertedIndex extends GraphDatabase {
 			// add them all to the database
 			for (File f: fileList) {
 				if (type == GraphType.DNA) {
-					for (GraphIndexEntry e:
-							Utils.fastaFileToEntries(f, indVec))
+					for (GraphIndexEntry e: Utils.fastaFileToEntries(f, indVec))
 					{
 						addEntry(e);
 					}
 				}
 				else {
-					addAllGraphs(BioGraph.fromWordFile(f));
+					for (GraphIndexEntry e: Utils.wordFileToEntries(f, indVec))
+					{
+						addEntry(e);
+					}
 				}
 			}
-		}
-	}
-
-	/**
-	 * Helper function that adds an array {@link BioGraph} objects
-	 * to the database's index.
-	 *
-	 * @see #addGraph(BioGraph) addGraph
-	 */
-	private void addAllGraphs(BioGraph[] bgs) {
-		for (BioGraph bg: bgs) {
-			addGraph(bg);
 		}
 	}
 
@@ -355,6 +347,6 @@ public class EntryInvertedIndex extends GraphDatabase {
 	 * @see #getMatches(BioGraph, int) getMatches
 	 */
 	public Set<GraphIndexEntry> getMatches(BioGraph bQuery) {
-		return getMatches(bQuery, 3);
+		return getMatches(bQuery, 0);
 	}
 }

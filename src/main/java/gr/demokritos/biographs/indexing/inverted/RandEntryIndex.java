@@ -119,7 +119,10 @@ public class RandEntryIndex extends GraphDatabase {
 				}
 			}
 			else {
-				addAllGraphs(BioGraph.fromWordFile(fPath));
+				for (GraphIndexEntry e: Utils.wordFileToEntries(fPath, indVec))
+				{
+					addEntry(e);
+				}
 			}
 		}
 		else {
@@ -139,22 +142,12 @@ public class RandEntryIndex extends GraphDatabase {
 					}
 				}
 				else {
-					addAllGraphs(BioGraph.fromWordFile(f));
+					for (GraphIndexEntry e: Utils.wordFileToEntries(f, indVec))
+					{
+						addEntry(e);
+					}
 				}
 			}
-		}
-	}
-
-	/**
-	 * Helper function that adds an array {@link BioGraph} objects
-	 * to the database's index.
-	 *
-	 * @see #addGraph(BioGraph) addGraph
-	 */
-	private void addAllGraphs(BioGraph[] bgs) {
-		for (BioGraph bg: bgs) {
-			bg.computeHashEncoding(true, 10);
-			addGraph(bg);
 		}
 	}
 
@@ -171,6 +164,10 @@ public class RandEntryIndex extends GraphDatabase {
 		addEntry(new GraphIndexEntry(bg, indVec));
 	}
 
+	/**
+	 * Adds a new graph entry to the database, updating the inverted index.
+	 * @param entry the graph entry to add
+	 */
 	public void addEntry(GraphIndexEntry entry) {
 		/* Don't forget to update our size! */
 		this.size++;
@@ -286,7 +283,6 @@ public class RandEntryIndex extends GraphDatabase {
 				results.add(eFound);
 		}
 		return results;
-
 	}
 
 	/**
