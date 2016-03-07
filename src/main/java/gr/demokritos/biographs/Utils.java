@@ -274,5 +274,66 @@ public final class Utils {
 			}
 		}
 		return indices;
-	}	
+	}
+
+	/**
+	 * A generic for-loop with arbitrary max nesting depth, whose loop indices
+	 * must sum up to a specified number.
+	 *
+	 * @param range the range of the loop
+	 * @param maxSum the number that the loop variables must sum up to
+	 * @param maxLevel the maximum nesting level
+	 * @return a list of {@link Integer[]} entries, containing the indices
+	 * of the generic loop that satisfy the desired properties
+	 */
+	public static List<Integer[]>
+	genericFor(int range, int maxSum, int maxLevel) {
+		/* initialize queue and result list for genericFor invocation */
+		List<Integer> queue = new ArrayList<Integer>();
+		List<Integer[]> results = new ArrayList<Integer[]>();
+
+		/* call genericFor internally to populate result list */
+		genericFor(range, 0, maxSum, queue, 0, maxLevel, results);
+		return results;
+	}
+	
+	/**
+	 * A generic for-loop with arbitrary nesting, whose loop indices must
+	 * sum at most up to a specified number.
+	 *
+	 * @param rng the range of index variables
+	 * @param rs the running sum of the index variables
+	 * @param ms the maximum sum of the index variables
+	 * @param q a queue containing the loop indices
+	 * @param cl the current nesting level
+	 * @param ml the max nesting level
+	 * @param res a list of results to be populated
+	 */
+	protected static void genericFor
+	(int rng, int rs, int ms, List<Integer> q, int cl, int ml, List<Integer[]> res)
+	{
+		if (cl == ml) {
+			/* if running sum is not the desired one,
+			 * die gracefully */
+			if (rs != ms)
+				return;
+			
+			Integer[] inds = q.toArray(new Integer[q.size()]);
+			/* otherwise, add combo to list of results */
+			res.add(inds);
+		}
+		else {
+			int newl = cl + 1;
+			for (int i = 0; i < rng; ++i) {
+				/* if we exceeded the maximum sum, break
+				 * from loop */
+				if (i + rs > ms) {
+					break;
+				}
+				List<Integer> nq = new ArrayList<Integer>(q);
+				nq.add(i);
+				genericFor(rng, i + rs, ms, nq, cl + 1, ml, res);
+			}
+		}
+	}
 }
