@@ -103,4 +103,4 @@ if __name__ == '__main__':
     with open(result_file, 'r') as f:
         # read all lines into file and print all results
         for i in parse_json(''.join(ln for ln in f)):
-            print(i)
+            print(json.dumps(i))
