@@ -56,17 +56,17 @@ public class UtilsTest
 	 * work properly.
 	 */
 	public void testGenericLoop() {
-		int range = 4, sum = 6, levels = 3;
-		List<Integer[]> results = Utils.genericFor(range, sum, levels);
-
-		/* make sure that the sum of the indices traversed
-		 * is the desired one */
-		for (Integer[] arr: results) {
-			int curr_sum = 0;
-			for (int i : arr) {
-				curr_sum += i;
+		for (int levels = 2; levels < 10; ++levels) {
+			int range = 3, sum = 2 * levels;
+			/* make sure that the sum of the indices traversed
+			 * is the desired one */
+			for (Integer[] arr: Utils.genericFor(range, sum, levels)) {
+				int curr_sum = 0;
+				for (int i : arr) {
+					curr_sum += i;
+				}
+				assertTrue(curr_sum == sum);
 			}
-			assertTrue(curr_sum == sum);
 		}
 	}
 }
