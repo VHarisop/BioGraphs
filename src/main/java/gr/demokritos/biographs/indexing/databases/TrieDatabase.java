@@ -126,6 +126,8 @@ public class TrieDatabase extends GraphDatabase {
 	 * @param entry the entry to be added
 	 */
 	public void addEntry(TrieIndexEntry entry) {
+		// update the database's size
+		this.size++;
 		// get the code of the graph as key
 		String code = entry.getEncoding();
 		List<String> labels = trieIndex.get(code);

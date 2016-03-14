@@ -40,14 +40,26 @@ public class TestTrie {
 	 * Files from which to pull database and testing graphs.
 	 */
 	static File testFile = null, dataFile = null;
+	static int mutationNumber = 0;
 
 	static Stats checkNearestK(BioGraph[] bgs, TrieDatabase ntd, int K) {
 		Stats stat = new Stats("trie");
+		stat.setMutations(mutationNumber);
+		stat.setDatabaseSize(ntd.getSize());
+		stat.setTolerance(0);
+		long maxTime = 0L, sumTime = 0L;
 		for (BioGraph bg : bgs) {
+			long startTime = System.currentTimeMillis();
 			List<String> res = ntd.select(bg);
+			long stopTime = System.currentTimeMillis();
+			if ((stopTime - startTime) > maxTime) {
+				maxTime = stopTime - startTime;
+			}
+			sumTime += stopTime - startTime;
 			String[] resLabels = res.toArray(new String[res.size()]);
 			stat.addResult(bg.getLabel(), resLabels);
 		}
+		stat.setTimes(maxTime, sumTime, bgs.length);
 		return stat;
 	}
 
@@ -58,6 +70,10 @@ public class TestTrie {
 		if (args.length < 2) {
 			System.out.println("Missing file argument!");
 			return; 
+		}
+
+		if (args.length >= 3) {
+			mutationNumber = Integer.parseInt(args[2]);
 		}
 
 		TrieDatabase ntD = new TrieDatabase() {
