@@ -29,7 +29,6 @@ import gr.demokritos.biographs.BioGraph;
  * @author VHarisop
  */
 public abstract class GraphDatabase {
-
 	/**
 	 * The datatype that the graphs of this database represent.
 	 */
@@ -122,6 +121,7 @@ public abstract class GraphDatabase {
 	 * of files.
 	 *
 	 * @param path a string containing a path to a file or directory
+	 * @throws Exception if something goes wrong during index creation
 	 */
 	public abstract void buildIndex(String path) throws Exception;
 
@@ -130,6 +130,7 @@ public abstract class GraphDatabase {
 	 * of files.
 	 *
 	 * @param path a path containing one or multiple files
+	 * @throws Exception if something goes wrong during index creation
 	 */
 	public abstract void buildIndex(File path) throws Exception;
 
