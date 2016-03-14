@@ -24,8 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.*;
 import gr.demokritos.biographs.indexing.GraphDatabase;
+import gr.demokritos.biographs.indexing.structs.TrieIndexEntry;
 
 
 /**
@@ -107,8 +108,8 @@ public class TrieDatabase extends GraphDatabase {
 	 */
 	private void addAllGraphs(File f) throws Exception {
 		if (type == GraphType.DNA) {
-			for (BioGraph bg: BioGraph.fastaFileToGraphs(f)) {
-				addGraph(bg);
+			for (TrieIndexEntry e: Utils.fastaFileToTrieEntries(f)) {
+				addEntry(e);
 			}
 		}
 		else {
@@ -116,6 +117,27 @@ public class TrieDatabase extends GraphDatabase {
 				addGraph(bg);
 			}
 		}
+	}
+
+	/**
+	 * Add a new trie entry to the database, appending it to the list
+	 * of entries with the same code, if any.
+	 *
+	 * @param entry the entry to be added
+	 */
+	public void addEntry(TrieIndexEntry entry) {
+		// get the code of the graph as key
+		String code = entry.getEncoding();
+		List<String> labels = trieIndex.get(code);
+
+		/* if key was not already there, initialize an array of indices 
+		 * otherwise, add an entry to the pre-existing array */
+		if (null == labels) {
+			labels = new ArrayList<String>();
+		}
+		labels.add(entry.getLabel());
+		// update trie with new array
+		trieIndex.put(code, labels);
 	}
 
 	/**

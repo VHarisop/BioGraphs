@@ -191,6 +191,28 @@ public final class Utils {
 	}
 
 	/**
+	 * Given a FASTA file, returns an array of trie database entries
+	 * read from that file.
+	 *
+	 * @param path the file containing the data
+	 * @return an array of {@link TrieIndexEntry}
+	 * @throws Exception if an error occurs when reading the file
+	 */
+	public static TrieIndexEntry[]
+	fastaFileToTrieEntries(File path) throws Exception {
+		List<TrieIndexEntry> tis = new ArrayList<TrieIndexEntry>();
+		for (Map.Entry<String, DNASequence> e:
+				BioGraph.readFastaFile(path).entrySet())
+		{
+			tis.add(new TrieIndexEntry(
+						BioGraph.fromSequence(e.getValue(), e.getKey())
+						)
+			);
+		}
+		return tis.toArray(new TrieIndexEntry[tis.size()]);
+	}
+
+	/**
 	 * Given a {@link IndexVector} and a normal text file, returns an
 	 * array of database entries read from that file using the index
 	 * vector.
