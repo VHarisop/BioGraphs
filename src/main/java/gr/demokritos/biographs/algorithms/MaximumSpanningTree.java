@@ -82,10 +82,11 @@ public final class MaximumSpanningTree {
 			edgeList.add(e);
 			treeCost += e.edgeWeight();
 
-			// allow a maximum of 5 edges (partial covering)
-			if (5 >= edge_count++) {
+			// allow a maximum of 2 edges
+			if (1 <= edge_count) {
 				break;
 			}
+			edge_count++;
 		}
 	}
 
