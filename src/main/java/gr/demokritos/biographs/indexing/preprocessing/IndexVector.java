@@ -105,6 +105,22 @@ public class IndexVector {
 	}
 
 	/**
+	 * Simple getter for the encoding strategy used by this object.
+	 * @return the object's encoding strategy
+	 */
+	public EncodingStrategy<Integer> getEncodingStrategy() {
+		return encodingStrategy;
+	}
+
+	/**
+	 * Sets a new encoding strategy to be used by this object.
+	 * @param newSg the new strategy
+	 */
+	public void setEncodingStrategy(EncodingStrategy<Integer> newSg) {
+		encodingStrategy = newSg;
+	}
+
+	/**
 	 * Simple getter for the hashing strategy used by this object.
 	 * @return the object's hashing strategy
 	 */
