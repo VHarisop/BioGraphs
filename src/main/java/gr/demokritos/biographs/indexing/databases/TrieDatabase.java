@@ -31,7 +31,12 @@ import gr.demokritos.biographs.indexing.structs.TrieIndexEntry;
 
 /**
  * A class that extends {@link GraphDatabase}, using a PatriciaTrie as an index
- * that uses the DFS or Canonical codes of the graphs as keys.
+ * that uses a string representation of each added graph as a key.
+ *
+ * The representation used by default is the graph's DFS code. If you wish to
+ * use a different kind of representation, you *must* override the
+ * {@link TrieDatabase#getGraphCode(BioGraph)} method.
+ *
  *
  * @author VHarisop
  */
