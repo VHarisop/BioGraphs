@@ -16,9 +16,6 @@
 package gr.demokritos.biographs.algorithms;
 
 import java.util.*;
-import org.jgrapht.*;
-import org.jgrapht.alg.interfaces.*;
-import org.jgrapht.alg.util.*;
 
 import gr.demokritos.biographs.*;
 import gr.demokritos.iit.jinsect.structs.*;
@@ -48,6 +45,18 @@ public final class MaximalStructure {
 	
 	/**
 	 * Creates a new {@link MaximalStructure} object for a specified graph
+	 * using the default number of edges and vertices to be included in its
+	 * representation.
+	 *
+	 * @param bg the {@link BioGraph} to build the tree for
+	 */
+	public MaximalStructure(BioGraph bg) {
+		this(bg, 5);
+	}
+
+	/**
+
+	 * Creates a new {@link MaximalStructure} object for a specified graph
 	 * using a given number of edges and vertices to be included in its
 	 * representation.
 	 *
@@ -56,17 +65,7 @@ public final class MaximalStructure {
 	 */
 	public MaximalStructure(BioGraph bg, int K) {
 		this.K = K;
-		this(bg);
-	}
 
-	/**
-	 * Creates a new {@link MaximalStructure} object for a specified graph
-	 * using the default number of edges and vertices to be included in its
-	 * representation.
-	 *
-	 * @param bg the {@link BioGraph} to build the tree for
-	 */
-	public MaximalStructure(BioGraph bg) {
 		/* get all the edges of the graph */
 		ArrayList<Edge> allEdges = 
 			new ArrayList<Edge>(bg.getGraph().edgeSet());
@@ -86,7 +85,7 @@ public final class MaximalStructure {
 					}
 				});
 
-		UniqueJVertexGraph uvg = bg.getGraph();
+		final UniqueVertexGraph uvg = bg.getGraph();
 
 		/* sort the vertices in descending order of incoming weight */
 		Collections.sort(
@@ -102,21 +101,26 @@ public final class MaximalStructure {
 
 		edgeList = new LinkedHashSet<Edge>(K);
 		vertexList = new LinkedHashSet<JVertex>(K);
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i < K; ++i) {
 			edgeList.add(allEdges.get(i));
 			vertexList.add(allVertices.get(i));
 		}
 	}
 
 	/**
-	 * Returns the set of edges that belong to the maximum spanning tree.
+	 * Returns the set of edges that are included in the maximal structure.
 	 * 
-	 * @return the maximum spanning tree's edge set
+	 * @return the maximal structure's edges
 	 */
 	public Collection<Edge> getMaximalEdges() {
 		return edgeList;
 	}
 
+	/**
+	 * Returns the set of vertices that are included in the maximal structure.
+	 *
+	 * @return the maximal structure's vertices
+	 */
 	public Collection<JVertex> getMaximalVertices() {
 		return vertexList;
 	}
