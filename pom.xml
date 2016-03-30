@@ -87,7 +87,7 @@
 	<dependency>
 		<groupId>gr.demokritos.iit.jinsect</groupId>
 		<artifactId>jinsect-core</artifactId>
-		<version>1.0rc</version>
+		<version>1.0rc2</version>
 	</dependency>
   </dependencies>
   <reporting>

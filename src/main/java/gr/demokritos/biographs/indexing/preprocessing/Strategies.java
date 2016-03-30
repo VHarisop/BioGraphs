@@ -217,4 +217,34 @@ public final class Strategies {
 			}
 		};
 	}
+
+	/**
+	 * Creates a new {@link EncodingStrategy} that assigns the ratio of
+	 * minimum over maximum of incident edge weights to each {@link JVertex}.
+	 *
+	 * @return the {@link EncodingStrategy<Integer>} described above
+	 */
+	public static final EncodingStrategy<Integer> weightRatioEncoding() {
+		return new EncodingStrategy<Integer>() {
+			@Override
+			public Integer encode(JVertex vCurr, UniqueVertexGraph uvg) {
+				double wMin = Double.MAX_VALUE;
+				double wMax = Double.MIN_VALUE;
+
+				/* find minimum and maximum incoming weights */
+				for (Edge e: uvg.incomingEdgesOf(vCurr)) {
+					if (e.edgeWeight() < wMin) {
+						wMin = e.edgeWeight();
+					}
+					if (e.edgeWeight() > wMax) {
+						wMax = e.edgeWeight();
+					}
+				}
+
+				/* map ratio from [eps, 1] to [eps, 100] */
+				double ratio = (wMin / wMax) * 100;
+				return (int) Math.round(ratio);
+			}
+		};
+	}
 }
