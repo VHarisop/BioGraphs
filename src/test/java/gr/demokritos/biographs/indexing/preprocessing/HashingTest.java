@@ -43,8 +43,8 @@ public class HashingTest
 
 		/* make sure that the hash vector for DNA data has
 		 * length 10 */
-		HashedVector vHashVec = 
-			new HashedVector(GraphDatabase.GraphType.DNA);
+		IndexVector vHashVec = 
+			new IndexVector(GraphDatabase.GraphType.DNA);
 		assertEquals(10, vHashVec.encodeGraph(uvg).length);
 
 		/* make sure that hashing based on dinucleotides
@@ -65,10 +65,10 @@ public class HashingTest
 	public void testGraphHash() {
 		BioGraph bgA = new BioGraph("reforests");
 		BioGraph bgB = new BioGraph("renounces");
-		HashedVector hVec = 
-			new HashedVector(GraphDatabase.GraphType.WORD);
+		IndexVector hVec = 
+			new IndexVector(GraphDatabase.GraphType.WORD);
 
-		double[] graphEnc = hVec.encodeGraph(bgA.getGraph());
+		int[] graphEnc = hVec.encodeGraph(bgA.getGraph());
 		assertNotNull(graphEnc);
 
 		graphEnc = hVec.encodeGraph(bgB.getGraph());

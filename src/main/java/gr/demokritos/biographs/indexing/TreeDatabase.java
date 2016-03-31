@@ -23,6 +23,7 @@ import java.lang.Math;
 import java.util.*;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.indexing.preprocessing.IndexVector;
 import gr.demokritos.biographs.indexing.comparators.*;
 import gr.demokritos.biographs.indexing.structs.*;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
@@ -437,15 +438,16 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @return the distance between the two graphs
 	 */
 	protected double getDistBetween(BioGraph bgA, BioGraph bgB) {
-		double[] encA; double[] encB;
+		int[] encA; int[] encB;
+		IndexVector vHash;
 		if (type == GraphType.DNA) {
-			encA = bgA.getHashEncoding(true, 10);
-			encB = bgB.getHashEncoding(true, 10);
+			vHash = new IndexVector(GraphType.DNA);
 		}
 		else {
-			encA = bgA.getHashEncoding(false, 26);
-			encB = bgB.getHashEncoding(false, 26);
+			vHash = new IndexVector(GraphType.WORD);
 		}
-		return ClusterDistance.hamming(encA, encB);
+		encA = vHash.encodeGraph(bgA);
+		encB = vHash.encodeGraph(bgB);
+		return (double) ClusterDistance.hamming(encA, encB);
 	}
 }

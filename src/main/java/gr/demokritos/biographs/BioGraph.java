@@ -379,65 +379,6 @@ public class BioGraph extends NGramJGraph {
 					this.MaxSize, 
 					this.CorrelationWindow);
 	}
-	/**
-	 * Calculates and the graph's hash encoding using a
-	 * {@link HashedVector} encoder and caches it.
-	 *
-	 * @param usesDna a boolean indicating whether this graph encodes
-	 * biological sequences or not
-	 * @param nBins the number of bins to use in hashing
-	 * @return a double array containing the graph's hash encoding
-	 */
-	public void computeHashEncoding(boolean usesDna, int nBins) {
-		if (hashEncoding == null) {
-			HashedVector hVec;
-			if (usesDna) {
-				hVec = new HashedVector(GraphType.DNA).withBins(nBins);
-			}
-			else {
-				hVec = new HashedVector(GraphType.WORD).withBins(nBins);
-			}
-			hashEncoding = hVec.encodeGraph(this);
-		}
-	}
-	
-	/**
-	 * Calculates and the graph's index hash encoding using a specified
-	 * {@link HashedVector} encoder and caches it.
-	 *
-	 * @param hVec the {@link HashedVector} to use
-	 */
-	public void computeIndexEncoding(HashedVector hVec) {
-		if (indexEncoding == null) {
-			indexEncoding = hVec.encodeGraph(this);
-		}
-	}
-	
-	/**
-	 * Calculates and returns the graph's hash encoding using a
-	 * {@link HashedVector} encoder.
-	 *
-	 * @param usesDna a boolean indicating whether this graph encodes
-	 * biological sequences or not
-	 * @param nBins the number of bins to use in hashing
-	 * @return a double array containing the graph's hash encoding
-	 */
-	public double[] getHashEncoding(boolean usesDna, int nBins) {
-		computeHashEncoding(usesDna, nBins);
-		return hashEncoding;
-	}
-
-	/**
-	 * Calculates and returns the graph's index hash encoding using
-	 * a specified {@link HashedVector}.
-	 *
-	 * @param hVec the {@link HashedVector} to use
-	 * @return a double array containing the graph's hash encoding
-	 */
-	public double[] getIndexEncoding(HashedVector hVec) {
-		computeIndexEncoding(hVec);
-		return indexEncoding;
-	}
 
 	@Override
 	public int hashCode() {

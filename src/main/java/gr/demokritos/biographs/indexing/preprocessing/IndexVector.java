@@ -43,7 +43,7 @@ public class IndexVector {
 	/**
 	 * The encoding strategy used when adding a new vertex to the mappings.
 	 */
-	protected EncodingStrategy<Integer> encodingStrategy;
+	protected EncodingStrategy<Integer> encodingStrategy = null;
 
 	/**
 	 * The length of the resulting vector. Increase for resolution,
@@ -52,7 +52,7 @@ public class IndexVector {
 	protected int K = 26;
 
 	/**
-	 * Creates an empty DefaultHashVector object using the default method
+	 * Creates an empty IndexVector object using the default method
 	 * for hashing.
 	 */
 	public IndexVector() {
@@ -61,7 +61,7 @@ public class IndexVector {
 	}
 
 	/**
-	 * Creates an empty DefaultHashVector object using the default method
+	 * Creates an empty IndexVector object using the default method
 	 * for hashing based on a specified graph type. If the graph type
 	 * suggests using with biological data, the default hash strategy is
 	 * hashing based on dinucleotides, while in the other case the hash
@@ -82,17 +82,6 @@ public class IndexVector {
 
 		/* only a certain encoding strategy can be used */
 		encodingStrategy = Strategies.inDegreeEncoding();
-	}
-
-	/**
-	 * Creates an empty LabelHash object using a specified hash method.
-	 *
-	 * @param hashSg the hash method to use
-	 */
-	public IndexVector(HashingStrategy<JVertex> hashSg) 
-	{
-		hashStrategy = hashSg;
-		initParameters();
 	}
 
 	private void initParameters() {
@@ -178,8 +167,10 @@ public class IndexVector {
 		/* make sure the map is reset before encoding */
 		this.clear();
 
-		/* create a new encoding strategy */
-		encodingStrategy = Strategies.inDegreeEncoding();
+		/* create a new encoding strategy, if one is not present */
+		if (null == encodingStrategy) {
+			encodingStrategy = Strategies.inDegreeEncoding();
+		}
 		
 		/* hash each of the graph's vertices */
 		for (JVertex v: uvg.vertexSet()) {
