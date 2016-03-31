@@ -4,7 +4,7 @@
   <groupId>gr.demokritos.biographs</groupId>
   <artifactId>BioGraphs</artifactId>
   <packaging>jar</packaging>
-  <version>0.3-rc</version>
+  <version>0.4</version>
   <name>BioGraphs</name>
   <url>http://maven.apache.org</url>
   
@@ -41,13 +41,6 @@
       <scope>test</scope>
     </dependency>
 	
-	<!-- ntree for hierarchical index -->
-	<dependency>
-		<groupId>gr.demokritos.ntree</groupId>
-		<artifactId>NTree</artifactId>
-		<version>0.1</version>
-	</dependency>
-
 	<!-- gson for pretty results -->
 	<dependency>
 		<groupId>com.google.code.gson</groupId>
@@ -60,13 +53,6 @@
 		<groupId>org.apache.commons</groupId>
 		<artifactId>commons-collections4</artifactId>
 		<version>4.0</version>
-	</dependency>
-
-	<!-- use commons-math3 for clustering -->
-	<dependency>
-		<groupId>org.apache.commons</groupId>
-		<artifactId>commons-math3</artifactId>
-		<version>3.6</version>
 	</dependency>
 
 	<!-- use jgrapht for various graph related stuff -->
