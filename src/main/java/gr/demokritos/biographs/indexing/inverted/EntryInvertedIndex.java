@@ -79,6 +79,15 @@ public class EntryInvertedIndex extends GraphDatabase {
 	}
 
 	/**
+	 * Sets the {@link EncodingStrategy} to be used by {@link #indVec}.
+	 *
+	 * @param newStrategy the new encoding strategy
+	 */
+	public void setEncodingStrategy(EncodingStrategy<Integer> newStrategy) {
+		indVec.setEncodingStrategy(newStrategy);
+	}
+
+	/**
 	 * Builds a graph database index from a given file or directory
 	 * of files.
 	 *
