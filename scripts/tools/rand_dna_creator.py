@@ -39,7 +39,7 @@ def generate(seq_sz, num, offset, filename):
     label = '>test_rand_' 
 
     gen_dna = lambda rng: (choice(symbols) \
-            for _ in range(seq_sz + randint(1, rng)))
+            for _ in range(seq_sz + randint(-(rng / 2), rng / 2)))
     data = ((gen_dna(offset)) for _ in range(num))
 
     # write generated data to a file
