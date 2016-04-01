@@ -17,42 +17,73 @@
 # of a nucleosome +/- L, where L is uniformly distributed in {1, 2, .. 10}.
 
 import sys
+import argparse
 from random import choice, randint
 
 # set of symbols
 symbols = 'ACGT'
 
-seq_sz = 146
-length = 1000
-offset = 10
+def generate(seq_sz, num, offset, filename):
+    """
+    Generates [length] random strands of DNA using a given base size
+    and a size offset for length variability and writes them to a file
+    in FASTA format.
 
-# default filename to write
-fname = 'ncl_rand.fa'
+    :param seq_sz: the base size of each strand
+    :param num: the number of random strands to be created
+    :param offset: the size offset
+    :param filename: the name of the file where the strands will be stored
+    """
 
-# if argument was provided, update length
-try:
-	length = sys.argv[1]
-	fname = sys.argv[2]
-except IndexError:
-	pass
+    # generator of data
+    label = '>test_rand_' 
 
-# if not integer, inform
-try:
-	length = int(length)
-except ValueError:
-	print("Usage: ./rand_dna_creator [size] [filename]")
-	exit() 
+    gen_dna = lambda rng: (choice(symbols) \
+            for _ in range(seq_sz + randint(1, rng)))
+    data = ((gen_dna(offset)) for _ in range(num))
 
-# generator of data
-label = '>test_rand_' 
+    # write generated data to a file
+    with open(filename, 'w') as f:
+        for i, t in enumerate(data):
+            f.write(label + str(i) + '\n')
+            f.write(''.join(t) + '\n')
 
-gen_dna = lambda rng: (choice(symbols) for _ in range(seq_sz + randint(1, rng)))
-data = ((gen_dna(offset)) for _ in range(length))
+if __name__ == "__main__":
+    # create a parser for cmd line args
+    parser = argparse.ArgumentParser(
+            description='A utility that creates random strands of DNA'
+    )
 
-# write generated data to a file
-with open(fname, 'w') as f:
-	for i, t in enumerate(data):
-		f.write(label + str(i) + '\n')
-		f.write(''.join(t) + '\n')
+    # add --number argument for the number of strands to be created
+    parser.add_argument('-n', '--number',
+            help = 'The number of random strands to create',
+            type = int,
+            nargs = '?',
+            const = 1000
+    )
 
+    # add --length argument
+    parser.add_argument('-l', '--length',
+            help = 'The length of the DNA strand',
+            type = int,
+            nargs = '?',
+            const = 146
+    )
 
+    # add --offset argument to create strands that differ in length
+    parser.add_argument('-o', '--offset',
+            help = 'The limit of the random offset of the length',
+            type = int,
+            nargs = '?',
+            const = 10
+    )
+
+    # add --file argument for the output file
+    parser.add_argument('-f', '--file',
+            help = 'The file to store the generated strand into',
+            nargs = '?',
+            const = 'ncl.fa'
+    )
+
+    args = vars(parser.parse_args())
+    generate(args['length'], args['number'], args['offset'], args['file'])

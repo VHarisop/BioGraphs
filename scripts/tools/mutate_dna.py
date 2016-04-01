@@ -28,24 +28,25 @@ def mutate(sequence, number):
 if __name__ == "__main__":
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(
-            description='Mutates DNA strings given a fasta file'
-            )
+        description='Mutates DNA strings given a fasta file'
+    )
 
     parser.add_argument(
-            '-n',
-            '--number-of-mutations',
-            nargs=1,
-            required=True,
-            type=int,
-            help='The number of mutations to apply')
+        '-n',
+        '--number-of-mutations',
+        nargs=1,
+        required=True,
+        type=int,
+        help='The number of mutations to apply'
+    )
 
     parser.add_argument(
-            '-f',
-            '--file',
-            nargs=1,
-            required=True,
-            help='The file containing the sequences'
-            )
+        '-f',
+        '--file',
+        nargs=1,
+        required=True,
+        help='The file containing the sequences'
+    )
 
     args = vars(parser.parse_args())
     fasta_file = args['file'][0]
