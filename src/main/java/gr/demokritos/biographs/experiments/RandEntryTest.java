@@ -42,7 +42,7 @@ public class RandEntryTest {
 
 	static Stats checkIndex
 	(BioGraph[] bgs, RandEntryIndex invInd, int tolerance) {
-		Stats stat = new Stats("entry_rand_index_tol");
+		Stats stat = new Stats("entry_rand_index");
 		stat.setDatabaseSize(invInd.getSize());
 		stat.setMutations(mutationNumber);
 		stat.setTolerance(tolerance);

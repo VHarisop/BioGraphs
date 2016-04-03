@@ -41,7 +41,7 @@ public class ExactEntryTest {
 
 	static Stats 
 	checkIndex(BioGraph[] bgs, EntryInvertedIndex invInd) {
-		Stats stat = new Stats("entry_smart_index");
+		Stats stat = new Stats("entry_smart_index_exact");
 		stat.setDatabaseSize(invInd.getSize());
 		stat.setMutations(0);
 		stat.setTolerance(0);

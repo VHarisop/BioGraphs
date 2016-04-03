@@ -43,7 +43,7 @@ public class TestTrie {
 	static int mutationNumber = 0;
 
 	static Stats checkNearestK(BioGraph[] bgs, TrieDatabase ntd, int K) {
-		Stats stat = new Stats("trie");
+		Stats stat = new Stats("trie_maxtree");
 		stat.setMutations(mutationNumber);
 		stat.setDatabaseSize(ntd.getSize());
 		stat.setTolerance(0);
