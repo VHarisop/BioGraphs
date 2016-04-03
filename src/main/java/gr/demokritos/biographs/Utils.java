@@ -1,3 +1,18 @@
+/* This file is part of BioGraphs.
+ *
+ * BioGraphs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BioGraphs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
+
 package gr.demokritos.biographs;
 
 import java.io.File;
@@ -356,6 +371,22 @@ public final class Utils {
 				nq.add(i);
 				genericFor(rng, i + rs, ms, nq, cl + 1, ml, res);
 			}
+		}
+	}
+
+	/**
+	 * Test the {@link #genericFor(int, int, int)} method
+	 */
+	public static void main(String[] args) {
+		int rng = 5;
+		int maxSum = 5;
+		int maxLevels = 16;
+		List<Integer[]> results = genericFor(rng, maxSum, maxLevels);
+		for (Integer[] iArray: results) {
+			for (int i: iArray) {
+				System.out.print(i);
+			}
+			System.out.println();
 		}
 	}
 }

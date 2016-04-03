@@ -1,3 +1,18 @@
+/* This file is part of BioGraphs.
+ *
+ * BioGraphs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BioGraphs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BioGraphs.  If not, see <http://www.gnu.org/licenses/>. */
+
 package gr.demokritos.biographs.indexing.structs;
 
 import gr.demokritos.biographs.BioGraph;
@@ -6,7 +21,9 @@ import java.util.Objects;
 
 /**
  * This class represents an entry in the graph index
- * created by BioGraphs. 
+ * created by BioGraphs. It contains information about the label of the
+ * graph it is associated to, as well as the hash vector encoding of its
+ * graph.
  *
  * @author VHarisop
  */

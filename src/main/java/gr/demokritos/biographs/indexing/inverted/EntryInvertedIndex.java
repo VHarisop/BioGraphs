@@ -67,7 +67,8 @@ public class EntryInvertedIndex extends GraphDatabase {
 	}
 
 	/**
-	 * Initialize the inverted index.
+	 * Initialize {@link #invIndex} with an empty {@link HashMap} and {@link #indVec} with
+	 * the default {@link IndexVector} for DNA-type entries.
 	 */
 	protected void initIndex() {
 		invIndex = new HashMap<Integer, FreqTree<GraphIndexEntry>>();
@@ -162,7 +163,7 @@ public class EntryInvertedIndex extends GraphDatabase {
 	 * 
 	 * @param entry the {@link GraphIndexEntry} to be added
 	 */
-	public void addEntry(GraphIndexEntry entry) {
+	protected void addEntry(GraphIndexEntry entry) {
 		/* Don't forget to update our size! */
 		this.size++;
 		/**
