@@ -20,6 +20,7 @@ import java.util.*;
 import gr.demokritos.biographs.indexing.preprocessing.*;
 import gr.demokritos.biographs.indexing.structs.*;
 import gr.demokritos.iit.jinsect.io.LineReader;
+import gr.demokritos.iit.jinsect.comparators.NGramGraphComparator;
 
 import org.biojava.nbio.core.sequence.DNASequence;
 
@@ -30,6 +31,22 @@ import org.biojava.nbio.core.sequence.DNASequence;
  * @author VHarisop
  */
 public final class Utils {
+	/**
+	 * Computes the value similarity between two {@link BioGraph} objects
+	 * using a {@link NGramGraphComparator}.
+	 *
+	 * @param bgA the first graph
+	 * @param bgB the second graph
+	 * @return the value similarity of the two graphs
+	 */
+	public static double
+	getValueSimilarityBetween(BioGraph bgA, BioGraph bgB) {
+		NGramGraphComparator ngcc = new NGramGraphComparator();
+		return ngcc.getSimilarityBetween(
+				bgA.getSuper(),
+				bgB.getSuper()).ValueSimilarity;
+	}
+
 	/**
 	 * Computes the partial sums of a double array.
 	 *
@@ -360,7 +377,6 @@ public final class Utils {
 			res.add(inds);
 		}
 		else {
-			int newl = cl + 1;
 			for (int i = 0; i < rng; ++i) {
 				/* if we exceeded the maximum sum, break
 				 * from loop */
