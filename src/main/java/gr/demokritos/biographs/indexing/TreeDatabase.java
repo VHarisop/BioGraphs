@@ -19,15 +19,14 @@ package gr.demokritos.biographs.indexing;
 import java.io.File;
 import java.io.FileFilter;
 
-import java.lang.Math;
 import java.util.*;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.indexing.preprocessing.IndexVector;
 import gr.demokritos.biographs.indexing.comparators.*;
 import gr.demokritos.biographs.indexing.structs.*;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
-import gr.demokritos.iit.jinsect.jutils;
 
 
 /**
@@ -149,12 +148,12 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 */
 	private void addAllGraphs(File path) throws Exception {
 		if (type == GraphType.DNA) {
-			for (BioGraph bg: BioGraph.fastaFileToGraphs(path)) {
+			for (BioGraph bg: BioInput.fastaFileToGraphs(path)) {
 				addGraph(bg);
 			}
 		}
 		else {
-			for (BioGraph bg: BioGraph.fromWordFile(path)) {
+			for (BioGraph bg: BioInput.fromWordFile(path)) {
 				addGraph(bg);
 			}
 		}

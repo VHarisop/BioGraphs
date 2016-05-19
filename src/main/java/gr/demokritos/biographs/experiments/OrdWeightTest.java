@@ -17,6 +17,7 @@
 package gr.demokritos.biographs.experiments;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.indexing.TreeDatabase;
 import gr.demokritos.biographs.indexing.comparators.*;
 import gr.demokritos.biographs.indexing.structs.Stats;
@@ -92,7 +93,7 @@ public class OrdWeightTest {
 		try {
 			dataFile = new File(args[0]);
 			testFile = new File(args[1]);
-			bGraphsTest = BioGraph.fastaFileToGraphs(testFile);
+			bGraphsTest = BioInput.fastaFileToGraphs(testFile);
 
 			statList[0] = buildAndPrint(trdV, bGraphsTest, "ord_weight");
 			System.out.println(gson.toJson(statList));

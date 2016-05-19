@@ -17,6 +17,7 @@
 package gr.demokritos.biographs.experiments;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.indexing.inverted.*;
 import gr.demokritos.biographs.indexing.structs.*;
 import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
@@ -90,7 +91,7 @@ public class ExactEntryTest {
 		try {
 			dataFile = new File(args[0]);
 			testFile = new File(args[1]);
-			bGraphsTest = BioGraph.fastaFileToGraphs(testFile);
+			bGraphsTest = BioInput.fastaFileToGraphs(testFile);
 
 			/* build index and measure building time */
 			long startTime = System.currentTimeMillis();

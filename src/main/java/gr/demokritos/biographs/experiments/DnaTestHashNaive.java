@@ -19,6 +19,7 @@ package gr.demokritos.biographs.experiments;
 import gr.demokritos.iit.jinsect.comparators.NGramGraphComparator;
 import gr.demokritos.iit.jinsect.representations.NGramJGraph;
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.biographs.indexing.preprocessing.*;
 import gr.demokritos.biographs.indexing.structs.Stats;
@@ -137,8 +138,8 @@ public class DnaTestHashNaive {
 			/* read biographs from dataset and mutated test file */
 			dataFile = new File(args[0]);
 			testFile = new File(args[1]);
-			bGraphsData = BioGraph.fastaFileToGraphs(dataFile);
-			bGraphsTest = BioGraph.fastaFileToGraphs(testFile);
+			bGraphsData = BioInput.fastaFileToGraphs(dataFile);
+			bGraphsTest = BioInput.fastaFileToGraphs(testFile);
 			String res;
 
 			/* find the most similar one via exhaustive matching */

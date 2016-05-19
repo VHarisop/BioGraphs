@@ -19,20 +19,12 @@ package gr.demokritos.biographs;
 import gr.demokritos.iit.jinsect.representations.NGramJGraph;
 import gr.demokritos.iit.jinsect.structs.*;
 import gr.demokritos.iit.jinsect.encoders.*;
-import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
-import gr.demokritos.biographs.indexing.preprocessing.*;
 import gr.demokritos.iit.jinsect.jutils;
-import gr.demokritos.iit.jinsect.io.LineReader;
 
 import org.biojava.nbio.core.sequence.DNASequence;
-import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
-
-import java.io.File;
 
 import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.LinkedHashMap;
 
 /**
  * A class for representing N-Gram Graphs for biological sequences.
@@ -135,76 +127,6 @@ public class BioGraph extends NGramJGraph {
 	}
 
 	/**
-	 * Creates a BioGraph object to represent a 
-	 * {@link org.biojava.nbio.core.sequence.DNASequence} 
-	 * that is provided in a given FASTA File.
-	 * @param inFile the <tt>File</tt> which contains the sequence 
-	 * @return a <tt>BioGraph</tt> object to represent the sequence 
-	 * @throws Exception if something is wrong with the file
-	 */
-	public static BioGraph fromFastaFile(File inFile) 
-	throws Exception
-	{
-		BioGraph bGraph = null;
-		LinkedHashMap<String, DNASequence> entries = readFastaFile(inFile);
-		/* try reading the first dna sequence from the file */
-		for (Entry<String, DNASequence> entry: entries.entrySet()) {
-			bGraph = fromSequence(entry.getValue(), entry.getKey());
-			break;
-		}
-
-		return bGraph;
-	}
-	
-	/**
-	 * Creates a BioGraph object to represent a 
-	 * {@link org.biojava.nbio.core.sequence.DNASequence} 
-	 * that is provided in a FASTA file with a given path.
-	 * @param fName a <tt>String</tt> containing the path of the file.
-	 * @return a <tt>BioGraph</tt> object to represent the sequence 
-	 * @throws Exception if something is wrong with the file
-	 */
-	public static BioGraph fromFastaFile(String fName) 
-	throws Exception 
-	{
-		BioGraph bGraph = null;
-		LinkedHashMap<String, DNASequence> entries = readFastaFile(fName);
-		/* try reading the first dna sequence from the file */
-		for (Entry<String, DNASequence> entry : entries.entrySet()) {
-			bGraph = fromSequence(entry.getValue(), entry.getKey());
-			break;
-		}
-
-		return bGraph;
-	}
-
-	/**
-	 * Creates an array of BioGraph objects to represent a series of
-	 * {@link org.biojava.nbio.core.sequence.DNASequence} that are provided
-	 * in a FASTA file at a given path.
-	 *
-	 * @param fName the file containing the sequences
-	 * @return an array of BioGraph objects to represent the sequences
-	 * @throws Exception if something is wrong with the file 
-	 */
-	public static BioGraph[] fastaFileToGraphs(File fName) 
-	throws Exception 
-	{
-		BioGraph[] bGraphs; 
-		LinkedHashMap<String, DNASequence> entries = readFastaFile(fName);
-
-		// allocate space for each entry
-		bGraphs = new BioGraph[entries.size()];
-		int bCnt = 0;
-
-		for (Entry<String, DNASequence> entry: entries.entrySet()) {
-			bGraphs[bCnt++] = fromSequence(entry.getValue(), entry.getKey());
-		}
-
-		return bGraphs;
-	}
-
-	/**
 	 * Returns the underlying {@link UniqueVertexGraph} object that 
 	 * implements the N-gram graph representation. By definition, it is
 	 * the zero-index graph in the vertex graph array.
@@ -304,66 +226,6 @@ public class BioGraph extends NGramJGraph {
 				String.valueOf(p.getSecond());
 		}
 		return toRet;
-	}
-
-	/**
-	 * This method is a proxy to {@link #fromFileLines(File)} 
-	 *
-	 * @param filePath the string containing the file path
-	 * @return an array of {@link BioGraph} objects
-	 */
-	public static BioGraph[] fromWordFile(String filePath) 
-	throws Exception
-	{
-		return fromWordFile(new File(filePath));
-	}
-
-	/**
-	 * Creates an array of BioGraph objects, each of which is built 
-	 * using a line from a given file as a data string, which also
-	 * becomes the graph's bioLabel.
-	 *
-	 * @param path the file from which to read the lines
-	 * @return an array of BioGraph objects
-	 */
-	public static BioGraph[] fromWordFile(File path) 
-	throws Exception 
-	{
-		/* read lines, allocate array */
-		String[] lines = new LineReader().getLines(path);
-		BioGraph[] bGs = new BioGraph[lines.length];
-
-		for (int i = 0; i < lines.length; ++i) {
-			// the raw data string becomes the label
-			bGs[i] = new BioGraph(lines[i], lines[i]);
-		}
-
-		return bGs;
-	}
-
-	/**
-	 * A wrapper method that reads DNA sequences from a file, given its path.
-	 *
-	 * @param fName a string containing the path of the file
-	 * @return a map of string/sequence pairs 
-	 */
-	public static LinkedHashMap<String, DNASequence> readFastaFile(String fName) 
-	throws Exception 
-	{
-		return readFastaFile(new File(fName));
-	}
-
-	/**
-	 * A wrapper method around {@link FastaReaderHelper#readFastaDNASequence}
-	 * in order to facilicate reading DNA sequences from FASTA files. 
-	 *
-	 * @param inFile the file from which to read the sequences
-	 * @return a hash map of String/Sequence pairs.
-	 */
-	public static LinkedHashMap<String, DNASequence> readFastaFile(File inFile) 
-	throws Exception 
-	{
-		return FastaReaderHelper.readFastaDNASequence(inFile);
 	}
 
 	/**

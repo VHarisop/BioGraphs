@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.*;
 import gr.demokritos.biographs.indexing.preprocessing.*;
 import gr.demokritos.biographs.indexing.structs.*;
+import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.iit.jinsect.io.LineReader;
 import gr.demokritos.iit.jinsect.comparators.NGramGraphComparator;
 
@@ -212,7 +213,7 @@ public final class Utils {
 	fastaFileToEntries(File path, IndexVector hVec) throws Exception {
 		List<GraphIndexEntry> gis = new ArrayList<GraphIndexEntry>();
 		for (Map.Entry<String, DNASequence> e:
-				BioGraph.readFastaFile(path).entrySet())
+				BioInput.readFastaFile(path).entrySet())
 		{
 			gis.add(new GraphIndexEntry(
 						BioGraph.fromSequence(e.getValue(), e.getKey()),
@@ -234,7 +235,7 @@ public final class Utils {
 	fastaFileToTrieEntries(File path) throws Exception {
 		List<TrieIndexEntry> tis = new ArrayList<TrieIndexEntry>();
 		for (Map.Entry<String, DNASequence> e:
-				BioGraph.readFastaFile(path).entrySet())
+				BioInput.readFastaFile(path).entrySet())
 		{
 			tis.add(new TrieIndexEntry(
 						BioGraph.fromSequence(e.getValue(), e.getKey())

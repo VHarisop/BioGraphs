@@ -17,6 +17,7 @@
 package gr.demokritos.biographs.experiments;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.algorithms.MaximumSpanningTree;
 import gr.demokritos.biographs.indexing.databases.TrieDatabase;
 import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
@@ -92,7 +93,7 @@ public class TestTrie {
 		try {
 			dataFile = new File(args[0]);
 			testFile = new File(args[1]);
-			bGraphsTest = BioGraph.fastaFileToGraphs(testFile);
+			bGraphsTest = BioInput.fastaFileToGraphs(testFile);
 
 			ntD.build(dataFile, GraphType.DNA);
 			statList[0] = checkNearestK(bGraphsTest, ntD, 1);

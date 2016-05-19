@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
+import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.indexing.databases.TrieDatabase;
 import gr.demokritos.iit.jinsect.structs.NGramVertex;
 
@@ -74,7 +75,7 @@ public class GeneralTest
 
 		try {
 			File res = new File(getClass().getResource(fName).toURI());
-			BioGraph[] bgs = BioGraph.fastaFileToGraphs(res);
+			BioGraph[] bgs = BioInput.fastaFileToGraphs(res);
 			int labelCnt = 0;
 			
 			for (BioGraph b: bgs) {
@@ -91,7 +92,7 @@ public class GeneralTest
 
 		try {
 			File res = new File(getClass().getResource(fName).toURI());
-			BioGraph[] bgs = BioGraph.fastaFileToGraphs(res);
+			BioGraph[] bgs = BioInput.fastaFileToGraphs(res);
 
 			/* assert that all graphs have been read */
 			int currIndex = 0;

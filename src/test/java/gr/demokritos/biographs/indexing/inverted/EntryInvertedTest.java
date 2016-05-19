@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.biographs.indexing.structs.GraphIndexEntry;
 
@@ -47,7 +48,7 @@ public class EntryInvertedTest
 			// build database index 
 			File resNCL = new File(getClass().getResource(nclIndex).toURI());
 			nclData.build(resNCL, GraphType.DNA);
-			nclBgs = BioGraph.fastaFileToGraphs(resNCL);
+			nclBgs = BioInput.fastaFileToGraphs(resNCL);
 			assertTrue(true); // succeed
 		} catch (Exception ex) {
 			ex.printStackTrace();

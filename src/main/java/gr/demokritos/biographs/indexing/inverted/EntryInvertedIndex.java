@@ -159,6 +159,17 @@ public class EntryInvertedIndex extends GraphDatabase {
 	}
 
 	/**
+	 * Adds a new graph to the database, updating the invertex index.
+	 * @see #addGraph(BioGraph) addGraph
+	 *
+	 * @param data the data string of the graph to be added
+	 * @param label the label of the graph to be added
+	 */
+	public void addGraph(String data, String label) {
+		addGraph(new BioGraph(data, label));
+	}
+
+	/**
 	 * Adds a new entry to the database.
 	 * 
 	 * @param entry the {@link GraphIndexEntry} to be added
@@ -343,8 +354,32 @@ public class EntryInvertedIndex extends GraphDatabase {
 
 	/**
 	 * @see #getMatches(BioGraph, int) getMatches
+	 *
+	 * @param data the data string of the query
+	 * @param label the label of the query
+	 * @param tolerance the containment tolerance
+	 * @return a set of {@link GraphIndexEntry} objects matching
+	 * the query
+	 */
+	public Set<GraphIndexEntry>
+	getMatches(String data, String label, int tolerance) {
+		BioGraph bQuery = new BioGraph(data, label);
+		return getMatches(bQuery, tolerance);
+	}
+
+	/**
+	 * @see #getMatches(BioGraph, int) getMatches
 	 */
 	public Set<GraphIndexEntry> getMatches(BioGraph bQuery) {
 		return getMatches(bQuery, 0);
+	}
+
+	/**
+	 * Gets the underlying {@link IndexVector} utilized by this index.
+	 *
+	 * @return the index vector used by this index
+	 */
+	public IndexVector getIndexVector() {
+		return this.indVec;
 	}
 }

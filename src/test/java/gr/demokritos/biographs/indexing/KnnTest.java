@@ -1,6 +1,7 @@
 package gr.demokritos.biographs.indexing;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.iit.jinsect.jutils;
 
@@ -64,7 +65,7 @@ public class KnnTest
 		String nclTest = "/testFile02.fasta";
 		try {
 			File test = new File(getClass().getResource(nclTest).toURI());
-			bgTest = BioGraph.fromFastaFile(test);
+			bgTest = BioInput.fromFastaFile(test);
 			assertNotNull(bgTest);
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -100,7 +101,7 @@ public class KnnTest
 			};
 
 			trd.build(res, GraphType.WORD);
-			BioGraph[] bgs = BioGraph.fromWordFile(res);
+			BioGraph[] bgs = BioInput.fromWordFile(res);
 
 			/* make sure that graphs that were indexed in the database
 			 * return nonempty K nearest neighbours when queried */

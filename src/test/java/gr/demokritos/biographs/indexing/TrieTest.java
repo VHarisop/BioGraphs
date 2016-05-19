@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.indexing.databases.TrieDatabase;
 
 import java.io.File;
@@ -55,7 +56,7 @@ public class TrieTest
 			File resNCL = new File(getClass().getResource(nclIndex).toURI());
 
 			nclData.buildIndex(resNCL);
-			nclBgs = BioGraph.fastaFileToGraphs(resNCL);
+			nclBgs = BioInput.fastaFileToGraphs(resNCL);
 			assertTrue(true); // succeed
 		} catch (Exception ex) {
 			ex.printStackTrace();

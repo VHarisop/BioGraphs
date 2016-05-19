@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import gr.demokritos.biographs.*;
+import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.indexing.GraphDatabase;
 import gr.demokritos.biographs.indexing.structs.TrieIndexEntry;
 
@@ -118,7 +119,7 @@ public class TrieDatabase extends GraphDatabase {
 			}
 		}
 		else {
-			for (BioGraph bg: BioGraph.fromWordFile(f)) {
+			for (BioGraph bg: BioInput.fromWordFile(f)) {
 				addGraph(bg);
 			}
 		}

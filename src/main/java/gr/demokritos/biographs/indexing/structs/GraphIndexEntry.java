@@ -91,7 +91,6 @@ public final class GraphIndexEntry {
 			return false;
 
 		GraphIndexEntry eOther = (GraphIndexEntry) other;
-
-		return this.getEncoding().equals(eOther.getEncoding());
+		return this.getLabel().equals(eOther.getLabel());
 	}
 }
