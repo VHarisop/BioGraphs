@@ -15,7 +15,7 @@
 
 package gr.demokritos.biographs.indexing.preprocessing;
 
-import java.util.TreeMap;
+import java.util.*;
 
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.GraphDatabase;
@@ -154,6 +154,77 @@ public class IndexVector {
 		else {
 			vertexMap.put(hashVal, previous.intValue() + code);
 		}
+	}
+
+	/**
+	 * Returns a list containing the labels of all vertices incident
+	 * to a specified vertex in a {@link UniqueVertexGraph}.
+	 *
+	 * @param v the vertex being examined
+	 * @param uvg the graph in which the vertex resides
+	 * @return a list of all the labels of "incoming" vertices
+	 */
+	protected List<String>
+	getIncomingLabels(JVertex v, UniqueVertexGraph uvg)
+	{
+		List<String> inVs = new ArrayList<String>();
+		for (Edge e: uvg.incomingEdgesOf(v)) {
+			inVs.add(uvg.getEdgeSource(e).getLabel());
+		}
+		return inVs;
+	}
+
+	/**
+	 * Encodes a {@link UniqueVertexGraph} object using label hashing on
+	 * each of its vertices, and assigning to each bin the size of the
+	 * union of all "incoming" vertices.
+	 *
+	 * @param uvg the graph to be encoded
+	 * @return an integer vector containing the graph encoding
+	 */
+	public int[] getGraphEncoding(UniqueVertexGraph uvg) {
+		/*
+		 * Create a HashMap to keep bin - indegree correspondence
+		 */
+		List<Set<String>> inDegreeSet =
+			new ArrayList<Set<String>>(this.K);
+		for (int i = 0; i < this.K; ++i) {
+			inDegreeSet.add(new HashSet<String>());
+		}
+
+		/*
+		 * Form the union of incoming vertices for every bin
+		 */
+		for (JVertex v: uvg.vertexSet()) {
+			int h = (hashStrategy.hash(v) % this.K);
+
+			/*
+			 * If hash value is not in [0, K - 1] (possibly resulting
+			 * from unknown symbols, such as "N"), skip this iteration
+			 */
+			if (h < 0)
+				continue;
+
+			Set<String> hSet = inDegreeSet.get(h);
+			hSet.addAll(getIncomingLabels(v, uvg));
+			inDegreeSet.set(h, hSet);
+		}
+
+		/*
+		 * Encoding number is |D|
+		 */
+		int[] encoding = new int[this.K];
+		for (int i = 0; i < this.K; ++i) {
+			encoding[i] = inDegreeSet.get(i).size();
+		}
+		return encoding;
+	}
+
+	/**
+	 * @see #getGraphEncoding(UniqueVertexGraph) getGraphEncoding
+	 */
+	public int[] getGraphEncoding(BioGraph bG) {
+		return getGraphEncoding(bG.getGraph());
 	}
 
 	/**
