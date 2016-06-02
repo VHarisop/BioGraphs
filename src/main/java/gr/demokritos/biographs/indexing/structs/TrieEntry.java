@@ -40,13 +40,7 @@ public final class TrieEntry {
 	/**
 	 * The hashed vector encoding of the graph that the entry refers to.
 	 */
-	protected int[] indexEncoding;
-
-	/**
-	 * The string representation of this entry that should be used as a
-	 * key in the patricia trie.
-	 */
-	protected String key;
+	protected byte[] indexEncoding;
 
 	/**
 	 * Creates a new TrieEntry object from a {@link BioGraph} using
@@ -63,13 +57,12 @@ public final class TrieEntry {
 		IndexVector indVec = new IndexVector(GraphType.DNA);
 		indVec.setHashStrategy(Strategies.dnaHash());
 		indVec.setBins(16);
-		
-		indexEncoding = indVec.getGraphEncoding(bG);
 
 		/*
-		 * Obtain the string representation from the vector
+		 * Obtain the hashed vector encoding for the graph and cache it
+		 * to avoid multiple computations
 		 */
-		key = vectorToBits(indexEncoding);
+		indexEncoding = indVec.getGraphEncoding(bG);
 	}
 	
 	/**
@@ -80,7 +73,7 @@ public final class TrieEntry {
 	 * @param vec the integer vector containing the encoding
 	 * @return the vector's bitfield representation
 	 */
-	protected String vectorToBits(int[] vec) {
+	protected String vectorToBits(byte[] vec) {
 		String repr = "";
 		int num_bits = 64;
 		float num_set;
@@ -106,7 +99,7 @@ public final class TrieEntry {
 	 *
 	 * @return the hashed vector encoding of the underlying graph
 	 */
-	public int[] getEncoding() {
+	public byte[] getEncoding() {
 		return indexEncoding;
 	}
 
@@ -125,7 +118,7 @@ public final class TrieEntry {
 	 * @return the key of the entry
 	 */
 	public String getKey() {
-		return key;
+		return vectorToBits(indexEncoding);
 	}
 	
 	/**

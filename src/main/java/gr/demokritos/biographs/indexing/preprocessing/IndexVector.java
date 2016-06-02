@@ -182,7 +182,7 @@ public class IndexVector {
 	 * @param uvg the graph to be encoded
 	 * @return an integer vector containing the graph encoding
 	 */
-	public int[] getGraphEncoding(UniqueVertexGraph uvg) {
+	public byte[] getGraphEncoding(UniqueVertexGraph uvg) {
 		/*
 		 * Create a HashMap to keep bin - indegree correspondence
 		 */
@@ -213,9 +213,9 @@ public class IndexVector {
 		/*
 		 * Encoding number is |D|
 		 */
-		int[] encoding = new int[this.K];
+		byte[] encoding = new byte[this.K];
 		for (int i = 0; i < this.K; ++i) {
-			encoding[i] = inDegreeSet.get(i).size();
+			encoding[i] = (new Integer(inDegreeSet.get(i).size())).byteValue();
 		}
 		return encoding;
 	}
@@ -223,7 +223,7 @@ public class IndexVector {
 	/**
 	 * @see #getGraphEncoding(UniqueVertexGraph) getGraphEncoding
 	 */
-	public int[] getGraphEncoding(BioGraph bG) {
+	public byte[] getGraphEncoding(BioGraph bG) {
 		return getGraphEncoding(bG.getGraph());
 	}
 

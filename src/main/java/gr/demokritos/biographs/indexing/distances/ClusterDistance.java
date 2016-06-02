@@ -61,6 +61,27 @@ public class ClusterDistance {
 		}
 		return dist;
 	}
+
+	/**
+	 * Computes the hamming distance between two byte vectors, returning
+	 * the system's max value for integers if their lengths differ.
+	 *
+	 * @param encA the first vector
+	 * @param encB the second vector
+	 * @return the hamming distance between the two vectors
+	 */
+	public static int hamming(byte[] encA, byte[] encB) {
+		int dist = 0;
+		if (encA.length != encB.length) {
+			dist = Integer.MAX_VALUE;
+		}
+		else {
+			for (int i = 0; i < encA.length; ++i) {
+				dist += Math.abs(encA[i] - encB[i]);
+			}
+		}
+		return dist;
+	}
 	
 	/**
 	 * Computes the euclidean distance between two vectors, returning
@@ -77,6 +98,27 @@ public class ClusterDistance {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			dist = Integer.MAX_VALUE;
+		}
+		return dist;
+	}
+
+	/**
+	 * Computes the euclidean distance between two byte vectors, returning
+	 * the system's max value for integers if their lengths differ.
+	 *
+	 * @param encA the first vector
+	 * @param encB the second vector
+	 * @return the euclidean distance between the two vectors
+	 */
+	public static int euclidean(byte[] encA, byte[] encB) {
+		int dist = 0;
+		if (encA.length != encB.length) {
+			dist = Integer.MAX_VALUE;
+		}
+		else {
+			for (int i = 0; i < encA.length; ++i) {
+				dist += (encA[i] - encB[i]) * (encA[i] - encB[i]);
+			}
 		}
 		return dist;
 	}
