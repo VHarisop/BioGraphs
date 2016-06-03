@@ -48,9 +48,18 @@ if __name__ == "__main__":
         help='The file containing the sequences'
     )
 
+    parser.add_argument(
+        '-p',
+        '--percent_change',
+        help = 'The percentage of sequences that will be mutated',
+        type = int,
+        default = 100
+    )
+
     args = vars(parser.parse_args())
     fasta_file = args['file'][0]
     mutation_num = args['number_of_mutations'][0]
+    percent = int(round(args['percent_change'] / 100.0))
 
     # name the output file appropriately
     out_name = 'mutated_{0}.fasta'.format(mutation_num)
@@ -60,7 +69,7 @@ if __name__ == "__main__":
         fasta_sequences = list(SeqIO.parse(f, 'fasta'))
 
         # pick some fasta sequences at random to be mutated
-        random_picks = sample(fasta_sequences, len(fasta_sequences) / 20)
+        random_picks = sample(fasta_sequences, len(fasta_sequences) * percent)
         for fasta in random_picks:
             name, seq = fasta.id, mutate(fasta.seq.tomutable(), mutation_num)
             mutated_sequences.append(SeqRecord(seq, name, '', ''))
