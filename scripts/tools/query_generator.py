@@ -75,7 +75,7 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--input',
             help = 'The path to the file containing the original set',
             type = str,
-            default = 'ecoli.nt'
+            default = 'data.nt'
     )
 
     # add --file argument for the output file
@@ -86,7 +86,6 @@ if __name__ == "__main__":
     )
 
     args = vars(parser.parse_args())
-    # args['length'], args['number'], args['file'], args['input']
 
     with open(args['input'], 'r') as infile, open(args['file'], 'w') as w:
         fasta_sequences = list(SeqIO.parse(infile, 'fasta'))
