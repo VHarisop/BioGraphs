@@ -25,6 +25,9 @@ import gr.demokritos.biographs.indexing.databases.TrieIndex;
 import gr.demokritos.biographs.indexing.*;
 import gr.demokritos.biographs.io.BioInput;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 /**
  * A class that performs queries from biological sequences using
  * {@link BioGraph} objects.
@@ -32,6 +35,11 @@ import gr.demokritos.biographs.io.BioInput;
  * @author VHarisop
  */
 public class TrieQuery {
+	/**
+	 * Gson builder for result printing
+	 */
+	static Gson gson;
+
 	/*
 	 * Size of subsequence.
 	 */
@@ -41,7 +49,7 @@ public class TrieQuery {
 	 * The length of the window in which {@link TrieEntry} objects
 	 * are created in the database for every offset.
 	 */
-	private int window;
+	private int window = 10;
 
 	/**
 	 * The graph database to perform queries against.
@@ -57,7 +65,6 @@ public class TrieQuery {
 	 */
 	public TrieQuery(int K) {
 		seqSize = K;
-		window = 10;
 		graphIndex = new TrieIndex();
 	}
 
@@ -71,11 +78,25 @@ public class TrieQuery {
 	 * entries
 	 */
 	public TrieQuery(int K, int win) {
-		seqSize = K;
+		this(K);
 		window = win;
-		graphIndex = new TrieIndex();
 	}
 
+	/**
+	 * Creates a new {@link TrieQuery} object that performs queries
+	 * by splitting the query strings into overlapping subsequences
+	 * of a specified length, using a given order for serialization
+	 * of encoding vectors.
+	 *
+	 * @param K the size of the subsequences
+	 * @param win the length of the window used for consecutive entries
+	 * @param order the order of the encoding vectors' serialization
+	 */
+	public TrieQuery(int K, int win, int order) {
+		seqSize = K;
+		window = win;
+		graphIndex = new TrieIndex(order);
+	}
 
 	/**
 	 * Initializes the database index, reading all data from
@@ -97,11 +118,20 @@ public class TrieQuery {
 					graphIndex.addGraph(new BioGraph(s, e.getKey()));
 				}
 			}
-			System.out.println(graphIndex.getSize());
 		} 
 		catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Simple getter for the size (in #entries) of the
+	 * underlying {@link TrieIndex}.
+	 *
+	 * @return the total number of entries in the underlying database
+	 */
+	public int getSize() {
+		return graphIndex.getSize();
 	}
 
 	/**
@@ -270,29 +300,91 @@ public class TrieQuery {
 		}
 		File data = new File(args[0]);
 		File test = new File(args[1]);
+		int Ls = 150, tol = 5, order = 64;
+
+		/*
+		 * If another argument is present, it is assumed to be
+		 * the length Ls of the stored sequence parts.
+		 */
+		if (args.length > 2) {
+			try {
+				Ls = Integer.parseInt(args[2]);
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+				return;
+			}
+		}
+
+		/*
+		 * If a 4th argument is present, it is assumed to be
+		 * equal to the search tolerance on retrieved sequence
+		 * distances.
+		 */
+		if (args.length > 3) {
+			try {
+				tol = Integer.parseInt(args[3]);
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+				return;
+			}
+		}
+
+		/*
+		 * If a 5th argument is present, it is assumed to be
+		 * equal to the order of the encoding vector.
+		 */
+		if (args.length > 4) {
+			try {
+				order = Integer.parseInt(args[4]);
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+				return;
+			}
+		}
 
 		try {
+			/*
+			 * Create a GsonBuilder to output formatted results.
+			 */
+			gson = new GsonBuilder().setPrettyPrinting().create();
+
 			// TrieQuery bq = new TrieQuery(150, 1); // this worked fine
-			TrieQuery bq = new TrieQuery(120, 1);
+			TrieQuery bq = new TrieQuery(Ls, 1, order);
 			bq.initIndex(data);
 
 			long totalTime = 0L;
-			int eCnt = 0, hits = 0;
+			int eCnt = 0, hits = 0, totalMatches = 0;
+			double accuracy, avgMatchSize;
 
 			for (Map.Entry<String, String> e:
 					BioInput.fromFastaFileToEntries(test).entrySet())
 			{
 				String lbl = e.getKey(), dt = e.getValue();
 
+				/*
+				 * Perform the query and measure time elapsed
+				 */
 				long start = System.currentTimeMillis();
-				Set<TrieEntry> matches = bq.getMatches(dt, lbl, 5);
+				Set<TrieEntry> matches = bq.getMatches(dt, lbl, tol);
 				long end = System.currentTimeMillis();
 
+				/*
+				 * Update parameters:
+				 * 1) total elapsed time
+				 * 2) total number of matches
+				 * 3) hits / accuracy
+				 */
 				totalTime += (end - start);
+				totalMatches += matches.size();
 				eCnt++;
 
-				System.out.println("Matches: " + String.valueOf(matches.size()));
-				boolean found = false; 
+				/*
+				 * Update hits for accuracy calculation
+				 */
+				boolean found = false;
 				for (TrieEntry ent: matches) {
 					if (ent.getLabel().equals(lbl)) {
 						hits++;
@@ -300,15 +392,43 @@ public class TrieQuery {
 						break;
 					}
 				}
-				if (!found) {
-					System.out.println("Not found: " + lbl);
-				}
 			}
-			System.out.printf("Avg_Time: %.2f\n", totalTime / ((double) eCnt));
-			System.out.printf("Accuracy: %.3f\n", ((double) hits) / eCnt);
+			/*
+			 * Create a Result object to be serialized to JSON.
+			 */
+			Result res = new Result(
+				((double) hits) / eCnt,
+				totalTime / ((double) eCnt),
+				((double) totalMatches) / eCnt,
+				bq.getSize()
+			);
+			System.out.println(gson.toJson(res));
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
+		}
+	}
+
+	/*
+	 * A static class used internally only for serializing
+	 * experimental results to JSON.
+	 */
+	static class Result {
+		private double accuracy;
+		private double avgQueryTime;
+		private double avgMatches;
+		private int size;
+
+		public Result(
+			double accuracy,
+			double avgQueryTime,
+			double avgMatches,
+			int size)
+		{
+			this.accuracy = accuracy;
+			this.avgQueryTime = avgQueryTime;
+			this.avgMatches = avgMatches;
+			this.size = size;
 		}
 	}
 }

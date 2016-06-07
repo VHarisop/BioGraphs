@@ -49,6 +49,12 @@ public class TrieIndex extends GraphDatabase {
 	 * as keys.
 	 */
 	protected PatriciaTrie<List<TrieEntry>> trieIndex;
+
+	/**
+	 * The default order (number of bits) used for the serialization
+	 * of encoding vector cells.
+	 */
+	protected int order = 64;
 	
 	/**
 	 * Creates a blank TrieIndex object.
@@ -59,6 +65,16 @@ public class TrieIndex extends GraphDatabase {
 	}
 
 	/**
+	 * Creates a blank TrieIndex using a custom {@link #order}.
+	 *
+	 * @param order the custom order to be used
+	 */
+	public TrieIndex(int order) {
+		this();
+		this.order = order;
+	}
+
+	/**
 	 * Creates a new TrieIndex object for maintaining
 	 * a database in a given directory.
 	 * @param path the directory in which the database resides
@@ -66,6 +82,18 @@ public class TrieIndex extends GraphDatabase {
 	public TrieIndex(String path) {
 		super(path);
 		trieIndex = new PatriciaTrie<List<TrieEntry>>();
+	}
+
+	/**
+	 * Creates a new {@link TrieIndex} object for maintaing a database
+	 * in a given directory using a custom order.
+	 *
+	 * @param path the directory in which the database resides
+	 * @param order the custom order to be used
+	 */
+	public TrieIndex(String path, int order) {
+		this(path);
+		this.order = order;
 	}
 
 	/**
@@ -138,7 +166,7 @@ public class TrieIndex extends GraphDatabase {
 		/*
 		 * Get already existing entries with the same key first, if any
 		 */
-		String key = entry.getKey();
+		String key = entry.getKey(this.order);
 		List<TrieEntry> entries = trieIndex.get(key);
 
 		/* if key was not already there, initialize an array of entries
@@ -173,7 +201,7 @@ public class TrieIndex extends GraphDatabase {
 	 * @return a String representation of the biograph
 	 */
 	protected String getGraphCode(BioGraph bGraph) {
-		return (new TrieEntry(bGraph)).getKey();
+		return (new TrieEntry(bGraph)).getKey(this.order);
 	}
 
 	/**

@@ -26,8 +26,9 @@ import java.util.*;
  * This class represents an entry in the graph index
  * created by BioGraphs that is used by
  * {@link gr.demokritos.biographs.indexing.databases.TrieIndex}
- * It contains the original graph's label, its hashed vector encoding,
- * as well as the vector encoding's bitfield representation.
+ * It contains the original graph's label and its hashed vector encoding,
+ * providing a method for serializing it to a binary string using a given
+ * number of bits per index.
  *
  * @author VHarisop
  */
@@ -67,22 +68,23 @@ public final class TrieEntry {
 	
 	/**
 	 * Converts an index vector encoding to a bitfield representation,
-	 * dedicating 64 bits to each "bin". First, the values in all the
-	 * bins are "quantized" to an integer in [0, 63].
+	 * dedicating [num_bits] bits to each "bin". First, the values in
+	 * all the bins are "quantized" to an integer in [0, num_bits - 1].
 	 *
 	 * @param vec the integer vector containing the encoding
+	 * @param num_bits the number of bits
 	 * @return the vector's bitfield representation
 	 */
-	protected String vectorToBits(byte[] vec) {
+	protected String vectorToBits(byte[] vec, int num_bits) {
 		String repr = "";
-		int num_bits = 64;
+		float fact = (float) num_bits;
 		float num_set;
 		for (int i = 0; i < vec.length; ++i) {
 			/* map vec[i] / 64 ratio to [0, 1] range */
-			num_set = Math.min(((float) vec[i]) / 64f, 1f);
+			num_set = Math.min(((float) vec[i]) / fact, 1f);
 
 			/* convert to int between [0, 63] */
-			int ones = (int) (Math.min(63, (int) (num_set * 64f)));
+			int ones = (int) (Math.min(num_bits - 1, (int) (num_set * fact)));
 
 			for (int j = 0; j < num_bits; ++j) {
 				if (j < ones)
@@ -118,7 +120,17 @@ public final class TrieEntry {
 	 * @return the key of the entry
 	 */
 	public String getKey() {
-		return vectorToBits(indexEncoding);
+		return vectorToBits(indexEncoding, 64);
+	}
+
+	/**
+	 * Gets the entry's serialized key of a given order.
+	 *
+	 * @param order the order for serialization
+	 * @return the key of the entry
+	 */
+	public String getKey(int order) {
+		return vectorToBits(indexEncoding, order);
 	}
 	
 	/**
