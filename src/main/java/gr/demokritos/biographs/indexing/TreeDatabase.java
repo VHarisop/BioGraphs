@@ -104,7 +104,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * Initialize the database's comparator and tree index.
 	 */
 	protected void initIndex() {
-		this.bgComp = new SimilarityComparator();
+		this.bgComp = new OrdWeightComparator();
 		this.treeIndex = new TreeMap<BioGraph, List<V>>(this.bgComp);
 	}
 

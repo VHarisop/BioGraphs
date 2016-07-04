@@ -41,7 +41,7 @@ import gr.demokritos.biographs.indexing.structs.TrieEntry;
  *
  * @author VHarisop
  */
-public class TrieIndex extends GraphDatabase {
+public final class TrieIndex extends GraphDatabase {
 	/**
 	 * A {@link org.apache.commons.collections4.trie.PatriciaTrie} 
 	 * that is used for indexing graphs by using the graphs'
@@ -166,7 +166,7 @@ public class TrieIndex extends GraphDatabase {
 		/*
 		 * Get already existing entries with the same key first, if any
 		 */
-		String key = entry.getKey(this.order);
+		final String key = entry.getKey(this.order);
 		List<TrieEntry> entries = trieIndex.get(key);
 
 		/* if key was not already there, initialize an array of entries

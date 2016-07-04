@@ -77,14 +77,14 @@ public final class TrieEntry {
 	 */
 	protected String vectorToBits(byte[] vec, int num_bits) {
 		String repr = "";
-		float fact = (float) num_bits;
-		float num_set;
+		final float fact = (float) num_bits;
 		for (int i = 0; i < vec.length; ++i) {
 			/* map vec[i] / 64 ratio to [0, 1] range */
-			num_set = Math.min(((float) vec[i]) / fact, 1f);
+			final float num_set = Math.min(((float) vec[i]) / fact, 1f);
 
-			/* convert to int between [0, 63] */
-			int ones = (int) (Math.min(num_bits - 1, (int) (num_set * fact)));
+			/* convert to int between [0, Nbits] */
+			final int ones =
+				(int) (Math.min(num_bits - 1, (int) (num_set * fact)));
 
 			for (int j = 0; j < num_bits; ++j) {
 				if (j < ones)

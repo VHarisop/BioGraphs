@@ -80,8 +80,8 @@ public class KnnTest
 				@Override
 				public int compare(BioGraph bgA, BioGraph bgB) {
 					double sSim = 
-						bgA.getGraph().getDegreeRatioSum() -
-						bgB.getGraph().getDegreeRatioSum();
+						bgA.getGraph().totalEdgeWeight() -
+						bgB.getGraph().totalEdgeWeight();
 
 					if (GraphDatabase.compareDouble(sSim, 0.0)) {
 						return jutils.compareCanonicalCodes(

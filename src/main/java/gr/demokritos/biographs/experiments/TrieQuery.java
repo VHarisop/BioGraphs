@@ -34,7 +34,7 @@ import com.google.gson.GsonBuilder;
  *
  * @author VHarisop
  */
-public class TrieQuery {
+public final class TrieQuery {
 	/**
 	 * Gson builder for result printing
 	 */
@@ -104,7 +104,7 @@ public class TrieQuery {
 	 *
 	 * @param dataFile the file containing the database graphs
 	 */
-	public void initIndex(File dataFile) {
+	private void initIndex(File dataFile) {
 		try {
 			for (Map.Entry<String, String> e:
 					BioInput.fromFastaFileToEntries(dataFile).entrySet())
@@ -137,7 +137,7 @@ public class TrieQuery {
 	/**
 	 * @see #initIndex(File) initIndex
 	 */
-	public void initIndex(String dataPath) {
+	private void initIndex(String dataPath) {
 		initIndex(new File(dataPath));
 	}
 
@@ -149,8 +149,9 @@ public class TrieQuery {
 	 * @param data the data string
 	 * @return the list of generated subsequences
 	 */
-	protected List<String> splitString(String data) {
-		int index = 0, qLen = data.length();
+	private List<String> splitString(String data) {
+		int index = 0;
+		final int qLen = data.length();
 		List<String> blocks = new ArrayList<String>();
 		while ((index + seqSize) < qLen) {
 			for (int i = 0; i < window; ++i) {
@@ -173,7 +174,7 @@ public class TrieQuery {
 	 */
 	protected List<String> splitQueryString(String query) {
 		int index = 0, qLen = query.length();
-		int rem = qLen - seqSize;
+		final int rem = qLen - seqSize;
 		List<String> blocks = new ArrayList<String>();
 		while ((index + seqSize) < qLen) {
 			blocks.add(query.substring(index, index + seqSize));
@@ -214,8 +215,8 @@ public class TrieQuery {
 		 * search all graphs with a preselected tolerance
 		 */
 		for (String bl: blocks) {
-			BioGraph bg = new BioGraph(bl, label);
-			TrieEntry eQuery = new TrieEntry(bg);
+			final BioGraph bg = new BioGraph(bl, label);
+			final TrieEntry eQuery = new TrieEntry(bg);
 			
 			final byte[] enc = eQuery.getEncoding();
 
@@ -278,7 +279,7 @@ public class TrieQuery {
 	 * @param bound the distance bound
 	 * @return the bounded distance between the two vectors
 	 */
-	public int boundedHamming(byte[] a, byte[] b, int bound) {
+	private int boundedHamming(byte[] a, byte[] b, int bound) {
 		int sum = 0;
 		for (int i = 0; i < a.length; ++i) {
 			sum += Math.abs(a[i] - b[i]);
@@ -359,26 +360,30 @@ public class TrieQuery {
 			int eCnt = 0, hits = 0, totalMatches = 0;
 			double accuracy, avgMatchSize;
 
+			List<Long> qTimes = new ArrayList<Long>();
+			List<Integer> matchList = new ArrayList<Integer>();
 			for (Map.Entry<String, String> e:
 					BioInput.fromFastaFileToEntries(test).entrySet())
 			{
-				String lbl = e.getKey(), dt = e.getValue();
+				final String lbl = e.getKey(), dt = e.getValue();
 
 				/*
 				 * Perform the query and measure time elapsed
 				 */
-				long start = System.currentTimeMillis();
+				final long start = System.currentTimeMillis();
 				Set<TrieEntry> matches = bq.getMatches(dt, lbl, tol);
-				long end = System.currentTimeMillis();
+				final long end = System.currentTimeMillis();
 
 				/*
 				 * Update parameters:
 				 * 1) total elapsed time
 				 * 2) total number of matches
 				 * 3) hits / accuracy
+				 * 4) number of times
 				 */
 				totalTime += (end - start);
 				totalMatches += matches.size();
+				qTimes.add(end - start);
 				eCnt++;
 
 				/*
@@ -392,14 +397,40 @@ public class TrieQuery {
 						break;
 					}
 				}
+				/*
+				 * Update list of answer set sizes
+				 */
+				matchList.add(matches.size());
 			}
+			/*
+			 * calculate standard deviation from average time
+			 */
+			final double avgTime = totalTime / ((double) eCnt);
+			double runSum = 0f;
+			for (long i: qTimes) {
+				runSum += (i - avgTime) * (i - avgTime);
+			}
+			final double stdevTime = Math.sqrt(runSum / eCnt);
+
+			/*
+			 * calculate standard deviation from average number of matches
+			 */
+			final double avgMatches = totalMatches / ((double) eCnt);
+			double mRunSum = 0f;
+			for (int i: matchList) {
+				mRunSum += (i - avgMatches) * (i - avgMatches);
+			}
+			final double stdevMatches = Math.sqrt(mRunSum / eCnt);
+
 			/*
 			 * Create a Result object to be serialized to JSON.
 			 */
 			Result res = new Result(
 				((double) hits) / eCnt,
-				totalTime / ((double) eCnt),
-				((double) totalMatches) / eCnt,
+				avgTime,
+				stdevTime,
+				avgMatches,
+				stdevMatches,
 				bq.getSize()
 			);
 			System.out.println(gson.toJson(res));
@@ -416,18 +447,28 @@ public class TrieQuery {
 	static class Result {
 		private double accuracy;
 		private double avgQueryTime;
+		private double stdevQueryTime;
 		private double avgMatches;
+		private double stdevMatches;
 		private int size;
 
+		/**
+		 * Creates a new Result object with all the statistics
+		 * provided from the caller.
+		 */
 		public Result(
 			double accuracy,
 			double avgQueryTime,
+			double stdevQueryTime,
 			double avgMatches,
+			double stdevMatches,
 			int size)
 		{
 			this.accuracy = accuracy;
 			this.avgQueryTime = avgQueryTime;
+			this.stdevQueryTime = stdevQueryTime;
 			this.avgMatches = avgMatches;
+			this.stdevMatches = stdevMatches;
 			this.size = size;
 		}
 	}

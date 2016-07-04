@@ -142,9 +142,9 @@ public class IndexVector {
 	 */
 	protected void addVertex(JVertex toAdd, UniqueVertexGraph uvg) {
 		/* hash value modulo K */
-		int hashVal = (hashStrategy.hash(toAdd) % this.K);
-		Integer previous = vertexMap.get(hashVal);
-		Integer code = encodingStrategy.encode(toAdd, uvg);
+		final int hashVal = (hashStrategy.hash(toAdd) % this.K);
+		final Integer previous = vertexMap.get(hashVal);
+		final Integer code = encodingStrategy.encode(toAdd, uvg);
 
 		/* if the hash key is new, it only occured once so far */
 		if (previous == null) {
@@ -196,7 +196,7 @@ public class IndexVector {
 		 * Form the union of incoming vertices for every bin
 		 */
 		for (JVertex v: uvg.vertexSet()) {
-			int h = (hashStrategy.hash(v) % this.K);
+			final int h = (hashStrategy.hash(v) % this.K);
 
 			/*
 			 * If hash value is not in [0, K - 1] (possibly resulting
@@ -251,7 +251,7 @@ public class IndexVector {
 		/* populate the vector according to the values stored in the map */
 		int[] vec = new int[this.K];
 		for (int i = 0; i < this.K; ++i) {
-			Integer val = vertexMap.get(i);
+			final Integer val = vertexMap.get(i);
 			vec[i] = (val == null) ? 0 : val;
 		}
 		

@@ -34,7 +34,7 @@ import java.util.Objects;
  *
  * @author VHarisop
  */
-public class BioGraph extends NGramJGraph {
+public final class BioGraph extends NGramJGraph {
 
 	final static long serialVersionUID = 1L;
 
@@ -134,17 +134,6 @@ public class BioGraph extends NGramJGraph {
 	 */
 	public UniqueVertexGraph getGraph() {
 		return getGraphLevel(0);
-	}
-
-	/**
-	 * Returns the sum of normalized edge weights of the underlying 
-	 * {@link gr.demokritos.iit.jinsect.structs.UniqueVertexGraph} 
-	 * object, which is a positive double value.
-	 *
-	 * @return the sum of normalized edge weights
-	 */
-	public double getTotalNormWeight() {
-		return getGraph().totalNormWeight();
 	}
 
 	/**

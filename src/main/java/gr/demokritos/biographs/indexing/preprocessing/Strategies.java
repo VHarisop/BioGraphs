@@ -34,7 +34,7 @@ public final class Strategies {
 		return new HashingStrategy<JVertex>() {
 			@Override
 			public int hash(JVertex vCurr) {
-				char c = vCurr.getLabel().charAt(0);
+				final char c = vCurr.getLabel().charAt(0);
 				switch (c) {
 					case 'A':
 						return 0;
@@ -62,7 +62,7 @@ public final class Strategies {
 		return new HashingStrategy<JVertex>() {
 			@Override
 			public int hash(JVertex vCurr) {
-				String sInit = vCurr.getLabel().substring(0, 2);
+				final String sInit = vCurr.getLabel().substring(0, 2);
 				switch (sInit) {
 					case "AA":
 						return 0;
@@ -108,7 +108,7 @@ public final class Strategies {
 		return new HashingStrategy<JVertex>() {
 			@Override
 			public int hash(JVertex vCurr) {
-				char c = vCurr.getLabel().toUpperCase().charAt(0);
+				final char c = vCurr.getLabel().toUpperCase().charAt(0);
 				return (int) c - (int) 'A';
 			}
 		};
@@ -124,8 +124,8 @@ public final class Strategies {
 		return new HashingStrategy<JVertex>() {
 			@Override
 			public int hash(JVertex vCurr) {
-				char cA = vCurr.getLabel().toUpperCase().charAt(0);
-				char cB = vCurr.getLabel().toUpperCase().charAt(1);
+				final char cA = vCurr.getLabel().toUpperCase().charAt(0);
+				final char cB = vCurr.getLabel().toUpperCase().charAt(1);
 
 				int retA, retB;
 				switch (cA) {
@@ -242,7 +242,7 @@ public final class Strategies {
 				}
 
 				/* map ratio from [eps, 1] to [eps, 100] */
-				double ratio = (wMin / wMax) * 100;
+				final double ratio = (wMin / wMax) * 100;
 				return (int) Math.round(ratio);
 			}
 		};

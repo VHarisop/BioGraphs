@@ -23,7 +23,7 @@ import gr.demokritos.biographs.indexing.preprocessing.IndexVector;
  * to be used when clustering on the graphs is involved and contains
  * several static methods for hamming and euclidean distance metrics.
  */
-public class ClusterDistance {
+public final class ClusterDistance {
 	/**
 	 * Computes the hamming distance between two vectors, returning
 	 * the system's max value for doubles if their lengths differ.
