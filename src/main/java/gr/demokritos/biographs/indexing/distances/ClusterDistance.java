@@ -15,6 +15,7 @@
 
 package gr.demokritos.biographs.indexing.distances;
 
+import java.util.stream.IntStream;
 import gr.demokritos.biographs.*;
 import gr.demokritos.biographs.indexing.preprocessing.IndexVector;
 
@@ -76,9 +77,9 @@ public final class ClusterDistance {
 			dist = Integer.MAX_VALUE;
 		}
 		else {
-			for (int i = 0; i < encA.length; ++i) {
-				dist += Math.abs(encA[i] - encB[i]);
-			}
+			dist = IntStream.range(0, encA.length)
+				.map(i -> Math.abs(encA[i] - encB[i]))
+				.sum();
 		}
 		return dist;
 	}
@@ -116,9 +117,9 @@ public final class ClusterDistance {
 			dist = Integer.MAX_VALUE;
 		}
 		else {
-			for (int i = 0; i < encA.length; ++i) {
-				dist += (encA[i] - encB[i]) * (encA[i] - encB[i]);
-			}
+			dist = IntStream.range(0, encA.length)
+				.map(i -> (encA[i] - encB[i]) * (encA[i] - encB[i]))
+				.sum();
 		}
 		return dist;
 	}

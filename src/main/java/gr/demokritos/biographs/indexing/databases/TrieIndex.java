@@ -21,6 +21,7 @@ import org.apache.commons.collections4.trie.PatriciaTrie;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -211,7 +212,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param bg the query graph
 	 * @return a list of labels 
 	 */
-	public List<TrieEntry> getNodes(BioGraph bg) {
+	public final List<TrieEntry> getNodes(BioGraph bg) {
 		return getNodes(getGraphCode(bg));
 	}
 
@@ -220,7 +221,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param key a String containing the query graph key
 	 * @return a list of entries pointing to biographs
 	 */
-	public List<TrieEntry> getNodes(String key) {
+	public final List<TrieEntry> getNodes(String key) {
 		return trieIndex.get(key);
 	}
 
@@ -231,7 +232,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param bQuery the graph to be queried for
 	 * @return a list of entries whose keys are the closest matches
 	 */
-	public List<TrieEntry> select(BioGraph bQuery) {
+	public final List<TrieEntry> select(BioGraph bQuery) {
 		return trieIndex.selectValue(getGraphCode(bQuery));
 	}
 
@@ -243,7 +244,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param K the number of requested nearest neighbours
 	 * @return a list of entries that are the closest matches
 	 */
-	public List<TrieEntry> selectKNearest(BioGraph bQuery, int K) {
+	public final List<TrieEntry> selectKNearest(BioGraph bQuery, int K) {
 		String code = getGraphCode(bQuery);
 		List<TrieEntry> entries = trieIndex.selectValue(code);
 
@@ -278,5 +279,12 @@ public final class TrieIndex extends GraphDatabase {
 	 */
 	public Set<String> exposeKeys() {
 		return trieIndex.keySet();
+	}
+
+	/**
+	 * Simple getter for the database's collection of values.
+	 */
+	public Collection<List<TrieEntry>> exposeValues() {
+		return trieIndex.values();
 	}
 }

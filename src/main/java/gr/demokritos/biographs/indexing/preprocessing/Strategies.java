@@ -228,19 +228,15 @@ public final class Strategies {
 		return new EncodingStrategy<Integer>() {
 			@Override
 			public Integer encode(JVertex vCurr, UniqueVertexGraph uvg) {
-				double wMin = Double.MAX_VALUE;
-				double wMax = Double.MIN_VALUE;
-
 				/* find minimum and maximum incoming weights */
-				for (Edge e: uvg.incomingEdgesOf(vCurr)) {
-					if (e.edgeWeight() < wMin) {
-						wMin = e.edgeWeight();
-					}
-					if (e.edgeWeight() > wMax) {
-						wMax = e.edgeWeight();
-					}
-				}
-
+				double wMin = uvg.incomingEdgesOf(vCurr).stream()
+					.mapToDouble(e -> e.edgeWeight())
+					.min()
+					.getAsDouble();
+				double wMax = uvg.incomingEdgesOf(vCurr).stream()
+					.mapToDouble(e -> e.edgeWeight())
+					.max()
+					.getAsDouble();
 				/* map ratio from [eps, 1] to [eps, 100] */
 				final double ratio = (wMin / wMax) * 100;
 				return (int) Math.round(ratio);

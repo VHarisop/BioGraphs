@@ -17,6 +17,7 @@ package gr.demokritos.biographs;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.*;
 import gr.demokritos.biographs.indexing.preprocessing.*;
 import gr.demokritos.biographs.indexing.structs.*;
 import gr.demokritos.biographs.io.BioInput;
@@ -101,11 +102,9 @@ public final class Utils {
 		if (vecA.length != vecB.length) {
 			throw new Exception("Enoding vector lengths differ!");
 		}
-		int diff = 0;
-		for (int i = 0; i < vecA.length; ++i) {
-			diff += Math.abs(vecA[i] - vecB[i]);
-		}
-		return diff;
+		return IntStream.range(0, vecA.length)
+			.map(i -> Math.abs(vecA[i] - vecB[i]))
+			.sum();
 	}
 
 	/**
@@ -121,11 +120,9 @@ public final class Utils {
 		if (vecA.length != vecB.length) {
 			throw new Exception("Encoding vector lengths differ!");
 		}
-		double diffs = 0.0;
-		for (int i = 0; i < vecA.length; ++i) {
-			diffs += Math.abs(vecA[i] - vecB[i]);
-		}
-		return diffs;
+		return IntStream.range(0, vecA.length)
+			.mapToDouble(i -> Math.abs(vecA[i] - vecB[i]))
+			.sum();
 	}
 
 	/**
@@ -141,11 +138,9 @@ public final class Utils {
 		if (vecA.length != vecB.length) {
 			throw new Exception("Encoding vector lengths differ!");
 		}
-		int diffs = 0;
-		for (int i = 0; i < vecA.length; ++i) {
-			diffs += (vecA[i] - vecB[i]) * (vecA[i] - vecB[i]);
-		}
-		return diffs;
+		return IntStream.range(0, vecA.length)
+			.map(i -> (vecA[i] - vecB[i]) * (vecA[i] - vecB[i]))
+			.sum();
 	}
 
 	/**
@@ -161,23 +156,9 @@ public final class Utils {
 		if (vecA.length != vecB.length) {
 			throw new Exception("Encoding vector lengths differ!");
 		}
-		double diffs = 0.0;
-		for (int i = 0; i < vecA.length; ++i) {
-			diffs += (vecA[i] - vecB[i]) * (vecA[i] - vecB[i]);
-		}
-		return diffs;
-	}
-
-	/**
-	 * Determines if two double values are equal with respect to a numerical
-	 * threshold and returns true or false depending on the result.
-	 *
-	 * @param a the first value
-	 * @param b the second value
-	 * @return a boolean indicating if the two values are equal or not
-	 */
-	public static boolean equalDoubles(double a, double b) {
-		return (Math.abs(a - b) < 0.0000001) ? true : false;
+		return IntStream.range(0, vecA.length)
+			.mapToDouble(i -> (vecA[i] - vecB[i]) * (vecA[i] - vecB[i]))
+			.sum();
 	}
 
 	/**
@@ -193,11 +174,9 @@ public final class Utils {
 	 */
 	public static double[]
 	standardize(double[] vec, double means[], double devs[]) {
-		double[] znew = new double[vec.length];
-		for (int i = 0; i < vec.length; ++i) {
-			znew[i] = (vec[i] - means[i]) / devs[i];
-		}
-		return znew;
+		return IntStream.range(0, vec.length)
+			.mapToDouble(i -> (vec[i] - means[i]) / devs[i])
+			.toArray();
 	}
 
 	/**

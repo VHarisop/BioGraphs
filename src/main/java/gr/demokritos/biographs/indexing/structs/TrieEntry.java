@@ -75,8 +75,8 @@ public final class TrieEntry {
 	 * @param num_bits the number of bits
 	 * @return the vector's bitfield representation
 	 */
-	protected String vectorToBits(byte[] vec, int num_bits) {
-		String repr = "";
+	private String vectorToBits(byte[] vec, int num_bits) {
+		StringBuilder repr = new StringBuilder(num_bits * vec.length);
 		final float fact = (float) num_bits;
 		for (int i = 0; i < vec.length; ++i) {
 			/* map vec[i] / 64 ratio to [0, 1] range */
@@ -85,15 +85,14 @@ public final class TrieEntry {
 			/* convert to int between [0, Nbits] */
 			final int ones =
 				(int) (Math.min(num_bits - 1, (int) (num_set * fact)));
-
-			for (int j = 0; j < num_bits; ++j) {
-				if (j < ones)
-					repr += "1";
-				else
-					repr += "0";
-			}
+			/* Add proper number of leading 1s */
+			for (int j = 0; j < ones; ++j)
+				repr.append("1");
+			/* Add proper number of trailing 0s */
+			for (int j = ones; j < num_bits; ++j)
+				repr.append("0");
 		}
-		return repr;
+		return repr.toString();
 	}
 
 	/**
@@ -101,7 +100,7 @@ public final class TrieEntry {
 	 *
 	 * @return the hashed vector encoding of the underlying graph
 	 */
-	public byte[] getEncoding() {
+	public final byte[] getEncoding() {
 		return indexEncoding;
 	}
 
@@ -110,7 +109,7 @@ public final class TrieEntry {
 	 *
 	 * @return the label of the graph the entry refers to
 	 */
-	public String getLabel() {
+	public final String getLabel() {
 		return label;
 	}
 
@@ -119,7 +118,7 @@ public final class TrieEntry {
 	 *
 	 * @return the key of the entry
 	 */
-	public String getKey() {
+	public final String getKey() {
 		return vectorToBits(indexEncoding, 64);
 	}
 
@@ -129,7 +128,7 @@ public final class TrieEntry {
 	 * @param order the order for serialization
 	 * @return the key of the entry
 	 */
-	public String getKey(int order) {
+	public final String getKey(int order) {
 		return vectorToBits(indexEncoding, order);
 	}
 	

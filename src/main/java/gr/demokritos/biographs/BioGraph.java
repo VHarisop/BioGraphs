@@ -132,7 +132,7 @@ public final class BioGraph extends NGramJGraph {
 	 * the zero-index graph in the vertex graph array.
 	 * @return the underlying UniqueVertexGraph 
 	 */
-	public UniqueVertexGraph getGraph() {
+	public final UniqueVertexGraph getGraph() {
 		return getGraphLevel(0);
 	}
 
@@ -150,7 +150,7 @@ public final class BioGraph extends NGramJGraph {
 	 *
 	 * @return the graph's bioLabel
 	 */
-	public String getLabel() {
+	public final String getLabel() {
 		return bioLabel;
 	}
 
@@ -160,7 +160,7 @@ public final class BioGraph extends NGramJGraph {
 	 *
 	 * @return the string representation of the graph in DOT format
 	 */
-	public String toDot() {
+	public final String toDot() {
 		return jutils.graphToDot(getGraphLevel(0), true);
 	}
 
@@ -173,7 +173,7 @@ public final class BioGraph extends NGramJGraph {
 	 * yet been tried using frequent fragments.
 	 * @return an array of dfs labels
 	 */
-	public String getDfsCode() {
+	public final String getDfsCode() {
 		return (new DepthFirstEncoder(getGraph())).getEncoding();
 	}
 	
@@ -185,7 +185,7 @@ public final class BioGraph extends NGramJGraph {
 	 * @param vFrom the starting node
 	 * @return the dfs label
 	 */
-	public String getDfsCode(JVertex vFrom) {
+	public final String getDfsCode(JVertex vFrom) {
 		return (new DepthFirstEncoder(getGraph(), vFrom)).getEncoding();
 	}
 	
@@ -197,7 +197,7 @@ public final class BioGraph extends NGramJGraph {
 	 *
 	 * @return the canonical code of the graph
 	 */
-	public String getCanonicalCode() {
+	public final String getCanonicalCode() {
 		return (new CanonicalCoder(getGraph())).getEncoding();
 	}
 
