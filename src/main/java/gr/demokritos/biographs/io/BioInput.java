@@ -17,6 +17,7 @@ package gr.demokritos.biographs.io;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.*;
 import java.io.*;
 
 import gr.demokritos.biographs.*;
@@ -90,18 +91,16 @@ public class BioInput {
 	public static BioGraph[] fastaFileToGraphs(File fName) 
 	throws Exception 
 	{
-		BioGraph[] bGraphs; 
 		LinkedHashMap<String, DNASequence> entries = readFastaFile(fName);
-
-		// allocate space for each entry
-		bGraphs = new BioGraph[entries.size()];
-		int bCnt = 0;
-
-		for (Entry<String, DNASequence> entry: entries.entrySet()) {
-			bGraphs[bCnt++] =
-				BioGraph.fromSequence(entry.getValue(), entry.getKey());
+		BioGraph[] bGraphs = new BioGraph[entries.size()];
+		int iCnt = 0;
+		/* 
+		 * Convert all read entries to BioGraphs and return them
+		 * in the array.
+		 */
+		for (Entry<String, DNASequence> e: entries.entrySet()) {
+			bGraphs[iCnt++] = BioGraph.fromSequence(e.getValue(), e.getKey());
 		}
-
 		return bGraphs;
 	}
 	
@@ -131,12 +130,11 @@ public class BioInput {
 		/* read lines, allocate array */
 		String[] lines = new LineReader().getLines(path);
 		BioGraph[] bGs = new BioGraph[lines.length];
-
-		for (int i = 0; i < lines.length; ++i) {
-			// the raw data string becomes the label
-			bGs[i] = new BioGraph(lines[i], lines[i]);
-		}
-
+		/* add all read lines */
+		IntStream.range(0, lines.length)
+			.forEach(i -> {
+				bGs[i] = new BioGraph(lines[i], lines[i]);
+			});
 		return bGs;
 	}
 
@@ -179,10 +177,13 @@ public class BioInput {
 	{
 		LinkedHashMap<String, String> res =
 			new LinkedHashMap<String, String>();
-		for (Entry<String, DNASequence> e: readFastaFile(inFile).entrySet()) 
-		{
-			res.put(e.getKey(), e.getValue().getSequenceAsString());
-		}
+		/*
+		 * Add all read sequences to the linked HashMap
+		 */
+		readFastaFile(inFile).entrySet()
+			.forEach(e -> {
+				res.put(e.getKey(), e.getValue().getSequenceAsString());
+			});
 		return res;
 	}
 

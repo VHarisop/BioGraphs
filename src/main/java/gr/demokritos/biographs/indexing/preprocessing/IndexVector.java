@@ -16,6 +16,7 @@
 package gr.demokritos.biographs.indexing.preprocessing;
 
 import java.util.*;
+import java.util.stream.*;
 
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.GraphDatabase;
@@ -157,21 +158,18 @@ public class IndexVector {
 	}
 
 	/**
-	 * Returns a list containing the labels of all vertices incident
+	 * Returns stream containing the labels of all vertices incident
 	 * to a specified vertex in a {@link UniqueVertexGraph}.
 	 *
 	 * @param v the vertex being examined
 	 * @param uvg the graph in which the vertex resides
-	 * @return a list of all the labels of "incoming" vertices
+	 * @return a stream with all the labels of "incoming" vertices
 	 */
-	protected List<String>
+	protected Stream<String>
 	getIncomingLabels(JVertex v, UniqueVertexGraph uvg)
 	{
-		List<String> inVs = new ArrayList<String>();
-		for (Edge e: uvg.incomingEdgesOf(v)) {
-			inVs.add(uvg.getEdgeSource(e).getLabel());
-		}
-		return inVs;
+		return uvg.incomingEdgesOf(v).stream()
+			.map(e -> uvg.getEdgeSource(e).getLabel());
 	}
 
 	/**
@@ -206,7 +204,8 @@ public class IndexVector {
 				continue;
 
 			Set<String> hSet = inDegreeSet.get(h);
-			hSet.addAll(getIncomingLabels(v, uvg));
+			/* add all incoming labels to set */
+			getIncomingLabels(v, uvg).forEach(s -> hSet.add(s));
 			inDegreeSet.set(h, hSet);
 		}
 
@@ -214,9 +213,11 @@ public class IndexVector {
 		 * Encoding number is |D|
 		 */
 		byte[] encoding = new byte[this.K];
-		for (int i = 0; i < this.K; ++i) {
-			encoding[i] = (new Integer(inDegreeSet.get(i).size())).byteValue();
-		}
+		IntStream.range(0, this.K)
+			.forEach(i -> {
+				encoding[i] =
+				new Integer(inDegreeSet.get(i).size()).byteValue();
+			});
 		return encoding;
 	}
 
@@ -244,18 +245,14 @@ public class IndexVector {
 		}
 		
 		/* hash each of the graph's vertices */
-		for (JVertex v: uvg.vertexSet()) {
-			addVertex(v, uvg);
-		}
+		uvg.vertexSet().forEach(v -> addVertex(v, uvg));
 
-		/* populate the vector according to the values stored in the map */
-		int[] vec = new int[this.K];
-		for (int i = 0; i < this.K; ++i) {
-			final Integer val = vertexMap.get(i);
-			vec[i] = (val == null) ? 0 : val;
-		}
-		
-		return vec;
+		/* populate the vector according to the values stored in the map
+		 * setting 0 to indices with no occurence */
+		return IntStream
+			.range(0, this.K)
+			.map(i -> vertexMap.getOrDefault(i, 0))
+			.toArray();
 	}
 
 	/**

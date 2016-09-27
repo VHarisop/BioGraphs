@@ -20,10 +20,8 @@ import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.*;
 
 import gr.demokritos.biographs.*;
 import gr.demokritos.biographs.io.BioInput;
@@ -143,9 +141,8 @@ public final class TrieIndex extends GraphDatabase {
 	 */
 	private void addAllGraphs(File f) throws Exception {
 		if (type == GraphType.DNA) {
-			for (BioGraph bg: BioInput.fastaFileToGraphs(f)) {
-				addGraph(bg);
-			}
+			Arrays.stream(BioInput.fastaFileToGraphs(f))
+				.forEach(g -> addGraph(g));
 		}
 		else {
 			throw new UnsupportedOperationException(

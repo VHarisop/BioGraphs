@@ -16,6 +16,7 @@
 package gr.demokritos.biographs.experiments;
 
 import java.util.*;
+import java.util.stream.*;
 import java.io.File;
 import gr.demokritos.biographs.*;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
@@ -114,13 +115,14 @@ public final class TrieQuery {
 				 * of length K and store them separately into the database
 				 * using the same labels.
 				 */
-				for (String s: splitString(e.getValue())) {
-					graphIndex.addGraph(new BioGraph(s, e.getKey()));
-				}
+				splitString(e.getValue())
+					.forEach(s -> {
+						graphIndex.addGraph(new BioGraph(s, e.getKey()));
+					});
 			}
-		} 
-		catch(Exception e) {
-			e.printStackTrace();
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -236,7 +238,9 @@ public final class TrieQuery {
 				if (entryDist > tolerance) {
 					continue;
 				}
-
+				/*
+				 * Otherwise, add to matches.
+				 */
 				matches.add(t);
 
 				/*
@@ -267,27 +271,6 @@ public final class TrieQuery {
 			}
 		}
 		return matches;
-	}
-
-	/**
-	 * Computes the hamming distance between two byte vectors, returning
-	 * the maximum distance if at some point their distance exceeds a given
-	 * bound.
-	 *
-	 * @param a the first vector
-	 * @param b the second vector
-	 * @param bound the distance bound
-	 * @return the bounded distance between the two vectors
-	 */
-	private int boundedHamming(byte[] a, byte[] b, int bound) {
-		int sum = 0;
-		for (int i = 0; i < a.length; ++i) {
-			sum += Math.abs(a[i] - b[i]);
-			if (sum > bound) {
-				return Integer.MAX_VALUE;
-			}
-		}
-		return sum;
 	}
 
 	/**
@@ -358,7 +341,6 @@ public final class TrieQuery {
 
 			long totalTime = 0L;
 			int eCnt = 0, hits = 0, totalMatches = 0;
-			double accuracy, avgMatchSize;
 
 			List<Long> qTimes = new ArrayList<Long>();
 			List<Integer> matchList = new ArrayList<Integer>();
@@ -406,20 +388,18 @@ public final class TrieQuery {
 			 * calculate standard deviation from average time
 			 */
 			final double avgTime = totalTime / ((double) eCnt);
-			double runSum = 0f;
-			for (long i: qTimes) {
-				runSum += (i - avgTime) * (i - avgTime);
-			}
+			final double runSum = qTimes.stream()
+				.mapToDouble(t -> (t - avgTime) * (t - avgTime))
+				.sum();
 			final double stdevTime = Math.sqrt(runSum / eCnt);
 
 			/*
 			 * calculate standard deviation from average number of matches
 			 */
 			final double avgMatches = totalMatches / ((double) eCnt);
-			double mRunSum = 0f;
-			for (int i: matchList) {
-				mRunSum += (i - avgMatches) * (i - avgMatches);
-			}
+			final double mRunSum = matchList.stream()
+				.mapToDouble(m -> (m - avgMatches) * (m - avgMatches))
+				.sum();
 			final double stdevMatches = Math.sqrt(mRunSum / eCnt);
 
 			/*

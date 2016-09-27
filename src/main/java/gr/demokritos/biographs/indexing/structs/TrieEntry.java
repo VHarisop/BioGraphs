@@ -51,14 +51,12 @@ public final class TrieEntry {
 	 */
 	public TrieEntry(BioGraph bG) {
 		this.label = bG.getLabel();
-
 		/*
 		 * get the standard index encoding
 		 */
 		IndexVector indVec = new IndexVector(GraphType.DNA);
 		indVec.setHashStrategy(Strategies.dnaHash());
 		indVec.setBins(16);
-
 		/*
 		 * Obtain the hashed vector encoding for the graph and cache it
 		 * to avoid multiple computations
