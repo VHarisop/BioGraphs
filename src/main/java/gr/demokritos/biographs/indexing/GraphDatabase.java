@@ -71,18 +71,6 @@ public abstract class GraphDatabase {
 	}
 
 	/**
-	 * Compares 2 doubles for equality, checking if the absolute value of their
-	 * difference is under a very small threshold.
-	 *
-	 * @param a the first number
-	 * @param b the second number
-	 * @return true if the doubles should be considered equal, else false
-	 */
-	public static boolean compareDouble(double a, double b) {
-		return (Math.abs(a - b) < 0.0000001);
-	}
-
-	/**
 	 * Returns the number of the graphs that this database
 	 * contains.
 	 *

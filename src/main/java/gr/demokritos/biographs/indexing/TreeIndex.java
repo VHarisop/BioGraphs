@@ -22,6 +22,7 @@ import java.io.FileFilter;
 import java.util.*;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.Utils;
 import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.indexing.preprocessing.IndexVector;
 import gr.demokritos.biographs.indexing.comparators.*;
@@ -380,7 +381,7 @@ public abstract class TreeIndex<V> extends GraphDatabase {
 
 			/* Compare similarity difference and return the values of the
 			 * key with the minimum difference */
-			if (super.compareDouble(distLo, distHi)) {
+			if (Utils.compareDouble(distLo, distHi)) {
 				nodes.addAll(new ArrayList<V>(low.getValue()));
 				nodes.addAll(new ArrayList<V>(high.getValue()));
 				tail = tail.tailMap(high.getKey(), false); 

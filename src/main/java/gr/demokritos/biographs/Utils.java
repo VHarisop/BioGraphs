@@ -16,6 +16,7 @@
 package gr.demokritos.biographs;
 
 import java.io.File;
+import java.lang.Math;
 import java.util.*;
 import java.util.stream.*;
 import gr.demokritos.biographs.indexing.preprocessing.*;
@@ -47,6 +48,18 @@ public final class Utils {
 		return ngcc.getSimilarityBetween(
 				bgA.getSuper(),
 				bgB.getSuper()).ValueSimilarity;
+	}
+
+	/**
+	 * Compares two doubles for equality using a precision of 1e-6.
+	 *
+	 * @param a the first double
+	 * @param b the second double
+	 * @return a boolean indicating whether the two numbers can be
+	 * considered equal
+	 */
+	public static boolean compareDouble(double a, double b) {
+		return Math.abs(a - b) < 0.000001;
 	}
 
 	/**

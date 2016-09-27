@@ -83,7 +83,7 @@ public class KnnTest
 						bgA.getGraph().totalEdgeWeight() -
 						bgB.getGraph().totalEdgeWeight();
 
-					if (GraphDatabase.compareDouble(sSim, 0.0)) {
+					if (Utils.compareDouble(sSim, 0.0)) {
 						return jutils.compareCanonicalCodes(
 								bgA.getGraph(),
 								bgB.getGraph());
