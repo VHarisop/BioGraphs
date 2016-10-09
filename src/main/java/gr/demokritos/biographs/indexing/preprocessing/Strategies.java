@@ -198,7 +198,7 @@ public final class Strategies {
 		return new EncodingStrategy<Integer>() {
 			@Override
 			public Integer encode(JVertex vCurr, UniqueVertexGraph uvG) {
-				return uvG.edgesOf(vCurr).size();
+				return uvG.degreeOf(vCurr);
 			}
 		};
 	}
@@ -213,7 +213,7 @@ public final class Strategies {
 		return new EncodingStrategy<Integer>() {
 			@Override
 			public Integer encode(JVertex vCurr, UniqueVertexGraph uvG) {
-				return uvG.incomingEdgesOf(vCurr).size();
+				return uvG.inDegreeOf(vCurr);
 			}
 		};
 	}
