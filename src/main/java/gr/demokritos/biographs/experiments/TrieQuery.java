@@ -175,8 +175,8 @@ public final class TrieQuery {
 	 * @return the list of generated subsequences
 	 */
 	protected List<String> splitQueryString(String query) {
-		int index = 0, qLen = query.length();
-		final int rem = qLen - seqSize;
+		int index = 0;
+		final int qLen = query.length();
 		List<String> blocks = new ArrayList<String>();
 		while ((index + seqSize) < qLen) {
 			blocks.add(query.substring(index, index + seqSize));
