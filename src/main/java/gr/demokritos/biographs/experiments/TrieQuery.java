@@ -256,7 +256,7 @@ public final class TrieQuery {
 			 * Keep searching until a range twice the
 			 * seqSize has been searched.
 			 */
-			if (++loopcnt <= (seqSize / window)) {
+			if (++loopcnt <= 2 * (seqSize / window)) {
 				continue;
 			}
 			else {
