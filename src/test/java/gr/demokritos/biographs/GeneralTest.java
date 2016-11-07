@@ -6,7 +6,6 @@ import junit.framework.TestSuite;
 
 import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.biographs.io.BioInput;
-import gr.demokritos.biographs.indexing.databases.TrieDatabase;
 import gr.demokritos.iit.jinsect.structs.NGramVertex;
 
 import java.io.File;
@@ -14,7 +13,7 @@ import java.io.File;
 /**
  * Unit test for simple App.
  */
-public class GeneralTest 
+public class GeneralTest
     extends TestCase
 {
     /**
@@ -34,7 +33,7 @@ public class GeneralTest
     {
         return new TestSuite( GeneralTest.class );
     }
-	
+
 	/**
 	 * Verify that subgraph isomorphism test works
 	 * for comparing BioGraphs.
@@ -65,7 +64,7 @@ public class GeneralTest
 	 * for fasta files with one or multiple entries.
 	 *
 	 */
-	public void testFasta() 
+	public void testFasta()
 	{
 		String fName = "/testFile01.fasta";
 		assertNotNull("Test file missing", getClass().getResource(fName));
@@ -77,13 +76,13 @@ public class GeneralTest
 			File res = new File(getClass().getResource(fName).toURI());
 			BioGraph[] bgs = BioInput.fastaFileToGraphs(res);
 			int labelCnt = 0;
-			
+
 			for (BioGraph b: bgs) {
 				assertNotNull(b);
 				assertNotNull(b.bioLabel);
 				assertTrue(b.bioLabel.equals(labels[labelCnt++]));
 			}
-		} 
+		}
 		catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -106,65 +105,23 @@ public class GeneralTest
 							String.valueOf(currIndex)));
 				currIndex++;
 			}
-		} 
-		catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Verify that {@link TrieDatabase.getGraphCode()} can be overriden.
-	 */
-	public void testOverrideIndex() {
-		// String fName = "/testFile01.fasta";
-		String fName = "/files";
-		TrieDatabase gData = new TrieDatabase() { 
-				@Override
-				protected String getGraphCode(BioGraph bG) {
-					return bG.getCanonicalCode();
-				}
-			};
-
-		try {
-			File res = new File(getClass().getResource(fName).toURI());
-			gData.build(res, GraphType.DNA);
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
 		}
-
-		// make sure 3 different keys exist
-		assertTrue(gData.exposeKeys().size() == 3);
-	}
-	/**
-	 * Verify that {@link TrieDatabase.buildIndex()} works properly. 
-	 */
-	public void testIndex() {
-		String fName = "/files";
-		TrieDatabase gData = new TrieDatabase();
-		try {
-			File res = new File(getClass().getResource(fName).toURI());
-			gData.build(res, GraphType.DNA);
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-		}
-
-		// make sure 3 different keys exist
-		assertTrue(gData.exposeKeys().size() == 3);
 	}
 
 	/**
 	 * Verify that DFS encoding works properly.
 	 */
-	public void testDFSCoding() 
+	public void testDFSCoding()
 	{
 		BioGraph bgx = new BioGraph("AGTAC");
-		
+
 		// this is the "correct" dfs code.
 		String code = "GTA->AGT|TAC->AGT|TAC->GTA|";
 		assertTrue(bgx.getDfsCode().equals(code));
-		
+
 		// this is the correct dfs code for starting at TAC
 		code = "TAC->AGT|TAC->GTA|GTA->AGT|";
 		assertTrue(bgx.getDfsCode(new NGramVertex("TAC")).equals(code));

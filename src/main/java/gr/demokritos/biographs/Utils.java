@@ -110,7 +110,7 @@ public final class Utils {
 	 * @return the hamming distance of the two vectors
 	 * @throws Exception if the lengths of the two vectors differ
 	 */
-	public static int getHammingDistance(int[] vecA, int[] vecB) 
+	public static int getHammingDistance(int[] vecA, int[] vecB)
 		throws Exception {
 		if (vecA.length != vecB.length) {
 			throw new Exception("Enoding vector lengths differ!");
@@ -128,7 +128,7 @@ public final class Utils {
 	 * @return the hamming distance of the two vectors
 	 * @throws Exception if the lengths of the two vectors differ
 	 */
-	public static double getHammingDistance(double[] vecA, double[] vecB) 
+	public static double getHammingDistance(double[] vecA, double[] vecB)
 		throws Exception {
 		if (vecA.length != vecB.length) {
 			throw new Exception("Encoding vector lengths differ!");
@@ -146,7 +146,7 @@ public final class Utils {
 	 * @return the euclidean distance of the two vectors
 	 * @throws Exception if the lengths of the two vectors differ
 	 */
-	public static int getEuclideanDistance(int[] vecA, int[] vecB) 
+	public static int getEuclideanDistance(int[] vecA, int[] vecB)
 		throws Exception {
 		if (vecA.length != vecB.length) {
 			throw new Exception("Encoding vector lengths differ!");
@@ -164,7 +164,7 @@ public final class Utils {
 	 * @return the euclidean distance of the two vectors
 	 * @throws Exception if the lengths of the two vectors differ
 	 */
-	public static double getEuclideanDistance(double[] vecA, double[] vecB) 
+	public static double getEuclideanDistance(double[] vecA, double[] vecB)
 		throws Exception {
 		if (vecA.length != vecB.length) {
 			throw new Exception("Encoding vector lengths differ!");
@@ -216,28 +216,6 @@ public final class Utils {
 	}
 
 	/**
-	 * Given a FASTA file, returns an array of trie database entries
-	 * read from that file.
-	 *
-	 * @param path the file containing the data
-	 * @return an array of {@link TrieIndexEntry}
-	 * @throws Exception if an error occurs when reading the file
-	 */
-	public static TrieIndexEntry[]
-	fastaFileToTrieEntries(File path) throws Exception {
-		List<TrieIndexEntry> tis = new ArrayList<TrieIndexEntry>();
-		for (Map.Entry<String, DNASequence> e:
-				BioInput.readFastaFile(path).entrySet())
-		{
-			tis.add(new TrieIndexEntry(
-						BioGraph.fromSequence(e.getValue(), e.getKey())
-						)
-			);
-		}
-		return tis.toArray(new TrieIndexEntry[tis.size()]);
-	}
-
-	/**
 	 * Given a {@link IndexVector} and a normal text file, returns an
 	 * array of database entries read from that file using the index
 	 * vector.
@@ -268,7 +246,7 @@ public final class Utils {
 	 * @param range the range of the loop variables
 	 * @param sum the desired sum of the loop variables
 	 */
-	public static List<Integer[]> 
+	public static List<Integer[]>
 	dnaIndexLoop(int center, int range, int sum) {
 		List<Integer[]> indices = new ArrayList<Integer[]>();
 		for (int i = -range; i <= range; ++i) {
@@ -343,7 +321,7 @@ public final class Utils {
 		genericFor(range, 0, maxSum, queue, 0, maxLevel, results);
 		return results;
 	}
-	
+
 	/**
 	 * A generic for-loop with arbitrary nesting, whose loop indices must
 	 * sum at most up to a specified number.
@@ -364,7 +342,7 @@ public final class Utils {
 			 * die gracefully */
 			if (rs != ms)
 				return;
-			
+
 			Integer[] inds = q.toArray(new Integer[q.size()]);
 			/* otherwise, add combo to list of results */
 			res.add(inds);
