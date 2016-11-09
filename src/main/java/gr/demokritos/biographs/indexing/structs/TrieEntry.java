@@ -15,12 +15,12 @@
 
 package gr.demokritos.biographs.indexing.structs;
 
-import gr.demokritos.biographs.BioGraph;
-import gr.demokritos.biographs.indexing.preprocessing.*;
-import gr.demokritos.biographs.indexing.structs.*;
-import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
+import java.util.Objects;
 
-import java.util.*;
+import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
+import gr.demokritos.biographs.indexing.preprocessing.IndexVector;
+import gr.demokritos.biographs.indexing.preprocessing.Strategies;
 
 /**
  * This class represents an entry in the graph index
@@ -45,12 +45,12 @@ public final class TrieEntry {
 
 	/**
 	 * Creates a new TrieEntry object from a {@link BioGraph} using
-	 * its maximal spanning tree representation.
+	 * the default {@link IndexVector} for {@link GraphType#DNA}.
 	 *
 	 * @param bG the graph that the entry refers to
 	 */
 	public TrieEntry(BioGraph bG) {
-		this.label = bG.getLabel();
+		label = bG.getLabel();
 		/*
 		 * get the standard index encoding
 		 */
@@ -63,7 +63,19 @@ public final class TrieEntry {
 		 */
 		indexEncoding = indVec.getGraphEncoding(bG);
 	}
-	
+
+	/**
+	 * Creates a new {@link TrieEntry} from a {@link BioGraph} using a
+	 * provided {@link IndexVector}.
+	 *
+	 * @param bG the graph that the entry refers to
+	 * @param indVec the custom index vector to use
+	 */
+	public TrieEntry(BioGraph bG, IndexVector indVec) {
+		label = bG.getLabel();
+		indexEncoding = indVec.getGraphEncoding(bG);
+	}
+
 	/**
 	 * Converts an index vector encoding to a bitfield representation,
 	 * dedicating [num_bits] bits to each "bin". First, the values in
@@ -75,14 +87,14 @@ public final class TrieEntry {
 	 */
 	private String vectorToBits(byte[] vec, int num_bits) {
 		StringBuilder repr = new StringBuilder(num_bits * vec.length);
-		final float fact = (float) num_bits;
+		final float fact = num_bits;
 		for (int i = 0; i < vec.length; ++i) {
 			/* map vec[i] / 64 ratio to [0, 1] range */
-			final float num_set = Math.min(((float) vec[i]) / fact, 1f);
+			final float num_set = Math.min((vec[i]) / fact, 1f);
 
 			/* convert to int between [0, Nbits] */
 			final int ones =
-				(int) (Math.min(num_bits - 1, (int) (num_set * fact)));
+				(Math.min(num_bits - 1, (int) (num_set * fact)));
 			/* Add proper number of leading 1s */
 			for (int j = 0; j < ones; ++j)
 				repr.append("1");
@@ -129,7 +141,7 @@ public final class TrieEntry {
 	public final String getKey(int order) {
 		return vectorToBits(indexEncoding, order);
 	}
-	
+
 	/**
 	 * The hash of the index entry is determined uniquely by the
 	 * hash of the label of the graph that the entry refers to.
@@ -141,7 +153,8 @@ public final class TrieEntry {
 
 	/**
 	 * Two {@link TrieEntry} objects are considered equal if
-	 * they refer to the same graph.
+	 * they refer to the same graph and map to the same
+	 * {@link #indexEncoding}.
 	 */
 	@Override
 	public boolean equals(Object other) {
@@ -153,10 +166,7 @@ public final class TrieEntry {
 
 		TrieEntry eOther = (TrieEntry) other;
 		if (this.getLabel().equals(eOther.getLabel())) {
-			if (this.getEncoding().equals(eOther.getEncoding()))
-				return true;
-			else
-				return false;
+			return getEncoding().equals(eOther.getEncoding());
 		}
 		else {
 			return false;

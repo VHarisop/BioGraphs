@@ -15,16 +15,19 @@
 
 package gr.demokritos.biographs.experiments;
 
-import java.util.*;
 import java.io.File;
-import gr.demokritos.biographs.*;
-import gr.demokritos.biographs.indexing.structs.TrieEntry;
-import gr.demokritos.biographs.indexing.databases.TrieIndex;
-import gr.demokritos.biographs.indexing.*;
-import gr.demokritos.biographs.io.BioInput;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.indexing.databases.TrieIndex;
+import gr.demokritos.biographs.indexing.structs.TrieEntry;
+import gr.demokritos.biographs.io.BioInput;
 
 /**
  * A class that performs queries from biological sequences using
@@ -36,7 +39,7 @@ public final class TrieKeyDistro {
 	/**
 	 * Gson builder for result printing
 	 */
-	static Gson gson;
+	static Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 	/*
 	 * Size of subsequence.
@@ -116,7 +119,7 @@ public final class TrieKeyDistro {
 					graphIndex.addGraph(new BioGraph(s, e.getKey()));
 				}
 			}
-		} 
+		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -162,6 +165,9 @@ public final class TrieKeyDistro {
 		return blocks;
 	}
 
+	/**
+	 * Prints out the leaf sizes of this database.
+	 */
 	public void printLeafSizes() {
 		HashMap<Integer, Integer> distroMap = new HashMap<Integer, Integer>();
 		for (List<?> lst: graphIndex.exposeValues()) {
@@ -173,11 +179,7 @@ public final class TrieKeyDistro {
 				distroMap.put(mSize, 1);
 			}
 		}
-		System.out.println("{");
-		for (int k: distroMap.keySet()) {
-			System.out.printf("  %d: %d,\n", k, distroMap.get(k));
-		}
-		System.out.println("}");
+		System.out.println(gson.toJson(distroMap));
 	}
 
 	/**
@@ -190,7 +192,7 @@ public final class TrieKeyDistro {
 			return;
 		}
 		File data = new File(args[0]);
-		int Ls = 150, tol = 5, order = 64;
+		int Ls = 150, order = 64;
 
 		/*
 		 * If another argument is present, it is assumed to be

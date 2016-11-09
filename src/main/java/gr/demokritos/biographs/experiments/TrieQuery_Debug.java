@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -37,7 +38,10 @@ import gr.demokritos.biographs.io.BioInput;
  *
  * @author VHarisop
  */
-public final class TrieQuery {
+public final class TrieQuery_Debug {
+	/* Create our own logger */
+	private static final Logger logger =
+			Logger.getLogger(TrieQuery_Debug.class.getName());
 	/**
 	 * Gson builder for result printing
 	 */
@@ -66,7 +70,7 @@ public final class TrieQuery {
 	 *
 	 * @param K the size of the subsequences
 	 */
-	public TrieQuery(int K) {
+	public TrieQuery_Debug(int K) {
 		seqSize = K;
 		graphIndex = new TrieIndex();
 	}
@@ -80,13 +84,13 @@ public final class TrieQuery {
 	 * @param win the length of the window used for consecutive
 	 * entries
 	 */
-	public TrieQuery(int K, int win) {
+	public TrieQuery_Debug(int K, int win) {
 		this(K);
 		window = win;
 	}
 
 	/**
-	 * Creates a new {@link TrieQuery} object that performs queries
+	 * Creates a new {@link TrieQuery_Debug} object that performs queries
 	 * by splitting the query strings into overlapping subsequences
 	 * of a specified length, using a given order for serialization
 	 * of encoding vectors.
@@ -95,7 +99,7 @@ public final class TrieQuery {
 	 * @param win the length of the window used for consecutive entries
 	 * @param order the order of the encoding vectors' serialization
 	 */
-	public TrieQuery(int K, int win, int order) {
+	public TrieQuery_Debug(int K, int win, int order) {
 		seqSize = K;
 		window = win;
 		graphIndex = new TrieIndex(order);
@@ -211,13 +215,15 @@ public final class TrieQuery {
 		/* boolean indicating if an absolute match has been found */
 		boolean absMatch = false;
 
+		/* Log the search */
+		logger.info("Querying database for fragments from: " + label);
+
 		/*
 		 * search all graphs with a preselected tolerance
 		 */
 		for (String bl: blocks) {
 			final BioGraph bg = new BioGraph(bl, label);
 			final TrieEntry eQuery = new TrieEntry(bg);
-
 			final byte[] enc = eQuery.getEncoding();
 
 			/*
@@ -240,6 +246,10 @@ public final class TrieQuery {
 				 * Otherwise, add to matches.
 				 */
 				matches.add(t);
+				/* Log ourselves */
+				logger.info(String.format(
+						"Found match for %s : %s - dist: %d",
+						bl, t.getLabel(), entryDist));
 
 				/*
 				 * If an absolutely matching entry was found,
@@ -247,6 +257,9 @@ public final class TrieQuery {
 				 */
 				if (entryDist == 0) {
 					absMatch = true;
+					logger.info(String.format(
+							"Found absolute match for %s : %s",
+							bl, t.getLabel()));
 					break;
 				}
 			}
@@ -334,7 +347,7 @@ public final class TrieQuery {
 			gson = new GsonBuilder().setPrettyPrinting().create();
 
 			// TrieQuery bq = new TrieQuery(150, 1); // this worked fine
-			TrieQuery bq = new TrieQuery(Ls, 1, order);
+			TrieQuery_Debug bq = new TrieQuery_Debug(Ls, 1, order);
 			bq.initIndex(data);
 
 			long totalTime = 0L;
@@ -369,11 +382,9 @@ public final class TrieQuery {
 				/*
 				 * Update hits for accuracy calculation
 				 */
-				boolean found = false;
 				for (TrieEntry ent: matches) {
 					if (ent.getLabel().equals(lbl)) {
 						hits++;
-						found = true;
 						break;
 					}
 				}

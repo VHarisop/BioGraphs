@@ -16,17 +16,20 @@
 
 package gr.demokritos.biographs.indexing.databases;
 
-import org.apache.commons.collections4.trie.PatriciaTrie;
-
 import java.io.File;
 import java.io.FileFilter;
-import java.util.*;
-import java.util.stream.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
-import gr.demokritos.biographs.*;
-import gr.demokritos.biographs.io.BioInput;
+import org.apache.commons.collections4.trie.PatriciaTrie;
+
+import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.GraphDatabase;
 import gr.demokritos.biographs.indexing.structs.TrieEntry;
+import gr.demokritos.biographs.io.BioInput;
 
 
 /**
@@ -42,7 +45,7 @@ import gr.demokritos.biographs.indexing.structs.TrieEntry;
  */
 public final class TrieIndex extends GraphDatabase {
 	/**
-	 * A {@link org.apache.commons.collections4.trie.PatriciaTrie} 
+	 * A {@link org.apache.commons.collections4.trie.PatriciaTrie}
 	 * that is used for indexing graphs by using the graphs'
 	 * {@link BioGraph#getDfsCode()} or {@link BioGraph#getCanonicalCode()}
 	 * as keys.
@@ -54,11 +57,11 @@ public final class TrieIndex extends GraphDatabase {
 	 * of encoding vector cells.
 	 */
 	protected int order = 64;
-	
+
 	/**
 	 * Creates a blank TrieIndex object.
 	 */
-	public TrieIndex() { 
+	public TrieIndex() {
 		super();
 		trieIndex = new PatriciaTrie<List<TrieEntry>>();
 	}
@@ -102,7 +105,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param path a string containing a path to a file or directory
 	 */
 	@Override
-	public void buildIndex(String path) 
+	public void buildIndex(String path)
 	throws Exception
 	{
 		File fPath = new File(path);
@@ -110,7 +113,7 @@ public final class TrieIndex extends GraphDatabase {
 	}
 
 	/**
-	 * Builds a graph database index from a given file or a directory 
+	 * Builds a graph database index from a given file or a directory
 	 * of files.
 	 *
 	 * @param fPath a path containing one or multiple files
@@ -124,6 +127,7 @@ public final class TrieIndex extends GraphDatabase {
 			/* get all files in a list, and for each file add all
 			 * the resulting biographs to the database */
 			File[] fileList = fPath.listFiles(new FileFilter() {
+				@Override
 				public boolean accept(File toFilter) {
 					return toFilter.isFile();
 				}
@@ -138,6 +142,8 @@ public final class TrieIndex extends GraphDatabase {
 	 * Adds all graphs from a file to the database, choosing an appropriate
 	 * reading method depending on the data type of the graphs this database
 	 * indexes.
+	 *
+	 * @param f the file to read from
 	 */
 	private void addAllGraphs(File f) throws Exception {
 		if (type == GraphType.DNA) {
@@ -146,8 +152,7 @@ public final class TrieIndex extends GraphDatabase {
 		}
 		else {
 			throw new UnsupportedOperationException(
-					"Graph type not supported!"
-				);
+					"Graph type not supported!");
 		}
 	}
 
@@ -160,7 +165,7 @@ public final class TrieIndex extends GraphDatabase {
 	public void addEntry(TrieEntry entry) {
 		// update the database's size
 		this.size++;
-		
+
 		/*
 		 * Get already existing entries with the same key first, if any
 		 */
@@ -181,7 +186,7 @@ public final class TrieIndex extends GraphDatabase {
 
 	/**
 	 * Add a new graph to the graph database, updating
-	 * the index on the trie as well. 
+	 * the index on the trie as well.
 	 * @param bg the BioGraph to be added
 	 */
 	@Override
@@ -203,11 +208,11 @@ public final class TrieIndex extends GraphDatabase {
 	}
 
 	/**
-	 * Obtains a list of labels of graphs that match the dfs code 
+	 * Obtains a list of labels of graphs that match the dfs code
 	 * of the given graph.
 	 *
 	 * @param bg the query graph
-	 * @return a list of labels 
+	 * @return a list of labels
 	 */
 	public final List<TrieEntry> getNodes(BioGraph bg) {
 		return getNodes(getGraphCode(bg));
