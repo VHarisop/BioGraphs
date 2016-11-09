@@ -339,7 +339,6 @@ public final class TrieQueryWithLog {
 			 */
 			gson = new GsonBuilder().setPrettyPrinting().create();
 
-			// TrieQuery bq = new TrieQuery(150, 1); // this worked fine
 			TrieQueryWithLog bq = new TrieQueryWithLog(Ls, 1, order);
 			bq.initIndex(data);
 
@@ -352,7 +351,6 @@ public final class TrieQueryWithLog {
 					BioInput.fromFastaFileToEntries(test).entrySet())
 			{
 				final String lbl = e.getKey(), dt = e.getValue();
-
 				/*
 				 * Perform the query and measure time elapsed
 				 */
@@ -372,7 +370,6 @@ public final class TrieQueryWithLog {
 				totalMatches += matches.size();
 				qTimes.add(end - start);
 				eCnt++;
-
 				/*
 				 * Update hits for accuracy calculation
 				 */
@@ -384,11 +381,11 @@ public final class TrieQueryWithLog {
 						found = true;
 						break;
 					}
-					if (!found) {
-						logger.warning(String.format(
-							"Original sequence not found for %s",
-							entLabel));
-					}
+				}
+				if (!found) {
+					logger.warning(String.format(
+						"Original sequence not found for %s",
+						entLabel));
 				}
 				/*
 				 * Update list of answer set sizes
@@ -403,7 +400,6 @@ public final class TrieQueryWithLog {
 				.mapToDouble(t -> (t - avgTime) * (t - avgTime))
 				.sum();
 			final double stdevTime = Math.sqrt(runSum / eCnt);
-
 			/*
 			 * calculate standard deviation from average number of matches
 			 */
@@ -412,7 +408,6 @@ public final class TrieQueryWithLog {
 				.mapToDouble(m -> (m - avgMatches) * (m - avgMatches))
 				.sum();
 			final double stdevMatches = Math.sqrt(mRunSum / eCnt);
-
 			/*
 			 * Create a Result object to be serialized to JSON.
 			 */
