@@ -38,10 +38,10 @@ import gr.demokritos.biographs.io.BioInput;
  *
  * @author VHarisop
  */
-public final class TrieQuery_Debug {
+public final class TrieQueryWithLog {
 	/* Create our own logger */
 	private static final Logger logger =
-			Logger.getLogger(TrieQuery_Debug.class.getName());
+			Logger.getLogger(TrieQueryWithLog.class.getName());
 	/**
 	 * Gson builder for result printing
 	 */
@@ -70,7 +70,7 @@ public final class TrieQuery_Debug {
 	 *
 	 * @param K the size of the subsequences
 	 */
-	public TrieQuery_Debug(int K) {
+	public TrieQueryWithLog(int K) {
 		seqSize = K;
 		graphIndex = new TrieIndex();
 	}
@@ -84,13 +84,13 @@ public final class TrieQuery_Debug {
 	 * @param win the length of the window used for consecutive
 	 * entries
 	 */
-	public TrieQuery_Debug(int K, int win) {
+	public TrieQueryWithLog(int K, int win) {
 		this(K);
 		window = win;
 	}
 
 	/**
-	 * Creates a new {@link TrieQuery_Debug} object that performs queries
+	 * Creates a new {@link TrieQueryWithLog} object that performs queries
 	 * by splitting the query strings into overlapping subsequences
 	 * of a specified length, using a given order for serialization
 	 * of encoding vectors.
@@ -99,7 +99,7 @@ public final class TrieQuery_Debug {
 	 * @param win the length of the window used for consecutive entries
 	 * @param order the order of the encoding vectors' serialization
 	 */
-	public TrieQuery_Debug(int K, int win, int order) {
+	public TrieQueryWithLog(int K, int win, int order) {
 		seqSize = K;
 		window = win;
 		graphIndex = new TrieIndex(order);
@@ -215,9 +215,6 @@ public final class TrieQuery_Debug {
 		/* boolean indicating if an absolute match has been found */
 		boolean absMatch = false;
 
-		/* Log the search */
-		logger.info("Querying database for fragments from: " + label);
-
 		/*
 		 * search all graphs with a preselected tolerance
 		 */
@@ -225,7 +222,6 @@ public final class TrieQuery_Debug {
 			final BioGraph bg = new BioGraph(bl, label);
 			final TrieEntry eQuery = new TrieEntry(bg);
 			final byte[] enc = eQuery.getEncoding();
-
 			/*
 			 * Get the closest TrieEntry objects and
 			 * keep all whose distances are lower than
@@ -253,14 +249,11 @@ public final class TrieQuery_Debug {
 				 */
 				if (entryDist == 0) {
 					absMatch = true;
-					logger.info(String.format(
-							"Found absolute match for %s : %s",
-							bl, t.getLabel()));
 					/*
 					 * Lower tolerance if an absolute match
 					 * is found at some point.
 					 */
-					tolerance = tolerance / 2;
+					tolerance /= 2;
 				}
 			}
 			/*
@@ -347,7 +340,7 @@ public final class TrieQuery_Debug {
 			gson = new GsonBuilder().setPrettyPrinting().create();
 
 			// TrieQuery bq = new TrieQuery(150, 1); // this worked fine
-			TrieQuery_Debug bq = new TrieQuery_Debug(Ls, 1, order);
+			TrieQueryWithLog bq = new TrieQueryWithLog(Ls, 1, order);
 			bq.initIndex(data);
 
 			long totalTime = 0L;
@@ -363,10 +356,11 @@ public final class TrieQuery_Debug {
 				/*
 				 * Perform the query and measure time elapsed
 				 */
+				logger.info(String.format("Querying %s", lbl));
 				final long start = System.currentTimeMillis();
 				Set<TrieEntry> matches = bq.getMatches(dt, lbl, tol);
 				final long end = System.currentTimeMillis();
-
+				logger.info(String.format("Time: %d ms", end - start));
 				/*
 				 * Update parameters:
 				 * 1) total elapsed time
@@ -382,10 +376,18 @@ public final class TrieQuery_Debug {
 				/*
 				 * Update hits for accuracy calculation
 				 */
+				boolean found = false;
 				for (TrieEntry ent: matches) {
-					if (ent.getLabel().equals(lbl)) {
+					final String entLabel = ent.getLabel();
+					if (entLabel.equals(lbl)) {
 						hits++;
+						found = true;
 						break;
+					}
+					if (!found) {
+						logger.warning(String.format(
+							"Original sequence not found for %s",
+							entLabel));
 					}
 				}
 				/*
@@ -414,7 +416,7 @@ public final class TrieQuery_Debug {
 			/*
 			 * Create a Result object to be serialized to JSON.
 			 */
-			Result res = new Result(
+			final Result res = new Result(
 				((double) hits) / eCnt,
 				avgTime,
 				stdevTime,
@@ -433,6 +435,7 @@ public final class TrieQuery_Debug {
 	 * A static class used internally only for serializing
 	 * experimental results to JSON.
 	 */
+	@SuppressWarnings("unused")
 	static class Result {
 		private double accuracy;
 		private double avgQueryTime;

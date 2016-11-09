@@ -217,9 +217,7 @@ public final class TrieQuery {
 		for (String bl: blocks) {
 			final BioGraph bg = new BioGraph(bl, label);
 			final TrieEntry eQuery = new TrieEntry(bg);
-
 			final byte[] enc = eQuery.getEncoding();
-
 			/*
 			 * Get the closest TrieEntry objects and
 			 * keep all whose distances are lower than
@@ -247,14 +245,15 @@ public final class TrieQuery {
 				 */
 				if (entryDist == 0) {
 					absMatch = true;
-					break;
+					/* Lower the tolerance if a perfect match was found */
+					tolerance /= 2;
 				}
 			}
 			/*
-			 * Keep searching until a range twice the
+			 * Keep searching until a range as long as the
 			 * seqSize has been searched.
 			 */
-			if (++loopcnt <= 2 * (seqSize / window)) {
+			if (++loopcnt <= (seqSize / window)) {
 				continue;
 			}
 			else {
@@ -346,14 +345,12 @@ public final class TrieQuery {
 					BioInput.fromFastaFileToEntries(test).entrySet())
 			{
 				final String lbl = e.getKey(), dt = e.getValue();
-
 				/*
 				 * Perform the query and measure time elapsed
 				 */
 				final long start = System.currentTimeMillis();
 				Set<TrieEntry> matches = bq.getMatches(dt, lbl, tol);
 				final long end = System.currentTimeMillis();
-
 				/*
 				 * Update parameters:
 				 * 1) total elapsed time
