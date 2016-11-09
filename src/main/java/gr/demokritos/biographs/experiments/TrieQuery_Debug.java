@@ -246,10 +246,6 @@ public final class TrieQuery_Debug {
 				 * Otherwise, add to matches.
 				 */
 				matches.add(t);
-				/* Log ourselves */
-				logger.info(String.format(
-						"Found match for %s : %s - dist: %d",
-						bl, t.getLabel(), entryDist));
 
 				/*
 				 * If an absolutely matching entry was found,
@@ -260,14 +256,18 @@ public final class TrieQuery_Debug {
 					logger.info(String.format(
 							"Found absolute match for %s : %s",
 							bl, t.getLabel()));
-					break;
+					/*
+					 * Lower tolerance if an absolute match
+					 * is found at some point.
+					 */
+					tolerance = tolerance / 2;
 				}
 			}
 			/*
-			 * Keep searching until a range twice the
+			 * Keep searching until a range equal to the
 			 * seqSize has been searched.
 			 */
-			if (++loopcnt <= 2 * (seqSize / window)) {
+			if (++loopcnt <= (seqSize / window)) {
 				continue;
 			}
 			else {
