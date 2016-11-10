@@ -385,7 +385,7 @@ public final class TrieQueryWithLog {
 				if (!found) {
 					logger.warning(String.format(
 						"Original sequence not found for %s",
-						entLabel));
+						lbl));
 				}
 				/*
 				 * Update list of answer set sizes
