@@ -147,8 +147,15 @@ public final class RadixTreeQuery {
 		for (int index = 0; (index + seqSize) < qLen; index += seqSize) {
 			blocks.add(data.substring(index, index + seqSize));
 		}
-		/* Add the rightmost [seqSize] chars */
-		blocks.add(data.substring(qLen - seqSize - 1, qLen - 1));
+		try {
+			/* Add the rightmost [seqSize] chars */
+			final String sub = data.substring(qLen - seqSize - 1, qLen - 1);
+			blocks.add(sub);
+		}
+		catch (StringIndexOutOfBoundsException ex) {
+			logger.severe("Error while adding " + data);
+			logger.severe(ex.getMessage());
+		}
 		return blocks;
 	}
 
@@ -167,8 +174,15 @@ public final class RadixTreeQuery {
 		for (int index = 0; (index + seqSize) < qLen; ++index) {
 			blocks.add(query.substring(index, index + seqSize));
 		}
-		/* Add the rightmost [seqSize] chars */
-		blocks.add(query.substring(qLen - seqSize - 1, qLen - 1));
+		try {
+			/* Add the rightmost [seqSize] chars */
+			final String sub = query.substring(qLen - seqSize - 1, qLen - 1);
+			blocks.add(sub);
+		}
+		catch (StringIndexOutOfBoundsException ex) {
+			logger.severe("Query: " + query);
+			logger.severe(ex.getMessage());			
+		}
 		return blocks;
 	}
 
