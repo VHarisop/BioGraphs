@@ -53,12 +53,6 @@ public final class TrieQueryWithLog {
 	private int seqSize;
 
 	/**
-	 * The length of the window in which {@link TrieEntry} objects
-	 * are created in the database for every offset.
-	 */
-	private int window = 10;
-
-	/**
 	 * The graph database to perform queries against.
 	 */
 	private TrieIndex graphIndex;
@@ -76,32 +70,16 @@ public final class TrieQueryWithLog {
 	}
 
 	/**
-	 * Creates a new TrieQuery object that performs queries by
-	 * splitting the query strings into overlapping subsequences
-	 * of a specified length.
-	 *
-	 * @param K the size of the subsequences
-	 * @param win the length of the window used for consecutive
-	 * entries
-	 */
-	public TrieQueryWithLog(int K, int win) {
-		this(K);
-		window = win;
-	}
-
-	/**
 	 * Creates a new {@link TrieQueryWithLog} object that performs queries
 	 * by splitting the query strings into overlapping subsequences
 	 * of a specified length, using a given order for serialization
 	 * of encoding vectors.
 	 *
 	 * @param K the size of the subsequences
-	 * @param win the length of the window used for consecutive entries
 	 * @param order the order of the encoding vectors' serialization
 	 */
-	public TrieQueryWithLog(int K, int win, int order) {
+	public TrieQueryWithLog(int K, int order) {
 		seqSize = K;
-		window = win;
 		graphIndex = new TrieIndex(order);
 	}
 
@@ -158,17 +136,11 @@ public final class TrieQueryWithLog {
 	 * @return the list of generated subsequences
 	 */
 	private List<String> splitString(String data) {
-		int index = 0;
 		final int qLen = data.length();
 		List<String> blocks = new ArrayList<String>();
-		while ((index + seqSize) < qLen) {
-			for (int i = 0; i < window; ++i) {
-				final int start = index + i;
-				if (start + seqSize >= qLen)
-					break;
-				blocks.add(data.substring(start, start + seqSize));
-			}
-			index += seqSize;
+		/* [seqSize]-length steps, as subsequences should not overlap */
+		for (int index = 0; (index + seqSize) < qLen; index += seqSize) {
+			blocks.add(data.substring(index, index + seqSize));
 		}
 		return blocks;
 	}
@@ -184,15 +156,12 @@ public final class TrieQueryWithLog {
 	protected List<String> splitQueryString(String query) {
 		final int qLen = query.length();
 		List<String> blocks = new ArrayList<String>();
-		/* Increase by window len, since we want <i>overlapping</i>
-		 * subsequences
-		 */
-		for (int index = 0; (index + seqSize) < qLen; index += window) {
+		/* Unitary length steps, since we want overlapping subsequences */
+		for (int index = 0; (index + seqSize) < qLen; ++index) {
 			blocks.add(query.substring(index, index + seqSize));
 		}
 		return blocks;
 	}
-
 
 	/**
 	 * Performs a search in the graph database for matches of a specific
@@ -249,25 +218,17 @@ public final class TrieQueryWithLog {
 				 */
 				if (entryDist == 0) {
 					absMatch = true;
-					/*
-					 * Lower tolerance if an absolute match
-					 * is found at some point.
-					 */
-					tolerance /= 2;
 				}
 			}
 			/*
 			 * Keep searching until a range equal to the
 			 * seqSize has been searched.
 			 */
-			if (++loopcnt <= (seqSize / window)) {
-				continue;
-			}
-			else {
+			if (++loopcnt > (2 * seqSize)) {
 				/*
-				 * If a sequence with 0 distance was found and a full window
-				 * has already been exhausted, stop searching and return all
-				 * results so far.
+				 * Break the search if two full search windows
+				 * have been exhausted and an absolute match has
+				 * been already found.
 				 */
 				if (absMatch) {
 					break;
@@ -339,7 +300,7 @@ public final class TrieQueryWithLog {
 			 */
 			gson = new GsonBuilder().setPrettyPrinting().create();
 
-			TrieQueryWithLog bq = new TrieQueryWithLog(Ls, 1, order);
+			TrieQueryWithLog bq = new TrieQueryWithLog(Ls, order);
 			bq.initIndex(data);
 
 			long totalTime = 0L;
@@ -383,9 +344,15 @@ public final class TrieQueryWithLog {
 					}
 				}
 				if (!found) {
+					/* If not found, inform user about it and output
+					 * the alternative matching sequences found, if any
+					 */
 					logger.warning(String.format(
-						"Original sequence not found for %s",
+						"Original sequence not found for %s - Found: ",
 						lbl));
+					for (TrieEntry ent: matches) {
+						logger.warning(ent.getLabel());
+					}
 				}
 				/*
 				 * Update list of answer set sizes
