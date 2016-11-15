@@ -4,7 +4,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.iit.jinsect.structs.NGramVertex;
 

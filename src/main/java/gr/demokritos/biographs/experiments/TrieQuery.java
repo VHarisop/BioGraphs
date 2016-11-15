@@ -139,13 +139,6 @@ public final class TrieQuery {
 	}
 
 	/**
-	 * @see #initIndex(File) initIndex
-	 */
-	private void initIndex(String dataPath) {
-		initIndex(new File(dataPath));
-	}
-
-	/**
 	 * Splits a data string into non-overlapping subsequences as
 	 * a preprocessing step for an index, returning the list of
 	 * subsequences.
@@ -366,11 +359,9 @@ public final class TrieQuery {
 				/*
 				 * Update hits for accuracy calculation
 				 */
-				boolean found = false;
 				for (TrieEntry ent: matches) {
 					if (ent.getLabel().equals(lbl)) {
 						hits++;
-						found = true;
 						break;
 					}
 				}
@@ -419,6 +410,7 @@ public final class TrieQuery {
 	 * A static class used internally only for serializing
 	 * experimental results to JSON.
 	 */
+	@SuppressWarnings("unused")
 	static class Result {
 		private double accuracy;
 		private double avgQueryTime;

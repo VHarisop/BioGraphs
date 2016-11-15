@@ -132,13 +132,6 @@ public final class TrieQueryWithLog {
 	}
 
 	/**
-	 * @see #initIndex(File) initIndex
-	 */
-	private void initIndex(String dataPath) {
-		initIndex(new File(dataPath));
-	}
-
-	/**
 	 * Splits a data string into non-overlapping subsequences as
 	 * a preprocessing step for an index, returning the list of
 	 * subsequences.

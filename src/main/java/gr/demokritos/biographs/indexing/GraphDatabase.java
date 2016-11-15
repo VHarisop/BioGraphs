@@ -17,8 +17,6 @@
 package gr.demokritos.biographs.indexing;
 
 import java.io.File;
-import java.util.ArrayList;
-
 import gr.demokritos.biographs.BioGraph;
 
 /**

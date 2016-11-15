@@ -16,8 +16,6 @@
 package gr.demokritos.biographs.algorithms;
 
 import java.util.*;
-import org.jgrapht.*;
-import org.jgrapht.alg.interfaces.*;
 import org.jgrapht.alg.util.*;
 
 import gr.demokritos.biographs.*;

@@ -24,9 +24,6 @@ import java.util.*;
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.Utils;
 import gr.demokritos.biographs.io.BioInput;
-import gr.demokritos.biographs.indexing.preprocessing.IndexVector;
-import gr.demokritos.biographs.indexing.comparators.*;
-import gr.demokritos.biographs.indexing.structs.*;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 
 /**
@@ -436,7 +433,6 @@ public abstract class TreeIndex<V> extends GraphDatabase {
 	 * @return the distance between the two entries
 	 */
 	protected int getDistBetween(TreeEntry bgA, TreeEntry bgB) {
-		int[] encA; int[] encB;
 		return ClusterDistance.hamming(
 					bgA.getEncoding(),
 					bgB.getEncoding()

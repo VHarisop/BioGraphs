@@ -18,8 +18,6 @@ package gr.demokritos.biographs.indexing;
 import gr.demokritos.biographs.*;
 import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.biographs.indexing.preprocessing.*;
-import gr.demokritos.biographs.indexing.structs.*;
-
 import java.util.*;
 
 /**
