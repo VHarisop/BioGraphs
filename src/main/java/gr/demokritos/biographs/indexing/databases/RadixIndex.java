@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.googlecode.concurrenttrees.radix.RadixTree;
+import com.googlecode.concurrenttrees.radix.node.concrete.bytearray.ByteArrayCharSequence;
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.GraphDatabase;
 import gr.demokritos.biographs.indexing.structs.TrieEntry;
@@ -195,10 +196,11 @@ public final class RadixIndex extends GraphDatabase {
 	 * different encoder / string representation.
 	 *
 	 * @param bGraph the biograph object
-	 * @return a String representation of the biograph
+	 * @return a {@link CharSequence} representation of the biograph
 	 */
-	protected String getGraphCode(BioGraph bGraph) {
-		return (new TrieEntry(bGraph)).getKey(this.order);
+	protected CharSequence getGraphCode(BioGraph bGraph) {
+		final byte[] code = new TrieEntry(bGraph).getKeyAsByteArray(order);
+		return new ByteArrayCharSequence(code, 0, code.length);
 	}
 
 	/**
@@ -217,7 +219,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param key a String containing the query graph key
 	 * @return a list of entries pointing to biographs
 	 */
-	public final List<TrieEntry> getNodes(String key) {
+	public final List<TrieEntry> getNodes(CharSequence key) {
 		return radixIndex.getValueFor(key);
 	}
 
