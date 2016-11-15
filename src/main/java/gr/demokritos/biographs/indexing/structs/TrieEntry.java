@@ -104,28 +104,6 @@ public final class TrieEntry {
 		}
 		return repr.toString();
 	}
-	
-	private byte[] vectorToByteArray(byte[] vec, int num_bits) {
-		final float fact = num_bits;
-		/* Pre-allocate the resulting array */
-		byte[] encVec = new byte[vec.length * num_bits];
-		for (int i = 0; i < vec.length; ++i) {
-			final int index = i * num_bits;
-			/* map vec[i] / num_bits ratio to [0, 1] range */
-			final float num_set = Math.min(vec[i] / fact, 1f);
-			/* convert to int between [0, num_bits] */
-			final int ones = Math.min(num_bits - 1, (int) (num_set * fact));
-			/* Add proper number of leading 1s */
-			for (int j = 0; j < ones; ++j) {
-				encVec[index + j] = 0xF;
-			}
-			/* Add proper number of trailing 0s */
-			for (int j = ones; j < num_bits; ++j) {
-				encVec[index + j] = 0x0;
-			}
-		}
-		return encVec;
-	}
 
 	/**
 	 * Returns the hashed vector encoding of the graph this entry represents.
@@ -154,25 +132,6 @@ public final class TrieEntry {
 		return vectorToBits(indexEncoding, 64);
 	}
 	
-	/**
-	 * Simple getter for the entry's key encoded as a
-	 * byte array.
-	 * @return the key of the entry 
-	 */
-	public final byte[] getKeyAsByteArray() {
-		return vectorToByteArray(indexEncoding, 64);
-	}
-	
-	/**
-	 * Simple getter for the entry's key encoded as a
-	 * byte array using a given order.
-	 * @param order the order of the encoding
-	 * @return the key of the entry 
-	 */
-	public final byte[] getKeyAsByteArray(int order) {
-		return vectorToByteArray(indexEncoding, order);
-	}
-
 	/**
 	 * Gets the entry's serialized key of a given order.
 	 *
