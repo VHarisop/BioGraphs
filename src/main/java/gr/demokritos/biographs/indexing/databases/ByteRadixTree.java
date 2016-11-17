@@ -11,23 +11,23 @@ import gr.demokritos.biographs.indexing.structs.TrieEntry;
 public class ByteRadixTree
 extends ConcurrentRadixTree<List<TrieEntry>> {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 348335668340411699L;
 
 	public ByteRadixTree() {
 		super(new DefaultByteArrayNodeFactory());
 	}
-	
+
 	/**
 	 * @see {@link ConcurrentRadixTree#getValueForExactKey(CharSequence)
 	 * @param seq the key {@link CharSequence}
 	 * @return the value for this exact key
 	 */
 	public List<TrieEntry> getValueFor(CharSequence key) {
-		return super.getValueForExactKey(key);
+		return getValueForExactKey(key);
 	}
-	
+
 	/**
 	 * Selects the values for the keys closest to a query key
 	 * @param key the key to search for

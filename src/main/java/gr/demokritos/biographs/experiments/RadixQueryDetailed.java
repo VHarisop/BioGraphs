@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -120,7 +121,7 @@ public final class RadixQueryDetailed {
 			}
 		}
 		catch(Exception ex) {
-			ex.printStackTrace();
+			logger.log(Level.SEVERE, "", ex);
 		}
 	}
 
@@ -151,12 +152,14 @@ public final class RadixQueryDetailed {
 		}
 		try {
 			/* Add the rightmost [seqSize] chars */
-			final String sub = data.substring(qLen - seqSize - 1, qLen - 1);
+			final String sub = data.substring(qLen - seqSize, qLen);
 			blocks.add(sub);
 		}
 		catch (StringIndexOutOfBoundsException ex) {
-			logger.severe("Error while adding " + data);
-			logger.severe(ex.getMessage());
+			/* Out of bounds means qLen < Ls, so we add
+			 * the whole string */
+			blocks.add(data);
+			logger.info("Out of bounds error, added whole " + data);
 		}
 		return blocks;
 	}
@@ -178,12 +181,14 @@ public final class RadixQueryDetailed {
 		}
 		try {
 			/* Add the rightmost [seqSize] chars */
-			final String sub = query.substring(qLen - seqSize - 1, qLen - 1);
+			final String sub = query.substring(qLen - seqSize, qLen);
 			blocks.add(sub);
 		}
 		catch (StringIndexOutOfBoundsException ex) {
-			logger.severe("Query: " + query);
-			logger.severe(ex.getMessage());
+			/* Out of bounds means qLen < Ls, so we add
+			 * the whole query string */
+			blocks.add(query);
+			logger.info("Out of bounds error, queried whole " + query);
 		}
 		return blocks;
 	}
@@ -216,7 +221,7 @@ public final class RadixQueryDetailed {
 			final BioGraph bg = new BioGraph(bl, label);
 			final TrieEntry eQuery = new TrieEntry(bg);
 			final byte[] enc = eQuery.getEncoding();
-			
+
 			logger.info("Query string: " + bl);
 			/*
 			 * Get the closest TrieEntry objects and
@@ -227,7 +232,7 @@ public final class RadixQueryDetailed {
 				final int entryDist = ClusterDistance.hamming(
 						t.getEncoding(),
 						enc);
-				
+
 				/* If an entry from the same graph is found,
 				 * report it as well as its distance
 				 */
@@ -260,16 +265,17 @@ public final class RadixQueryDetailed {
 			 * Keep searching until a range equal to the
 			 * seqSize has been searched.
 			 */
-			if (++loopcnt > (2 * seqSize)) {
+			// if (++loopcnt > (2 * seqSize)) {
 				/*
 				 * Break the search if two full search windows
 				 * have been exhausted and an absolute match has
 				 * been already found.
 				 */
-				if (absMatch) {
-					break;
-				}
-			}
+				// if (absMatch) {
+				//	;
+					// break;
+				//}
+			//}
 		}
 		return matches;
 	}
@@ -285,7 +291,7 @@ public final class RadixQueryDetailed {
 		}
 		File data = new File(args[0]);
 		File test = new File(args[1]);
-		int Ls = 150, tol = 5, order = 64;
+		int Ls = 30, tol = 5, order = 64;
 
 		/*
 		 * If another argument is present, it is assumed to be
