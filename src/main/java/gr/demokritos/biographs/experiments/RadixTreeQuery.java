@@ -29,6 +29,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.indexing.QueryUtils;
 import gr.demokritos.biographs.indexing.databases.RadixIndex;
 import gr.demokritos.biographs.indexing.databases.TrieIndex;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
@@ -111,7 +112,7 @@ public final class RadixTreeQuery {
 				 * of length K and store them separately into the database
 				 * using the same labels.
 				 */
-				splitString(e.getValue())
+				QueryUtils.splitIndexedString(e.getValue(), seqSize)
 					.forEach(s -> {
 						graphIndex.addGraph(new BioGraph(s, e.getKey()));
 					});
@@ -133,60 +134,6 @@ public final class RadixTreeQuery {
 	}
 
 	/**
-	 * Splits a data string into non-overlapping subsequences as
-	 * a preprocessing step for an index, returning the list of
-	 * subsequences.
-	 *
-	 * @param data the data string
-	 * @return the list of generated subsequences
-	 */
-	private List<String> splitString(String data) {
-		final int qLen = data.length();
-		List<String> blocks = new ArrayList<String>();
-		/* [seqSize]-length steps, as subsequences should not overlap */
-		for (int index = 0; (index + seqSize) < qLen; index += seqSize) {
-			blocks.add(data.substring(index, index + seqSize));
-		}
-		try {
-			/* Add the rightmost [seqSize] chars */
-			final String sub = data.substring(qLen - seqSize - 1, qLen - 1);
-			blocks.add(sub);
-		}
-		catch (StringIndexOutOfBoundsException ex) {
-			logger.severe("Error while adding " + data);
-			logger.severe(ex.getMessage());
-		}
-		return blocks;
-	}
-
-	/**
-	 * Splits a query string into overlapping subsequences as
-	 * a preprocessing step for a query, returning the list of
-	 * subsequences.
-	 *
-	 * @param query the query string
-	 * @return the list of generated subsequences
-	 */
-	protected List<String> splitQueryString(String query) {
-		final int qLen = query.length();
-		List<String> blocks = new ArrayList<String>();
-		/* Unitary length steps, since we want overlapping subsequences */
-		for (int index = 0; (index + seqSize) < qLen; ++index) {
-			blocks.add(query.substring(index, index + seqSize));
-		}
-		try {
-			/* Add the rightmost [seqSize] chars */
-			final String sub = query.substring(qLen - seqSize - 1, qLen - 1);
-			blocks.add(sub);
-		}
-		catch (StringIndexOutOfBoundsException ex) {
-			logger.severe("Query: " + query);
-			logger.severe(ex.getMessage());			
-		}
-		return blocks;
-	}
-
-	/**
 	 * Performs a search in the graph database for matches of a specific
 	 * query string with a given label.
 	 *
@@ -198,7 +145,7 @@ public final class RadixTreeQuery {
 	public Set<TrieEntry>
 	getMatches(String query, String label, int tolerance)
 	{
-		List<String> blocks = this.splitQueryString(query);
+		List<String> blocks = QueryUtils.splitQueryString(query, seqSize);
 		Set<TrieEntry> matches = new HashSet<TrieEntry>();
 
 		/* loop counter */

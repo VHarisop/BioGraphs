@@ -18,12 +18,19 @@ package gr.demokritos.biographs.experiments;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.logging.Level;
 
 import com.google.gson.Gson;
@@ -32,7 +39,6 @@ import com.google.gson.GsonBuilder;
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.QueryUtils;
 import gr.demokritos.biographs.indexing.databases.RadixIndex;
-import gr.demokritos.biographs.indexing.databases.TrieIndex;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.biographs.indexing.structs.TrieEntry;
 import gr.demokritos.biographs.io.BioInput;
@@ -40,16 +46,18 @@ import gr.demokritos.biographs.io.BioInput;
 /**
  * A class that performs queries from biological sequences using
  * {@link BioGraph} objects and the {@link RadixIndex} implementation.
+ * It uses more than one index objects, creating a new one every time
+ * more than 2,000,000 fragments have been added.
  * Also outputs detailed information about the queries, to be used
  * in debugging.
  *
  * @author VHarisop
  */
-public final class RadixQueryDetailed {
+public final class RadixQueryMultiway {
 	/* Create our own logger, register an output file */
 	private static final Logger logger;
 	static {
-		logger = Logger.getLogger(RadixQueryDetailed.class.getName());
+		logger = Logger.getLogger(RadixQueryMultiway.class.getName());
 		try {
 			logger.addHandler(new FileHandler("radix_query.log", true));
 		}
@@ -66,12 +74,17 @@ public final class RadixQueryDetailed {
 	/*
 	 * Size of subsequence.
 	 */
-	private int seqSize;
+	private int seqSize = 30;
 
 	/**
-	 * The graph database to perform queries against.
+	 * The graph databases to perform queries against.
 	 */
-	private RadixIndex graphIndex;
+	private List<RadixIndex> graphIndex = new ArrayList<>();
+	
+	/**
+	 * The max number of fragments per {@link RadixIndex}. 
+	 */
+	public static int FRAGMENTS_PER_INDEX = 0;
 
 	/**
 	 * Creates a new TrieQuery object that performs queries by
@@ -80,13 +93,13 @@ public final class RadixQueryDetailed {
 	 *
 	 * @param K the size of the subsequences
 	 */
-	public RadixQueryDetailed(int K) {
+	public RadixQueryMultiway(int K) {
 		seqSize = K;
-		graphIndex = new RadixIndex();
+		graphIndex.add(new RadixIndex());
 	}
 
 	/**
-	 * Creates a new {@link RadixQueryDetailed} object that performs queries
+	 * Creates a new {@link RadixQueryMultiway} object that performs queries
 	 * by splitting the query strings into overlapping subsequences
 	 * of a specified length, using a given order for serialization
 	 * of encoding vectors.
@@ -94,9 +107,9 @@ public final class RadixQueryDetailed {
 	 * @param K the size of the subsequences
 	 * @param order the order of the encoding vectors' serialization
 	 */
-	public RadixQueryDetailed(int K, int order) {
+	public RadixQueryMultiway(int K, int order) {
 		seqSize = K;
-		graphIndex = new RadixIndex(order);
+		graphIndex.add(new RadixIndex(order));
 	}
 
 	/**
@@ -108,13 +121,22 @@ public final class RadixQueryDetailed {
 	private void initIndex(File dataFile) {
 		try {
 			BioInput.fromFastaFileToEntries(dataFile).forEach((k, v) -> {
+				/* Get the latest addition to the index list */
+				final RadixIndex currIndex =
+						graphIndex.get(graphIndex.size() - 1);
 				/*
 				 * Split database graphs into non-overlapping sequences
 				 * of length K and store them separately into the database
 				 * using the same labels.
 				 */
 				QueryUtils.splitIndexedString(v, seqSize)
-					.forEach(s -> graphIndex.addGraph(new BioGraph(s, k)));
+					.forEach(s -> currIndex.addGraph(new BioGraph(s, k)));
+				/* If more than 2,000,000 fragments were added,
+				 * allocate a new RadixIndex to fill. */
+				if (currIndex.getSize() >= FRAGMENTS_PER_INDEX) {
+					graphIndex.add(new RadixIndex());
+					logger.info("Adding new index...");
+				}
 			});
 		}
 		catch(IOException ex) {
@@ -124,12 +146,12 @@ public final class RadixQueryDetailed {
 
 	/**
 	 * Simple getter for the size (in #entries) of the
-	 * underlying {@link TrieIndex}.
+	 * underlying {@link RadixIndex} list.
 	 *
-	 * @return the total number of entries in the underlying database
+	 * @return the total number of entries in the underlying databases
 	 */
 	public int getSize() {
-		return graphIndex.getSize();
+		return graphIndex.stream().mapToInt(i -> i.getSize()).sum();
 	}
 
 	/**
@@ -159,6 +181,47 @@ public final class RadixQueryDetailed {
 			logger.info("Out of bounds error, queried whole " + query);
 		}
 		return blocks;
+	}
+	
+	Callable<Set<TrieEntry>> searchTask(
+		final BioGraph bQuery,
+		final int tolerance,
+		final RadixIndex rIndex,
+		final byte[] enc)
+	{
+		return () -> {
+			Set<TrieEntry> matches = new HashSet<TrieEntry>();
+			for (TrieEntry ent: rIndex.select(bQuery)) {
+				final int entryDist = ClusterDistance.hamming(
+						ent.getEncoding(),
+						enc);
+
+				/* If an entry from the same graph is found,
+				 * report it as well as its distance
+				 */
+				if (ent.getLabel().equals(bQuery.getLabel())) {
+					logger.info(String.format(
+							"Found entry from same graph -- Dist: %d",
+							entryDist));
+				}
+				/*
+				 * If distance is larger than the tolerance,
+				 * skip to next iteration.
+				 */
+				if (entryDist > tolerance) {
+					continue;
+				}
+				/*
+				 * Otherwise, add to matches.
+				 */
+				if (!(matches.add(ent))) {
+					logger.warning(String.format(
+						"Could not add %s to matches",
+						ent.getLabel()));
+				}
+			}
+			return matches;
+		};
 	}
 
 	/**
@@ -196,59 +259,26 @@ public final class RadixQueryDetailed {
 			 * keep all whose distances are lower than
 			 * a tolerance.
 			 */
-			for (TrieEntry t: graphIndex.select(bg)) {
-				final int entryDist = ClusterDistance.hamming(
-						t.getEncoding(),
-						enc);
-
-				/* If an entry from the same graph is found,
-				 * report it as well as its distance
-				 */
-				if (t.getLabel().equals(eQuery.getLabel())) {
-					logger.info(String.format(
-						"Found entry from same graph -- Dist: %d",
-						entryDist));
-				}
-				/*
-				 * If distance is larger than the tolerance,
-				 * skip to next iteration.
-				 */
-				if (entryDist > tolerance) {
-					continue;
-				}
-				/*
-				 * Otherwise, add to matches. If .add() fails, log it
-				 * to the log file.
-				 */
-				if (!(matches.add(t))) {
-					logger.warning(String.format(
-						"Could not add %s to the match set!",
-						t.getLabel()));
-				}
-
-				/*
-				 * If an absolutely matching entry was found,
-				 * set the absMatch flag to break on next iteration
-				 */
-				if (entryDist == 0) {
-					absMatch = true;
-				}
+			ExecutorService exec = Executors.newWorkStealingPool();
+			/* Gather all tasks to be scheduled in a list */
+			Collection<? extends Callable<Set<TrieEntry>>> tasks = graphIndex
+					.stream()
+					.map(rInd -> searchTask(bg, tolerance, rInd, enc))
+					.collect(Collectors.toList());
+			try {
+				List<Future<Set<TrieEntry>>> res = exec.invokeAll(tasks);
+				Set<TrieEntry> allMatches = new HashSet<TrieEntry>();
+				res.forEach(f -> {
+					try {
+						allMatches.addAll(f.get());
+					} catch (InterruptedException | ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				});
+			} catch (InterruptedException e) {       
+				e.printStackTrace();
 			}
-			/*
-			 * Keep searching until a range equal to the
-			 * seqSize has been searched.
-			 */
-			// if (++loopcnt > (2 * seqSize)) {
-				/*
-				 * Break the search if two full search windows
-				 * have been exhausted and an absolute match has
-				 * been already found.
-				 */
-				// if (absMatch) {
-				//	;
-					// break;
-				//}
-			//}
 		}
 		return matches;
 	}
@@ -315,7 +345,7 @@ public final class RadixQueryDetailed {
 			 */
 			gson = new GsonBuilder().setPrettyPrinting().create();
 			logger.info("Initializing RadixQueryDetailed...");
-			RadixQueryDetailed bq = new RadixQueryDetailed(Ls, order);
+			RadixQueryMultiway bq = new RadixQueryMultiway(Ls, order);
 			bq.initIndex(data);
 
 			long totalTime = 0L;

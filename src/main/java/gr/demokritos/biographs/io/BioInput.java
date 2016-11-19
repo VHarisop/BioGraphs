@@ -44,7 +44,7 @@ public class BioInput {
 	 * @throws Exception if something is wrong with the file
 	 */
 	public static BioGraph fromFastaFile(File inFile) 
-	throws Exception
+	throws IOException
 	{
 		BioGraph bGraph = null;
 		LinkedHashMap<String, DNASequence> entries = readFastaFile(inFile);
@@ -66,7 +66,7 @@ public class BioInput {
 	 * @throws Exception if something is wrong with the file
 	 */
 	public static BioGraph fromFastaFile(String fName) 
-	throws Exception 
+	throws IOException 
 	{
 		BioGraph bGraph = null;
 		LinkedHashMap<String, DNASequence> entries = readFastaFile(fName);
@@ -89,7 +89,7 @@ public class BioInput {
 	 * @throws Exception if something is wrong with the file 
 	 */
 	public static BioGraph[] fastaFileToGraphs(File fName) 
-	throws Exception 
+	throws IOException 
 	{
 		LinkedHashMap<String, DNASequence> entries = readFastaFile(fName);
 		BioGraph[] bGraphs = new BioGraph[entries.size()];
@@ -111,7 +111,7 @@ public class BioInput {
 	 * @return an array of {@link BioGraph} objects
 	 */
 	public static BioGraph[] fromWordFile(String filePath) 
-	throws Exception
+	throws IOException
 	{
 		return fromWordFile(new File(filePath));
 	}
@@ -125,7 +125,7 @@ public class BioInput {
 	 * @return an array of BioGraph objects
 	 */
 	public static BioGraph[] fromWordFile(File path) 
-	throws Exception 
+	throws IOException 
 	{
 		/* read lines, allocate array */
 		String[] lines = new LineReader().getLines(path);
@@ -145,7 +145,7 @@ public class BioInput {
 	 * @return a map of string/sequence pairs 
 	 */
 	public static LinkedHashMap<String, DNASequence> readFastaFile(String fName) 
-	throws Exception 
+	throws IOException 
 	{
 		return readFastaFile(new File(fName));
 	}
@@ -158,7 +158,7 @@ public class BioInput {
 	 * @return a hash map of String/Sequence pairs.
 	 */
 	public static LinkedHashMap<String, DNASequence> readFastaFile(File inFile)
-	throws Exception 
+	throws IOException 
 	{
 		return FastaReaderHelper.readFastaDNASequence(inFile);
 	}
@@ -173,7 +173,7 @@ public class BioInput {
 	 * when reading the data
 	 */
 	public static LinkedHashMap<String, String>
-	fromFastaFileToEntries(File inFile) throws Exception
+	fromFastaFileToEntries(File inFile) throws IOException
 	{
 		LinkedHashMap<String, String> res =
 			new LinkedHashMap<String, String>();
