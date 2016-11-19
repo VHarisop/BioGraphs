@@ -56,7 +56,7 @@ public class QueryUtils {
 			logger.info("Query string too short - added " + query);
 		}
 		else {
-			for (int index = 0; (index + seqSize) < qLen; ++index) {
+			for (int index = 0; (index + seqSize) < qLen; index += 1) {
 				blocks.add(query.substring(index, index + seqSize));
 			}
 			/* Add the rightmost [seqSize] chars */

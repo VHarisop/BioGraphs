@@ -190,8 +190,7 @@ public class BioInput {
 	public static LinkedHashMap<String, String>
 	fromFastaFileToEntries(File inFile) throws IOException
 	{
-		LinkedHashMap<String, String> res =
-			new LinkedHashMap<String, String>();
+		LinkedHashMap<String, String> res = new LinkedHashMap<>();
 		/*
 		 * Add all read sequences to the linked HashMap
 		 */

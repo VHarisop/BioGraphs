@@ -69,7 +69,7 @@
 	<dependency>
 		<groupId>gr.demokritos.iit.jinsect</groupId>
 		<artifactId>jinsect-core</artifactId>
-		<version>1.0rc3</version>
+		<version>1.0</version>
 	</dependency>
   </dependencies>
   <reporting>

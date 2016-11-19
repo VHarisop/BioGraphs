@@ -42,11 +42,11 @@ import gr.demokritos.biographs.io.BioInput;
  *
  * @author VHarisop
  */
-public final class RadixTreeQuery {
+public final class RadixQuery {
 	/* Create our own logger, register an output file */
 	private static final Logger logger;
 	static {
-		logger = Logger.getLogger(RadixTreeQuery.class.getName());
+		logger = Logger.getLogger(RadixQuery.class.getName());
 		try {
 			logger.addHandler(new FileHandler("radix_query.log", true));
 		}
@@ -58,7 +58,7 @@ public final class RadixTreeQuery {
 	/**
 	 * Gson builder for result printing
 	 */
-	static Gson gson;
+	static Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 	/*
 	 * Size of subsequence.
@@ -77,13 +77,13 @@ public final class RadixTreeQuery {
 	 *
 	 * @param K the size of the subsequences
 	 */
-	public RadixTreeQuery(int K) {
+	public RadixQuery(int K) {
 		seqSize = K;
 		graphIndex = new RadixIndex();
 	}
 
 	/**
-	 * Creates a new {@link RadixTreeQuery} object that performs queries
+	 * Creates a new {@link RadixQuery} object that performs queries
 	 * by splitting the query strings into overlapping subsequences
 	 * of a specified length, using a given order for serialization
 	 * of encoding vectors.
@@ -91,7 +91,7 @@ public final class RadixTreeQuery {
 	 * @param K the size of the subsequences
 	 * @param order the order of the encoding vectors' serialization
 	 */
-	public RadixTreeQuery(int K, int order) {
+	public RadixQuery(int K, int order) {
 		seqSize = K;
 		graphIndex = new RadixIndex(order);
 	}
@@ -104,22 +104,24 @@ public final class RadixTreeQuery {
 	 */
 	private void initIndex(File dataFile) {
 		try {
-			for (Map.Entry<String, String> e:
-					BioInput.fromFastaFileToEntries(dataFile).entrySet())
-			{
-				/*
-				 * Split database graphs into non-overlapping sequences
-				 * of length K and store them separately into the database
-				 * using the same labels.
-				 */
-				QueryUtils.splitIndexedString(e.getValue(), seqSize)
-					.forEach(s -> {
-						graphIndex.addGraph(new BioGraph(s, e.getKey()));
-					});
-			}
+			BioInput.fromFastaFileToEntries(dataFile).entrySet()
+				.forEach(e -> {
+					/* Split every string that must be indexed and
+					 * add it to the radix tree.
+					 */
+					QueryUtils.splitIndexedString(e.getValue(), seqSize)
+						.forEach(s -> {
+							graphIndex.addGraph(new BioGraph(s, e.getKey()));
+						});
+				});
 		}
-		catch(Exception ex) {
-			ex.printStackTrace();
+		catch(IOException ex) {
+			if (null == ex.getMessage()) {
+				logger.severe("Error occured during index initialization");
+			}
+			else {
+				logger.severe(ex.getMessage());
+			}
 		}
 	}
 
@@ -219,7 +221,7 @@ public final class RadixTreeQuery {
 		}
 		File data = new File(args[0]);
 		File test = new File(args[1]);
-		int Ls = 150, tol = 5, order = 64;
+		int Ls = 40, tol = 5, order = 64;
 
 		/*
 		 * If another argument is present, it is assumed to be
@@ -265,12 +267,8 @@ public final class RadixTreeQuery {
 		}
 
 		try {
-			/*
-			 * Create a GsonBuilder to output formatted results.
-			 */
-			gson = new GsonBuilder().setPrettyPrinting().create();
-			logger.info("Initializing RadixTreeQuery...");
-			RadixTreeQuery bq = new RadixTreeQuery(Ls, order);
+			logger.info("Initializing RadixQuery...");
+			RadixQuery bq = new RadixQuery(Ls, order);
 			bq.initIndex(data);
 
 			long totalTime = 0L;
