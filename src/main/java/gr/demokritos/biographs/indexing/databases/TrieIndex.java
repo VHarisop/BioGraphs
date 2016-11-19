@@ -19,7 +19,6 @@ package gr.demokritos.biographs.indexing.databases;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -147,7 +146,7 @@ public final class TrieIndex extends GraphDatabase {
 	 */
 	private void addAllGraphs(File f) throws Exception {
 		if (type == GraphType.DNA) {
-			Arrays.stream(BioInput.fastaFileToGraphs(f))
+			BioInput.fastaFileToGraphStream(f)
 				.forEach(g -> addGraph(g));
 		}
 		else {

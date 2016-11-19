@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 import java.util.logging.Level;
 
 import com.google.gson.Gson;
@@ -160,6 +161,16 @@ public final class RadixQueryDetailed {
 		}
 		return blocks;
 	}
+	
+	/**
+	 * Returns a list of {@link TrieEntry} objects that exactly
+	 * match a given query string.
+	 * @param query the query string
+	 * @return a list of matching entries
+	 */
+	public List<TrieEntry> getExactMatches(String query) {
+		return graphIndex.getNodes(query);
+	}
 
 	/**
 	 * Performs a search in the graph database for matches of a specific
@@ -171,16 +182,10 @@ public final class RadixQueryDetailed {
 	 * @return a set of matching {@link TrieEntry}s.
 	 */
 	public Set<TrieEntry>
-	getMatches(String query, String label, int tolerance)
+	getMatches(String query, String label, final int tol)
 	{
 		List<String> blocks = QueryUtils.splitQueryString(query, seqSize);
 		Set<TrieEntry> matches = new HashSet<TrieEntry>();
-
-		/* loop counter */
-		int loopcnt = 0;
-
-		/* boolean indicating if an absolute match has been found */
-		boolean absMatch = false;
 
 		/*
 		 * search all graphs with a preselected tolerance
@@ -196,62 +201,52 @@ public final class RadixQueryDetailed {
 			 * keep all whose distances are lower than
 			 * a tolerance.
 			 */
-			for (TrieEntry t: graphIndex.select(bg)) {
-				final int entryDist = ClusterDistance.hamming(
-						t.getEncoding(),
-						enc);
-
-				/* If an entry from the same graph is found,
-				 * report it as well as its distance
-				 */
-				if (t.getLabel().equals(eQuery.getLabel())) {
-					logger.info(String.format(
-						"Found entry from same graph -- Dist: %d",
-						entryDist));
-				}
-				/*
-				 * If distance is larger than the tolerance,
-				 * skip to next iteration.
-				 */
-				if (entryDist > tolerance) {
-					continue;
-				}
-				/*
-				 * Otherwise, add to matches. If .add() fails, log it
-				 * to the log file.
-				 */
-				if (!(matches.add(t))) {
-					logger.warning(String.format(
-						"Could not add %s to the match set!",
-						t.getLabel()));
-				}
-
-				/*
-				 * If an absolutely matching entry was found,
-				 * set the absMatch flag to break on next iteration
-				 */
-				if (entryDist == 0) {
-					absMatch = true;
-				}
-			}
-			/*
-			 * Keep searching until a range equal to the
-			 * seqSize has been searched.
-			 */
-			// if (++loopcnt > (2 * seqSize)) {
-				/*
-				 * Break the search if two full search windows
-				 * have been exhausted and an absolute match has
-				 * been already found.
-				 */
-				// if (absMatch) {
-				//	;
-					// break;
-				//}
-			//}
+			graphIndex.selectAsStream(bg)
+				.filter(t -> 
+					ClusterDistance.hamming(t.getEncoding(), enc) <= tol)
+				.forEach(t -> {
+					/*
+					 * Otherwise, add to matches. If .add() fails, log it
+					 * to the log file.
+					 */
+					if (!(matches.add(t))) {
+						logger.warning(String.format(
+								"Could not add %s to the match set!",
+								t.getLabel()));
+					}
+				});
 		}
 		return matches;
 	}
+	
+	/**
+	 * Gets the exact matches for a given query.
+	 * @param query the query string
+	 * @param label the label of the sequence
+	 * @param tol the search tolerance
+	 * @return the set of matching entries
+	 */
+	public Set<TrieEntry>
+	getExactMatches(String query, String label, final int tol)
+	{
+		List<String> blocks = QueryUtils.splitQueryString(query, seqSize);
+		Set<TrieEntry> matches = new HashSet<TrieEntry>();
+		/*
+		 * Retrieve all exact matches
+		 */
+		for (String bl: blocks) {
+			final BioGraph bg = new BioGraph(bl, label);
+			final TrieEntry eQuery = new TrieEntry(bg);
+			final byte[] enc = eQuery.getEncoding();
+			/* Put all matches in the set */
+			graphIndex.getNodesAsStream(bg)
+					.filter(t ->
+						ClusterDistance.hamming(t.getEncoding(), enc) <= tol)
+					.forEach(t -> matches.add(t));
+		}
+		return matches;
+	}
+	
 
 	/**
 	 * A static main method that performs a short experiment using
@@ -367,6 +362,14 @@ public final class RadixQueryDetailed {
 						lbl));
 					for (TrieEntry ent: matches) {
 						logger.warning(ent.getLabel());
+					}
+					/* Get exact matches as well */
+					Set<TrieEntry> exact = bq.getExactMatches(dt, lbl, tol);
+					for (TrieEntry ent: exact) {
+						if (ent.getLabel().equals(lbl)) {
+							hits++;
+							break;
+						}
 					}
 				}
 				/*

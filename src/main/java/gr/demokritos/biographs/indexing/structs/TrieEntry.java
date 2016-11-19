@@ -25,7 +25,8 @@ import gr.demokritos.biographs.indexing.preprocessing.Strategies;
 /**
  * This class represents an entry in the graph index
  * created by BioGraphs that is used by
- * {@link gr.demokritos.biographs.indexing.databases.TrieIndex}
+ * {@link gr.demokritos.biographs.indexing.databases.TrieIndex} and
+ * {@link gr.demokritos.biographs.indexing.databases.RadixIndex}.
  * It contains the original graph's label and its hashed vector encoding,
  * providing a method for serializing it to a binary string using a given
  * number of bits per index.
@@ -36,12 +37,12 @@ public final class TrieEntry {
 	/**
 	 * The label of the graph that this entry refers to.
 	 */
-	protected String label;
+	protected final String label;
 
 	/**
 	 * The hashed vector encoding of the graph that the entry refers to.
 	 */
-	protected byte[] indexEncoding;
+	protected final byte[] indexEncoding;
 
 	/**
 	 * Creates a new TrieEntry object from a {@link BioGraph} using
@@ -85,7 +86,7 @@ public final class TrieEntry {
 	 * @param num_bits the number of bits
 	 * @return the vector's bitfield representation
 	 */
-	private String vectorToBits(byte[] vec, int num_bits) {
+	private String vectorToBits(byte[] vec, final int num_bits) {
 		StringBuilder repr = new StringBuilder(num_bits * vec.length);
 		final float fact = num_bits;
 		for (int i = 0; i < vec.length; ++i) {
@@ -122,15 +123,6 @@ public final class TrieEntry {
 	public final String getLabel() {
 		return label;
 	}
-
-	/**
-	 * Simple getter for the entry's key.
-	 *
-	 * @return the key of the entry
-	 */
-	public final String getKey() {
-		return vectorToBits(indexEncoding, 64);
-	}
 	
 	/**
 	 * Gets the entry's serialized key of a given order.
@@ -138,7 +130,7 @@ public final class TrieEntry {
 	 * @param order the order for serialization
 	 * @return the key of the entry
 	 */
-	public final String getKey(int order) {
+	public final String getKey(final int order) {
 		return vectorToBits(indexEncoding, order);
 	}
 

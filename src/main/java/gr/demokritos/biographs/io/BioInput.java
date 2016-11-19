@@ -53,7 +53,6 @@ public class BioInput {
 			bGraph = BioGraph.fromSequence(entry.getValue(), entry.getKey());
 			break;
 		}
-
 		return bGraph;
 	}
 
@@ -102,6 +101,22 @@ public class BioInput {
 			bGraphs[iCnt++] = BioGraph.fromSequence(e.getValue(), e.getKey());
 		}
 		return bGraphs;
+	}
+	
+	/**
+	 * Creates a {@link Stream} of {@link BioGraph} objects for a series
+	 * of {@link DNASequence}s provided in a FASTA file at a given path.
+	 * @param fName the file containing the sequences
+	 * @return a {@link Stream<BioGraph>} of sequence graphs
+	 * @throws IOException if something goes wrong during file IO
+	 */
+	public static Stream<BioGraph> fastaFileToGraphStream(File fName)
+	throws IOException
+	{
+		LinkedHashMap<String, DNASequence> entries = readFastaFile(fName);
+		return entries.entrySet()
+			.stream()
+			.map(e -> BioGraph.fromSequence(e.getValue(), e.getKey()));
 	}
 	
 	/**
@@ -186,6 +201,4 @@ public class BioInput {
 			});
 		return res;
 	}
-
-
 }

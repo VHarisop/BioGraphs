@@ -24,7 +24,7 @@ extends ConcurrentRadixTree<List<TrieEntry>> {
 	 * @param seq the key {@link CharSequence}
 	 * @return the value for this exact key
 	 */
-	public List<TrieEntry> getValueFor(CharSequence key) {
+	public List<TrieEntry> get(CharSequence key) {
 		return getValueForExactKey(key);
 	}
 

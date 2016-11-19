@@ -19,8 +19,9 @@ package gr.demokritos.biographs.indexing.databases;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
+
 import com.googlecode.concurrenttrees.radix.RadixTree;
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.GraphDatabase;
@@ -140,13 +141,15 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param f the file to read from
 	 */
 	private void addAllGraphs(File f) throws Exception {
-		if (type == GraphType.DNA) {
-			Arrays.stream(BioInput.fastaFileToGraphs(f))
-				.forEach(g -> addGraph(g));
-		}
-		else {
-			throw new UnsupportedOperationException(
-					"Graph type not supported!");
+		switch (type) {
+			case DNA:
+				BioInput.fastaFileToGraphStream(f)
+					.forEach(g -> addGraph(g));
+				break;
+			default:
+				throw new UnsupportedOperationException(
+						"Graph type not supported");
+				
 		}
 	}
 
@@ -164,7 +167,7 @@ public final class RadixIndex extends GraphDatabase {
 		 * Get already existing entries with the same key first, if any
 		 */
 		final String key = entry.getKey(this.order);
-		List<TrieEntry> entries = radixIndex.getValueFor(key);
+		List<TrieEntry> entries = radixIndex.get(key);
 
 		/* if key was not already there, initialize an array of entries
 		 * otherwise, add an entry to the pre-existing array */
@@ -213,12 +216,12 @@ public final class RadixIndex extends GraphDatabase {
 	}
 
 	/**
-	 * Obtain a list of labels of graphs that match the provided key
+	 * Obtain a list of entries of graphs that match the provided key.
 	 * @param key a String containing the query graph key
 	 * @return a list of entries pointing to biographs
 	 */
 	public final List<TrieEntry> getNodes(CharSequence key) {
-		return radixIndex.getValueFor(key);
+		return radixIndex.get(key);
 	}
 
 	/**
@@ -230,5 +233,37 @@ public final class RadixIndex extends GraphDatabase {
 	 */
 	public final List<TrieEntry> select(BioGraph bQuery) {
 		return radixIndex.select(getGraphCode(bQuery));
+	}
+	
+	
+	/**
+	 * Obtains a stream of the entries that match the key of
+	 * a provided {@link BioGraph}. 
+	 * @param bg the query graph
+	 * @return a {@link Stream} of matching entries
+	 */
+	public final Stream<TrieEntry> getNodesAsStream(BioGraph bg) {
+		return getNodesAsStream(getGraphCode(bg));
+	}
+	
+	/**
+	 * Obtains a stream of the entries that match a provided key. 
+	 * @param key the query graph key 
+	 * @return a {@link Stream} of matching entries
+	 */
+	public final Stream<TrieEntry> getNodesAsStream(CharSequence key) {
+		return radixIndex.get(key).stream();
+	}
+	
+	/**
+	 * Obtains a stream of graph entries whose key is closest to the
+	 * code of a query graph, using a bitwise-XOR metric.
+	 *
+	 * @param bQuery the graph to be queried for
+	 * @return a {@link Stream} of entries whose keys are the
+	 * closest matches
+	 */
+	public final Stream<TrieEntry> selectAsStream(BioGraph bQuery) {
+		return radixIndex.select(getGraphCode(bQuery)).stream();
 	}
 }
