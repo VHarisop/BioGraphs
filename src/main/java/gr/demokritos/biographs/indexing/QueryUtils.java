@@ -47,21 +47,20 @@ public class QueryUtils {
 		List<String> blocks = new ArrayList<String>();
 		/*
 		 * Gather all subsequences with a sliding window
-		 * of length [seqSize]
+		 * of length [seqSize]. If this window is larger
+		 * than the string itself, only add the string
+		 * instead.
 		 */
-		for (int index = 0; (index + seqSize) < qLen; ++index) {
-			blocks.add(query.substring(index, index + seqSize));
-		}
-		try {
-			/* Add the rightmost [seqSize] chars */
-			final String sub = query.substring(qLen - seqSize, qLen);
-			blocks.add(sub);
-		}
-		catch (StringIndexOutOfBoundsException ex) {
-			/* Out of bounds means qLen < Ls, so we add
-			 * the whole query string */
+		if (qLen < seqSize) {
 			blocks.add(query);
-			logger.info("Query string too short: added " + query);
+			logger.info("Query string too short - added " + query);
+		}
+		else {
+			for (int index = 0; (index + seqSize) < qLen; ++index) {
+				blocks.add(query.substring(index, index + seqSize));
+			}
+			/* Add the rightmost [seqSize] chars */
+			blocks.add(query.substring(qLen - seqSize, qLen));
 		}
 		return blocks;
 	}
@@ -80,21 +79,23 @@ public class QueryUtils {
 		final int qLen = data.length();
 		List<String> blocks = new ArrayList<String>();
 		/*
-		 * Gather all subsequences with a window of length [seqSize]
+		 * Gather all subsequences with a window of length [seqSize].
+		 * If the length of the indexed string is less than [seqSize],
+		 * add the whole string instead.
 		 */
-		for (int index = 0; (index + seqSize) < qLen; index += seqSize) {
-			blocks.add(data.substring(index, index + seqSize));
-		}
-		try {
-			/* Add the rightmost [seqSize] chars */
-			final String sub = data.substring(qLen - seqSize, qLen);
-			blocks.add(sub);
-		}
-		catch (StringIndexOutOfBoundsException ex) {
-			/* Out of bounds means qLen < Ls, so we add
-			 * the whole string as a fragment on its own */
+		if (qLen < seqSize) {
 			blocks.add(data);
-			logger.info("Indexed string too short: added " + data);
+			logger.info("Indexed string too short - added " + data);
+		}
+		else {
+			/*
+			 * Non-overlapping splits
+			 */
+			for (int index = 0; (index + seqSize) < qLen; index += seqSize) {
+				blocks.add(data.substring(index, index + seqSize));
+			}
+			/* Add the rightmost [seqSize] chars */
+			blocks.add(data.substring(qLen - seqSize, qLen));
 		}
 		return blocks;
 	}
