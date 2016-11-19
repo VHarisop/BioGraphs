@@ -80,9 +80,9 @@ public final class RadixQueryMultiway {
 	 * The graph databases to perform queries against.
 	 */
 	private List<RadixIndex> graphIndex = new ArrayList<>();
-	
+
 	/**
-	 * The max number of fragments per {@link RadixIndex}. 
+	 * The max number of fragments per {@link RadixIndex}.
 	 */
 	public static int FRAGMENTS_PER_INDEX = 0;
 
@@ -182,7 +182,7 @@ public final class RadixQueryMultiway {
 		}
 		return blocks;
 	}
-	
+
 	Callable<Set<TrieEntry>> searchTask(
 		final BioGraph bQuery,
 		final int tolerance,
@@ -235,6 +235,7 @@ public final class RadixQueryMultiway {
 	 */
 	public Set<TrieEntry>
 	getMatches(String query, String label, int tolerance)
+	throws InterruptedException
 	{
 		List<String> blocks = QueryUtils.splitQueryString(query, seqSize);
 		Set<TrieEntry> matches = new HashSet<TrieEntry>();
@@ -265,20 +266,17 @@ public final class RadixQueryMultiway {
 					.stream()
 					.map(rInd -> searchTask(bg, tolerance, rInd, enc))
 					.collect(Collectors.toList());
-			try {
-				List<Future<Set<TrieEntry>>> res = exec.invokeAll(tasks);
-				Set<TrieEntry> allMatches = new HashSet<TrieEntry>();
-				res.forEach(f -> {
+
+			exec.invokeAll(tasks)
+				.stream()
+				.forEach(future -> {
 					try {
-						allMatches.addAll(f.get());
-					} catch (InterruptedException | ExecutionException e) {
-						// TODO Auto-generated catch block
+						matches.addAll(future.get());
+					}
+					catch (Exception e) {
 						e.printStackTrace();
 					}
 				});
-			} catch (InterruptedException e) {       
-				e.printStackTrace();
-			}
 		}
 		return matches;
 	}
