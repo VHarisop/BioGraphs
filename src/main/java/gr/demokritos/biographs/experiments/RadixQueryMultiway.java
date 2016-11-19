@@ -66,6 +66,7 @@ public final class RadixQueryMultiway {
 				"Could not set log file -- logging to console instead");
 		}
 	}
+
 	/**
 	 * Gson builder for result printing
 	 */
@@ -84,7 +85,7 @@ public final class RadixQueryMultiway {
 	/**
 	 * The max number of fragments per {@link RadixIndex}.
 	 */
-	public static int FRAGMENTS_PER_INDEX = 0;
+	public static int FRAGMENTS_PER_INDEX = 2000000;
 
 	/**
 	 * Creates a new TrieQuery object that performs queries by
@@ -195,15 +196,6 @@ public final class RadixQueryMultiway {
 				final int entryDist = ClusterDistance.hamming(
 						ent.getEncoding(),
 						enc);
-
-				/* If an entry from the same graph is found,
-				 * report it as well as its distance
-				 */
-				if (ent.getLabel().equals(bQuery.getLabel())) {
-					logger.info(String.format(
-							"Found entry from same graph -- Dist: %d",
-							entryDist));
-				}
 				/*
 				 * If distance is larger than the tolerance,
 				 * skip to next iteration.
@@ -253,14 +245,12 @@ public final class RadixQueryMultiway {
 			final BioGraph bg = new BioGraph(bl, label);
 			final TrieEntry eQuery = new TrieEntry(bg);
 			final byte[] enc = eQuery.getEncoding();
-
-			logger.info("Query string: " + bl);
 			/*
 			 * Get the closest TrieEntry objects and
 			 * keep all whose distances are lower than
 			 * a tolerance.
 			 */
-			ExecutorService exec = Executors.newWorkStealingPool();
+			ExecutorService exec = Executors.newCachedThreadPool();
 			/* Gather all tasks to be scheduled in a list */
 			Collection<? extends Callable<Set<TrieEntry>>> tasks = graphIndex
 					.stream()
@@ -336,6 +326,12 @@ public final class RadixQueryMultiway {
 				return;
 			}
 		}
+
+		/*
+		 * Set QueryUtils' logger to the logger that
+		 * our experiment is currently using.
+		 */
+		QueryUtils.setLogger(logger);
 
 		try {
 			/*

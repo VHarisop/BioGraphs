@@ -15,13 +15,22 @@ public class QueryUtils {
 	 * Private constructor as this is a helper class
 	 */
 	private QueryUtils() {}
-	
+
 	/*
 	 * Private logger for this class
 	 */
-	private static final Logger logger =
+	private static Logger logger =
 			Logger.getLogger(QueryUtils.class.getName());
-	
+
+	/**
+	 * Sets the {@link Logger} used by this class.
+	 *
+	 * @param newLogger the new logger to be used
+	 */
+	public static void setLogger(Logger newLogger) {
+		logger = newLogger;
+	}
+
 	/**
 	 * Splits a query string into overlapping subsequences as
 	 * a preprocessing step for a query, returning the list of
@@ -56,11 +65,11 @@ public class QueryUtils {
 		}
 		return blocks;
 	}
-	
+
 	/**
 	 * Splits a string that will be indexed into non-overlapping
 	 * subsequences of a specified length, returning the resulting
-	 * collection. 
+	 * collection.
 	 *
 	 * @param data the string to be indexed
 	 * @param seqSize the length of every indexed fragment
