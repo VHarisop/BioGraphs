@@ -46,7 +46,7 @@ public class QueryUtils {
 	public static final List<String>
 	splitQueryString(String query, final int seqSize) {
 		final int qLen = query.length();
-		List<String> blocks = new ArrayList<String>();
+		final List<String> blocks = new ArrayList<>();
 		/*
 		 * Gather all subsequences with a sliding window
 		 * of length [seqSize]. If this window is larger
@@ -79,7 +79,7 @@ public class QueryUtils {
 	public static final List<String>
 	splitIndexedString(String data, final int seqSize) {
 		final int qLen = data.length();
-		List<String> blocks = new ArrayList<String>();
+		final List<String> blocks = new ArrayList<>();
 		/*
 		 * Gather all subsequences with a window of length [seqSize].
 		 * If the length of the indexed string is less than [seqSize],

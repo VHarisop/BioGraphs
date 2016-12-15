@@ -3,7 +3,7 @@ package gr.demokritos.biographs.indexing;
 import gr.demokritos.biographs.*;
 import gr.demokritos.biographs.io.BioInput;
 import gr.demokritos.biographs.indexing.GraphDatabase.GraphType;
-import gr.demokritos.iit.jinsect.jutils;
+import gr.demokritos.iit.jinsect.JUtils;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -84,7 +84,7 @@ public class KnnTest
 						bgB.getGraph().totalEdgeWeight();
 
 					if (Utils.compareDouble(sSim, 0.0)) {
-						return jutils.compareCanonicalCodes(
+						return JUtils.compareCanonicalCodes(
 								bgA.getGraph(),
 								bgB.getGraph());
 					} else {

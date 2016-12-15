@@ -15,9 +15,10 @@
 
 package gr.demokritos.biographs.indexing.structs;
 
+import java.util.Objects;
+
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.preprocessing.IndexVector;
-import java.util.Objects;
 
 /**
  * This class represents an entry in the graph index
@@ -68,7 +69,7 @@ public final class GraphIndexEntry {
 	public String getLabel() {
 		return this.graphLabel;
 	}
-	
+
 	/**
 	 * The hash of the index entry is determined uniquely by the
 	 * hash of the label of the graph that the entry refers to.
@@ -84,18 +85,21 @@ public final class GraphIndexEntry {
 	 */
 	@Override
 	public boolean equals(Object other) {
-		if (null == other)
+		if (null == other) {
 			return false;
+		}
 
-		if (!(other instanceof GraphIndexEntry))
+		if (!(other instanceof GraphIndexEntry)) {
 			return false;
+		}
 
-		GraphIndexEntry eOther = (GraphIndexEntry) other;
+		final GraphIndexEntry eOther = (GraphIndexEntry) other;
 		if (this.getLabel().equals(eOther.getLabel())) {
-			int[] otherEnc = eOther.getEncoding();
+			final int[] otherEnc = eOther.getEncoding();
 			for (int i = 0; i < indexEncoding.length; ++i) {
-				if (indexEncoding[i] != otherEnc[i])
+				if (indexEncoding[i] != otherEnc[i]) {
 					return false;
+				}
 			}
 			return true;
 		}

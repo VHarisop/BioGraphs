@@ -34,7 +34,7 @@ extends ConcurrentRadixTree<List<TrieEntry>> {
 	 * @return an {@link List<TrieEntry>} with the values
 	 */
 	public List<TrieEntry> select(CharSequence key) {
-		List<TrieEntry> results = new ArrayList<>();
+		final List<TrieEntry> results = new ArrayList<>();
 		getValuesForClosestKeys(key).forEach(lst -> results.addAll(lst));
 		return results;
 	}

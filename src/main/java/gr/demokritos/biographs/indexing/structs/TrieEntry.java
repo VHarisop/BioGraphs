@@ -55,7 +55,7 @@ public final class TrieEntry {
 		/*
 		 * get the standard index encoding
 		 */
-		IndexVector indVec = new IndexVector(GraphType.DNA);
+		final IndexVector indVec = new IndexVector(GraphType.DNA);
 		indVec.setHashStrategy(Strategies.dnaHash());
 		indVec.setBins(16);
 		/*
@@ -87,21 +87,23 @@ public final class TrieEntry {
 	 * @return the vector's bitfield representation
 	 */
 	private String vectorToBits(byte[] vec, final int num_bits) {
-		StringBuilder repr = new StringBuilder(num_bits * vec.length);
+		final StringBuilder repr = new StringBuilder(num_bits * vec.length);
 		final float fact = num_bits;
-		for (int i = 0; i < vec.length; ++i) {
+		for (final byte element : vec) {
 			/* map vec[i] / 64 ratio to [0, 1] range */
-			final float num_set = Math.min((vec[i]) / fact, 1f);
+			final float num_set = Math.min((element) / fact, 1f);
 
 			/* convert to int between [0, Nbits] */
 			final int ones =
 				(Math.min(num_bits - 1, (int) (num_set * fact)));
 			/* Add proper number of leading 1s */
-			for (int j = 0; j < ones; ++j)
+			for (int j = 0; j < ones; ++j) {
 				repr.append("1");
+			}
 			/* Add proper number of trailing 0s */
-			for (int j = ones; j < num_bits; ++j)
+			for (int j = ones; j < num_bits; ++j) {
 				repr.append("0");
+			}
 		}
 		return repr.toString();
 	}
@@ -123,7 +125,7 @@ public final class TrieEntry {
 	public final String getLabel() {
 		return label;
 	}
-	
+
 	/**
 	 * Gets the entry's serialized key of a given order.
 	 *
@@ -150,13 +152,15 @@ public final class TrieEntry {
 	 */
 	@Override
 	public boolean equals(Object other) {
-		if (null == other)
+		if (null == other) {
 			return false;
+		}
 
-		if (!(other instanceof TrieEntry))
+		if (!(other instanceof TrieEntry)) {
 			return false;
+		}
 
-		TrieEntry eOther = (TrieEntry) other;
+		final TrieEntry eOther = (TrieEntry) other;
 		if (this.getLabel().equals(eOther.getLabel())) {
 			return getEncoding().equals(eOther.getEncoding());
 		}

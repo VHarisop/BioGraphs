@@ -49,7 +49,8 @@ public final class TrieIndex extends GraphDatabase {
 	 * {@link BioGraph#getDfsCode()} or {@link BioGraph#getCanonicalCode()}
 	 * as keys.
 	 */
-	protected PatriciaTrie<List<TrieEntry>> trieIndex;
+	protected final PatriciaTrie<List<TrieEntry>> trieIndex =
+			new PatriciaTrie<>();
 
 	/**
 	 * The default order (number of bits) used for the serialization
@@ -62,7 +63,6 @@ public final class TrieIndex extends GraphDatabase {
 	 */
 	public TrieIndex() {
 		super();
-		trieIndex = new PatriciaTrie<List<TrieEntry>>();
 	}
 
 	/**
@@ -82,7 +82,6 @@ public final class TrieIndex extends GraphDatabase {
 	 */
 	public TrieIndex(String path) {
 		super(path);
-		trieIndex = new PatriciaTrie<List<TrieEntry>>();
 	}
 
 	/**
@@ -107,7 +106,7 @@ public final class TrieIndex extends GraphDatabase {
 	public void buildIndex(String path)
 	throws Exception
 	{
-		File fPath = new File(path);
+		final File fPath = new File(path);
 		buildIndex(fPath);
 	}
 
@@ -125,13 +124,9 @@ public final class TrieIndex extends GraphDatabase {
 		else {
 			/* get all files in a list, and for each file add all
 			 * the resulting biographs to the database */
-			File[] fileList = fPath.listFiles(new FileFilter() {
-				@Override
-				public boolean accept(File toFilter) {
-					return toFilter.isFile();
-				}
-			});
-			for (File f: fileList) {
+			final File[] fileList = fPath.listFiles(
+					(FileFilter) toFilter -> toFilter.isFile());
+			for (final File f: fileList) {
 				addAllGraphs(f);
 			}
 		}
@@ -174,7 +169,7 @@ public final class TrieIndex extends GraphDatabase {
 		/* if key was not already there, initialize an array of entries
 		 * otherwise, add an entry to the pre-existing array */
 		if (null == entries) {
-			entries = new ArrayList<TrieEntry>();
+			entries = new ArrayList<>();
 		}
 		/*
 		 * update trie with new array
@@ -246,8 +241,8 @@ public final class TrieIndex extends GraphDatabase {
 	 * @return a list of entries that are the closest matches
 	 */
 	public final List<TrieEntry> selectKNearest(BioGraph bQuery, int K) {
-		String code = getGraphCode(bQuery);
-		List<TrieEntry> entries = trieIndex.selectValue(code);
+		final String code = getGraphCode(bQuery);
+		final List<TrieEntry> entries = trieIndex.selectValue(code);
 
 		String prevKey = trieIndex.selectKey(code),
 			   nextKey = trieIndex.selectKey(code);
@@ -268,8 +263,9 @@ public final class TrieIndex extends GraphDatabase {
 				entries.addAll(trieIndex.selectValue(nextKey));
 				++returned;
 			}
-			if ((nextKey == null) && (prevKey == null))
+			if ((nextKey == null) && (prevKey == null)) {
 				break;
+			}
 		}
 		while (returned < K);
 		return entries;

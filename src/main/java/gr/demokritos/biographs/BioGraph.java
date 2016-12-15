@@ -19,7 +19,7 @@ package gr.demokritos.biographs;
 import gr.demokritos.iit.jinsect.representations.NGramJGraph;
 import gr.demokritos.iit.jinsect.structs.*;
 import gr.demokritos.iit.jinsect.encoders.*;
-import gr.demokritos.iit.jinsect.jutils;
+import gr.demokritos.iit.jinsect.JUtils;
 
 import org.biojava.nbio.core.sequence.DNASequence;
 
@@ -161,7 +161,7 @@ public final class BioGraph extends NGramJGraph {
 	 * @return the string representation of the graph in DOT format
 	 */
 	public final String toDot() {
-		return jutils.graphToDot(getGraphLevel(0), true);
+		return JUtils.graphToDot(getGraphLevel(0), true);
 	}
 
 	/**

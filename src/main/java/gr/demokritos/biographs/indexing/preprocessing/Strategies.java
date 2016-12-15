@@ -15,7 +15,7 @@
 
 package gr.demokritos.biographs.indexing.preprocessing;
 
-import gr.demokritos.iit.jinsect.structs.*;
+import gr.demokritos.iit.jinsect.structs.JVertex;
 /**
  * A class with static methods to create some of the most common encoding
  * and hashing strategies for preprocessing.
@@ -31,22 +31,19 @@ public final class Strategies {
 	 * @return the hashing strategy described above
 	 */
 	public static final HashingStrategy<JVertex> simpleDnaHash() {
-		return new HashingStrategy<JVertex>() {
-			@Override
-			public int hash(JVertex vCurr) {
-				final char c = vCurr.getLabel().charAt(0);
-				switch (c) {
-					case 'A':
-						return 0;
-					case 'C':
-						return 1;
-					case 'G':
-						return 2;
-					case 'T':
-						return 3;
-					default:
-						return 4;
-				}
+		return (vCurr) -> {
+			final char c = vCurr.getLabel().charAt(0);
+			switch (c) {
+				case 'A':
+					return 0;
+				case 'C':
+					return 1;
+				case 'G':
+					return 2;
+				case 'T':
+					return 3;
+				default:
+					return 4;
 			}
 		};
 	}
@@ -59,40 +56,37 @@ public final class Strategies {
 	 * @return the {@link HashingStrategy<JVertex>} object described above
 	 */
 	public static final HashingStrategy<JVertex> dinucleotideHash() {
-		return new HashingStrategy<JVertex>() {
-			@Override
-			public int hash(JVertex vCurr) {
-				final String sInit = vCurr.getLabel().substring(0, 2);
-				switch (sInit) {
-					case "AA":
-						return 0;
-					case "AC":
-					case "CA":
-						return 1;
-					case "AG":
-					case "GA":
-						return 2;
-					case "AT":
-					case "TA":
-						return 3;
-					case "CC":
-						return 4;
-					case "CG":
-					case "GC":
-						return 5;
-					case "CT":
-					case "TC":
-						return 6;
-					case "GG":
-						return 7;
-					case "GT":
-					case "TG":
-						return 8;
-					case "TT":
-						return 9;
-					default:
-						return 10;
-				}
+		return vCurr -> {
+			final String sInit = vCurr.getLabel().substring(0, 2);
+			switch (sInit) {
+				case "AA":
+					return 0;
+				case "AC":
+				case "CA":
+					return 1;
+				case "AG":
+				case "GA":
+					return 2;
+				case "AT":
+				case "TA":
+					return 3;
+				case "CC":
+					return 4;
+				case "CG":
+				case "GC":
+					return 5;
+				case "CT":
+				case "TC":
+					return 6;
+				case "GG":
+					return 7;
+				case "GT":
+				case "TG":
+					return 8;
+				case "TT":
+					return 9;
+				default:
+					return 10;
 			}
 		};
 	}
@@ -105,12 +99,9 @@ public final class Strategies {
 	 * @return the {@link HashingStrategy<JVertex>} described above
 	 */
 	public static final HashingStrategy<JVertex> alphabetHash() {
-		return new HashingStrategy<JVertex>() {
-			@Override
-			public int hash(JVertex vCurr) {
-				final char c = vCurr.getLabel().toUpperCase().charAt(0);
-				return (int) c - (int) 'A';
-			}
+		return vCurr -> {
+			final char c = vCurr.getLabel().toUpperCase().charAt(0);
+			return c - 'A';
 		};
 	}
 
@@ -121,39 +112,36 @@ public final class Strategies {
 	 * @return the {@link HashingStrategy<JVertex>} described above
 	 */
 	public static final HashingStrategy<JVertex> dnaHash() {
-		return new HashingStrategy<JVertex>() {
-			@Override
-			public int hash(JVertex vCurr) {
-				final char cA = vCurr.getLabel().toUpperCase().charAt(0);
-				final char cB = vCurr.getLabel().toUpperCase().charAt(1);
+		return vCurr -> {
+			final char cA = vCurr.getLabel().toUpperCase().charAt(0);
+			final char cB = vCurr.getLabel().toUpperCase().charAt(1);
 
-				int retA, retB;
-				switch (cA) {
-					case 'A':
-						retA = 0; break;
-					case 'C':
-						retA = 1; break;
-					case 'G':
-						retA = 2; break;
-					case 'T':
-						retA = 3; break;
-					default:
-						retA = -1;
-				}
-				switch (cB) {
-					case 'A':
-						retB = 0; break;
-					case 'C':
-						retB = 1; break;
-					case 'G':
-						retB = 2; break;
-					case 'T':
-						retB = 3; break;
-					default:
-						retB = -1;
-				}
-				return retA * 4 + retB;
+			int retA, retB;
+			switch (cA) {
+				case 'A':
+					retA = 0; break;
+				case 'C':
+					retA = 1; break;
+				case 'G':
+					retA = 2; break;
+				case 'T':
+					retA = 3; break;
+				default:
+					retA = -1;
 			}
+			switch (cB) {
+				case 'A':
+					retB = 0; break;
+				case 'C':
+					retB = 1; break;
+				case 'G':
+					retB = 2; break;
+				case 'T':
+					retB = 3; break;
+				default:
+					retB = -1;
+			}
+			return retA * 4 + retB;
 		};
 	}
 
@@ -165,12 +153,7 @@ public final class Strategies {
 	 * @return the {@link EncodingStrategy<Double>} described above
 	 */
 	public static final EncodingStrategy<Double> weightEncoding() {
-		return new EncodingStrategy<Double>() {
-			@Override
-			public Double encode(JVertex vCurr, UniqueVertexGraph uvG) {
-				return uvG.weightSumOf(vCurr);
-			}
-		};
+		return (vCurr, uvG) -> uvG.weightSumOf(vCurr);
 	}
 
 	/**
@@ -180,14 +163,9 @@ public final class Strategies {
 	 * @return the {@link EncodingStrategy<Double>} described above
 	 */
 	public static final EncodingStrategy<Double> incomingWeightEncoding() {
-		return new EncodingStrategy<Double>() {
-			@Override
-			public Double encode(JVertex vCurr, UniqueVertexGraph uvG) {
-				return uvG.incomingWeightSumOf(vCurr);
-			}
-		};
+		return (vCurr, uvG) -> uvG.incomingWeightSumOf(vCurr);
 	}
-	
+
 	/**
 	 * Creates a new {@link EncodingStrategy} that assigns the number
 	 * of incident edges to each {@link JVertex}.
@@ -195,14 +173,9 @@ public final class Strategies {
 	 * @return the {@link EncodingStrategy<Integer>} described above
 	 */
 	public static final EncodingStrategy<Integer> degreeEncoding() {
-		return new EncodingStrategy<Integer>() {
-			@Override
-			public Integer encode(JVertex vCurr, UniqueVertexGraph uvG) {
-				return uvG.degreeOf(vCurr);
-			}
-		};
+		return (vCurr, uvG) -> uvG.degreeOf(vCurr);
 	}
-	
+
 	/**
 	 * Creates a new {@link EncodingStrategy} that assigns the number
 	 * of incoming edges to each {@link JVertex}.
@@ -210,12 +183,7 @@ public final class Strategies {
 	 * @return the {@link EncodingStrategy<Integer>} described above
 	 */
 	public static final EncodingStrategy<Integer> inDegreeEncoding() {
-		return new EncodingStrategy<Integer>() {
-			@Override
-			public Integer encode(JVertex vCurr, UniqueVertexGraph uvG) {
-				return uvG.inDegreeOf(vCurr);
-			}
-		};
+		return (vCurr, uvG) -> uvG.inDegreeOf(vCurr);
 	}
 
 	/**
@@ -225,22 +193,19 @@ public final class Strategies {
 	 * @return the {@link EncodingStrategy<Integer>} described above
 	 */
 	public static final EncodingStrategy<Integer> weightRatioEncoding() {
-		return new EncodingStrategy<Integer>() {
-			@Override
-			public Integer encode(JVertex vCurr, UniqueVertexGraph uvg) {
-				/* find minimum and maximum incoming weights */
-				double wMin = uvg.incomingEdgesOf(vCurr).stream()
-					.mapToDouble(e -> e.edgeWeight())
-					.min()
-					.getAsDouble();
-				double wMax = uvg.incomingEdgesOf(vCurr).stream()
-					.mapToDouble(e -> e.edgeWeight())
-					.max()
-					.getAsDouble();
-				/* map ratio from [eps, 1] to [eps, 100] */
-				final double ratio = (wMin / wMax) * 100;
-				return (int) Math.round(ratio);
-			}
+		return (vCurr, uvg) -> {
+			/* find minimum and maximum incoming weights */
+			final double wMin = uvg.incomingEdgesOf(vCurr).stream()
+				.mapToDouble(e1 -> e1.edgeWeight())
+				.min()
+				.getAsDouble();
+			final double wMax = uvg.incomingEdgesOf(vCurr).stream()
+				.mapToDouble(e2 -> e2.edgeWeight())
+				.max()
+				.getAsDouble();
+			/* map ratio from [eps, 1] to [eps, 100] */
+			final double ratio = (wMin / wMax) * 100;
+			return (int) Math.round(ratio);
 		};
 	}
 }

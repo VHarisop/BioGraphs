@@ -33,7 +33,7 @@ import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 /**
  * An abstract class that implements a graph database using graph similarity.
  * Here, the similarity measure used is the graphs' structural similarity, as is
- * implemented in {@link gr.demokritos.iit.jinsect.jutils}
+ * implemented in {@link gr.demokritos.iit.jinsect.JUtils}
  *
  * @author VHarisop
  */

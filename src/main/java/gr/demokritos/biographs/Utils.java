@@ -16,16 +16,18 @@
 package gr.demokritos.biographs;
 
 import java.io.File;
-import java.lang.Math;
-import java.util.*;
-import java.util.stream.*;
-import gr.demokritos.biographs.indexing.preprocessing.*;
-import gr.demokritos.biographs.indexing.structs.*;
-import gr.demokritos.biographs.io.BioInput;
-import gr.demokritos.iit.jinsect.io.LineReader;
-import gr.demokritos.iit.jinsect.comparators.NGramGraphComparator;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.biojava.nbio.core.sequence.DNASequence;
+
+import gr.demokritos.biographs.indexing.preprocessing.IndexVector;
+import gr.demokritos.biographs.indexing.structs.GraphIndexEntry;
+import gr.demokritos.biographs.io.BioInput;
+import gr.demokritos.iit.jinsect.comparators.NGramGraphComparator;
+import gr.demokritos.iit.jinsect.io.LineReader;
 
 /**
  * A class containing various utilities used in preprocessing
@@ -44,7 +46,7 @@ public final class Utils {
 	 */
 	public static double
 	getValueSimilarityBetween(BioGraph bgA, BioGraph bgB) {
-		NGramGraphComparator ngcc = new NGramGraphComparator();
+		final NGramGraphComparator ngcc = new NGramGraphComparator();
 		return ngcc.getSimilarityBetween(
 				bgA.getSuper(),
 				bgB.getSuper()).ValueSimilarity;
@@ -70,7 +72,7 @@ public final class Utils {
 	 */
 	public static double[] getPartialSums(double[] dArray) {
 		// allocate a new array to hold the partial sums
-		double[] pSums = new double[dArray.length];
+		final double[] pSums = new double[dArray.length];
 		double runSum = 0.0;
 
 		/* iterate over each entry, compute the new partial sum
@@ -90,7 +92,7 @@ public final class Utils {
 	 */
 	public static int[] getPartialSums(int[] iArray) {
 		// allocate a new array to hold the partial sums
-		int[] pSums = new int[iArray.length];
+		final int[] pSums = new int[iArray.length];
 		int runSum = 0;
 
 		/* iterate over each entry, compute the new partial sum
@@ -203,8 +205,8 @@ public final class Utils {
 	 */
 	public static GraphIndexEntry[]
 	fastaFileToEntries(File path, IndexVector hVec) throws Exception {
-		List<GraphIndexEntry> gis = new ArrayList<GraphIndexEntry>();
-		for (Map.Entry<String, DNASequence> e:
+		final List<GraphIndexEntry> gis = new ArrayList<>();
+		for (final Map.Entry<String, DNASequence> e:
 				BioInput.readFastaFile(path).entrySet())
 		{
 			gis.add(new GraphIndexEntry(
@@ -227,8 +229,8 @@ public final class Utils {
 	 */
 	public static GraphIndexEntry[]
 	wordFileToEntries(File path, IndexVector hVec) throws Exception {
-		List<GraphIndexEntry> gis = new ArrayList<GraphIndexEntry>();
-		for (String s: new LineReader().getLines(path)) {
+		final List<GraphIndexEntry> gis = new ArrayList<>();
+		for (final String s: new LineReader().getLines(path)) {
 			gis.add(new GraphIndexEntry(
 						new BioGraph(s, s),
 						hVec)
@@ -248,19 +250,23 @@ public final class Utils {
 	 */
 	public static List<Integer[]>
 	dnaIndexLoop(int center, int range, int sum) {
-		List<Integer[]> indices = new ArrayList<Integer[]>();
+		final List<Integer[]> indices = new ArrayList<>();
 		for (int i = -range; i <= range; ++i) {
 			for (int j = -range; j <= range; ++j) {
-				if (i + j > sum)
+				if (i + j > sum) {
 					break;
+				}
 				for (int k = -range; k <= range; ++k) {
-					if (i + j + k > sum)
+					if (i + j + k > sum) {
 						break;
+					}
 					for (int l = -range; l <= range; ++l) {
-						if (l + k + j + i > sum)
+						if (l + k + j + i > sum) {
 							break;
-						if (l + k + j + i < sum)
+						}
+						if (l + k + j + i < sum) {
 							continue;
+						}
 						indices.add(new Integer[] {
 							center + i,
 							center + j,
@@ -280,19 +286,23 @@ public final class Utils {
 	 * @param sum the desired sum of the loop variables
 	 */
 	public static List<Integer[]> dnaIndexLoop(int range, int sum) {
-		List<Integer[]> indices = new ArrayList<Integer[]>();
+		final List<Integer[]> indices = new ArrayList<>();
 		for (int i = 0; i < range; ++i) {
 			for (int j = 0; j < range; ++j) {
-				if (i + j > sum)
+				if (i + j > sum) {
 					break;
+				}
 				for (int k = 0; k < range; ++k) {
-					if (i + j + k > sum)
+					if (i + j + k > sum) {
 						break;
+					}
 					for(int l = 0; l < range; ++l) {
-						if (l + k + j + i > sum)
+						if (l + k + j + i > sum) {
 							break;
-						if (l + k + j + i < sum)
+						}
+						if (l + k + j + i < sum) {
 							continue;
+						}
 						indices.add(new Integer[] {i, j, k, l});
 					}
 				}
@@ -314,8 +324,8 @@ public final class Utils {
 	public static List<Integer[]>
 	genericFor(int range, int maxSum, int maxLevel) {
 		/* initialize queue and result list for genericFor invocation */
-		List<Integer> queue = new ArrayList<Integer>();
-		List<Integer[]> results = new ArrayList<Integer[]>();
+		final List<Integer> queue = new ArrayList<>();
+		final List<Integer[]> results = new ArrayList<>();
 
 		/* call genericFor internally to populate result list */
 		genericFor(range, 0, maxSum, queue, 0, maxLevel, results);
@@ -340,10 +350,11 @@ public final class Utils {
 		if (cl == ml) {
 			/* if running sum is not the desired one,
 			 * die gracefully */
-			if (rs != ms)
+			if (rs != ms) {
 				return;
+			}
 
-			Integer[] inds = q.toArray(new Integer[q.size()]);
+			final Integer[] inds = q.toArray(new Integer[q.size()]);
 			/* otherwise, add combo to list of results */
 			res.add(inds);
 		}
@@ -354,7 +365,7 @@ public final class Utils {
 				if (i + rs > ms) {
 					break;
 				}
-				List<Integer> nq = new ArrayList<Integer>(q);
+				final List<Integer> nq = new ArrayList<>(q);
 				nq.add(i);
 				genericFor(rng, i + rs, ms, nq, cl + 1, ml, res);
 			}
@@ -365,12 +376,12 @@ public final class Utils {
 	 * Test the {@link #genericFor(int, int, int)} method
 	 */
 	public static void main(String[] args) {
-		int rng = 5;
-		int maxSum = 5;
-		int maxLevels = 16;
-		List<Integer[]> results = genericFor(rng, maxSum, maxLevels);
-		for (Integer[] iArray: results) {
-			for (int i: iArray) {
+		final int rng = 5;
+		final int maxSum = 5;
+		final int maxLevels = 16;
+		final List<Integer[]> results = genericFor(rng, maxSum, maxLevels);
+		for (final Integer[] iArray: results) {
+			for (final int i: iArray) {
 				System.out.print(i);
 			}
 			System.out.println();

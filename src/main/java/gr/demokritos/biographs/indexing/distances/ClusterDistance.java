@@ -16,7 +16,9 @@
 package gr.demokritos.biographs.indexing.distances;
 
 import java.util.stream.IntStream;
-import gr.demokritos.biographs.*;
+
+import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.Utils;
 import gr.demokritos.biographs.indexing.preprocessing.IndexVector;
 
 /**
@@ -37,7 +39,7 @@ public final class ClusterDistance {
 		double dist;
 		try {
 			dist = Utils.getHammingDistance(encA, encB);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			ex.printStackTrace();
 			dist = Double.MAX_VALUE;
 		}
@@ -56,7 +58,7 @@ public final class ClusterDistance {
 		int dist;
 		try {
 			dist = Utils.getHammingDistance(encA, encB);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			ex.printStackTrace();
 			dist = Integer.MAX_VALUE;
 		}
@@ -72,18 +74,16 @@ public final class ClusterDistance {
 	 * @return the hamming distance between the two vectors
 	 */
 	public static int hamming(byte[] encA, byte[] encB) {
-		int dist = 0;
 		if (encA.length != encB.length) {
-			dist = Integer.MAX_VALUE;
+			return Integer.MAX_VALUE;
 		}
 		else {
-			dist = IntStream.range(0, encA.length)
+			return IntStream.range(0, encA.length)
 				.map(i -> Math.abs(encA[i] - encB[i]))
 				.sum();
 		}
-		return dist;
 	}
-	
+
 	/**
 	 * Computes the euclidean distance between two vectors, returning
 	 * the system's max value for integers if their lengths differ.
@@ -93,14 +93,12 @@ public final class ClusterDistance {
 	 * @return the euclidean distance between the two vectors
 	 */
 	public static int euclidean(int[] encA, int[] encB) {
-		int dist;
 		try {
-			dist = Utils.getEuclideanDistance(encA, encB);
-		} catch (Exception ex) {
+			return Utils.getEuclideanDistance(encA, encB);
+		} catch (final Exception ex) {
 			ex.printStackTrace();
-			dist = Integer.MAX_VALUE;
+			return Integer.MAX_VALUE;
 		}
-		return dist;
 	}
 
 	/**
@@ -112,16 +110,14 @@ public final class ClusterDistance {
 	 * @return the euclidean distance between the two vectors
 	 */
 	public static int euclidean(byte[] encA, byte[] encB) {
-		int dist = 0;
 		if (encA.length != encB.length) {
-			dist = Integer.MAX_VALUE;
+			return Integer.MAX_VALUE;
 		}
 		else {
-			dist = IntStream.range(0, encA.length)
+			return IntStream.range(0, encA.length)
 				.map(i -> (encA[i] - encB[i]) * (encA[i] - encB[i]))
 				.sum();
 		}
-		return dist;
 	}
 
 	/**
@@ -133,14 +129,12 @@ public final class ClusterDistance {
 	 * @return the euclidean distance between the two vectors
 	 */
 	public static double euclidean(double[] encA, double[] encB) {
-		double dist;
 		try {
-			dist = Utils.getEuclideanDistance(encA, encB);
-		} catch (Exception ex) {
+			return Utils.getEuclideanDistance(encA, encB);
+		} catch (final Exception ex) {
 			ex.printStackTrace();
-			dist = Double.MAX_VALUE;
+			return Double.MAX_VALUE;
 		}
-		return dist;
 	}
 
 	/**
@@ -154,7 +148,7 @@ public final class ClusterDistance {
 	 * value for doubles is returned.
 	 */
 	public static int hamming(BioGraph bgA, BioGraph bgB) {
-		IndexVector vHash = new IndexVector();
+		final IndexVector vHash = new IndexVector();
 		return hamming(vHash.encodeGraph(bgA), vHash.encodeGraph(bgB));
 	}
 
@@ -169,7 +163,7 @@ public final class ClusterDistance {
 	 * value for doubles is returned.
 	 */
 	public static int euclidean(BioGraph bgA, BioGraph bgB) {
-		IndexVector vHash = new IndexVector();
+		final IndexVector vHash = new IndexVector();
 		return euclidean(vHash.encodeGraph(bgA), vHash.encodeGraph(bgB));
 	}
 }

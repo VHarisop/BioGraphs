@@ -15,12 +15,18 @@
 
 package gr.demokritos.biographs.indexing.preprocessing;
 
-import java.util.*;
-import java.util.stream.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.GraphDatabase;
-import gr.demokritos.iit.jinsect.structs.*;
+import gr.demokritos.iit.jinsect.structs.JVertex;
+import gr.demokritos.iit.jinsect.structs.UniqueVertexGraph;
 
 /**
  * A class that hashes vertex labels based on an arbitrary hash function
@@ -86,11 +92,11 @@ public class IndexVector {
 	}
 
 	private void initParameters() {
-		vertexMap = new TreeMap<Integer, Integer>();
+		vertexMap = new TreeMap<>();
 	}
 
 	private void initParameters(int bins) {
-		vertexMap = new TreeMap<Integer, Integer>();
+		vertexMap = new TreeMap<>();
 		K = bins;
 	}
 
@@ -125,7 +131,7 @@ public class IndexVector {
 	public void setHashStrategy(HashingStrategy<JVertex> newSg) {
 		hashStrategy = newSg;
 	}
-	
+
 	/**
 	 * Sets the number of bins to be used in hashing.
 	 *
@@ -184,8 +190,8 @@ public class IndexVector {
 		/*
 		 * Create a HashMap to keep bin - indegree correspondence
 		 */
-		List<Set<String>> inDegreeSet =
-			new ArrayList<Set<String>>(this.K);
+		final List<Set<String>> inDegreeSet =
+			new ArrayList<>(this.K);
 		for (int i = 0; i < this.K; ++i) {
 			inDegreeSet.add(new HashSet<String>());
 		}
@@ -193,17 +199,18 @@ public class IndexVector {
 		/*
 		 * Form the union of incoming vertices for every bin
 		 */
-		for (JVertex v: uvg.vertexSet()) {
+		for (final JVertex v: uvg.vertexSet()) {
 			final int h = (hashStrategy.hash(v) % this.K);
 
 			/*
 			 * If hash value is not in [0, K - 1] (possibly resulting
 			 * from unknown symbols, such as "N"), skip this iteration
 			 */
-			if (h < 0)
+			if (h < 0) {
 				continue;
+			}
 
-			Set<String> hSet = inDegreeSet.get(h);
+			final Set<String> hSet = inDegreeSet.get(h);
 			/* add all incoming labels to set */
 			getIncomingLabels(v, uvg).forEach(s -> hSet.add(s));
 			inDegreeSet.set(h, hSet);
@@ -212,7 +219,7 @@ public class IndexVector {
 		/*
 		 * Encoding number is |D|
 		 */
-		byte[] encoding = new byte[this.K];
+		final byte[] encoding = new byte[this.K];
 		IntStream.range(0, this.K)
 			.forEach(i -> {
 				encoding[i] =
@@ -243,7 +250,7 @@ public class IndexVector {
 		if (null == encodingStrategy) {
 			encodingStrategy = Strategies.inDegreeEncoding();
 		}
-		
+
 		/* hash each of the graph's vertices */
 		uvg.vertexSet().forEach(v -> addVertex(v, uvg));
 

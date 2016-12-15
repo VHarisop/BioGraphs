@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.googlecode.concurrenttrees.radix.RadixTree;
+
 import gr.demokritos.biographs.BioGraph;
 import gr.demokritos.biographs.indexing.GraphDatabase;
 import gr.demokritos.biographs.indexing.structs.TrieEntry;
@@ -45,7 +46,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * A {@link RadixTree} that is used for indexing graphs by using a
 	 * graph's relevant {@link TrieEntry#getEncoding()} to obtain its key.
 	 */
-	protected ByteRadixTree radixIndex;
+	protected final ByteRadixTree radixIndex = new ByteRadixTree();
 
 	/**
 	 * The default order (number of bits) used for the serialization
@@ -58,7 +59,6 @@ public final class RadixIndex extends GraphDatabase {
 	 */
 	public RadixIndex() {
 		super();
-		radixIndex = new ByteRadixTree();
 	}
 
 	/**
@@ -78,7 +78,6 @@ public final class RadixIndex extends GraphDatabase {
 	 */
 	public RadixIndex(String path) {
 		super(path);
-		radixIndex = new ByteRadixTree();
 	}
 
 	/**
@@ -103,7 +102,7 @@ public final class RadixIndex extends GraphDatabase {
 	public void buildIndex(String path)
 	throws Exception
 	{
-		File fPath = new File(path);
+		final File fPath = new File(path);
 		buildIndex(fPath);
 	}
 
@@ -121,13 +120,9 @@ public final class RadixIndex extends GraphDatabase {
 		else {
 			/* get all files in a list, and for each file add all
 			 * the resulting biographs to the database */
-			File[] fileList = fPath.listFiles(new FileFilter() {
-				@Override
-				public boolean accept(File toFilter) {
-					return toFilter.isFile();
-				}
-			});
-			for (File f: fileList) {
+			final File[] fileList = fPath.listFiles(
+					(FileFilter) toFilter -> toFilter.isFile());
+			for (final File f: fileList) {
 				addAllGraphs(f);
 			}
 		}
@@ -148,8 +143,8 @@ public final class RadixIndex extends GraphDatabase {
 				break;
 			default:
 				throw new UnsupportedOperationException(
-						"Graph type not supported");
-				
+					"Graph type not supported");
+
 		}
 	}
 
@@ -172,7 +167,7 @@ public final class RadixIndex extends GraphDatabase {
 		/* if key was not already there, initialize an array of entries
 		 * otherwise, add an entry to the pre-existing array */
 		if (null == entries) {
-			entries = new ArrayList<TrieEntry>();
+			entries = new ArrayList<>();
 		}
 		/*
 		 * update trie with new array
@@ -234,27 +229,27 @@ public final class RadixIndex extends GraphDatabase {
 	public final List<TrieEntry> select(BioGraph bQuery) {
 		return radixIndex.select(getGraphCode(bQuery));
 	}
-	
-	
+
+
 	/**
 	 * Obtains a stream of the entries that match the key of
-	 * a provided {@link BioGraph}. 
+	 * a provided {@link BioGraph}.
 	 * @param bg the query graph
 	 * @return a {@link Stream} of matching entries
 	 */
 	public final Stream<TrieEntry> getNodesAsStream(BioGraph bg) {
 		return getNodesAsStream(getGraphCode(bg));
 	}
-	
+
 	/**
-	 * Obtains a stream of the entries that match a provided key. 
-	 * @param key the query graph key 
+	 * Obtains a stream of the entries that match a provided key.
+	 * @param key the query graph key
 	 * @return a {@link Stream} of matching entries
 	 */
 	public final Stream<TrieEntry> getNodesAsStream(CharSequence key) {
 		return radixIndex.get(key).stream();
 	}
-	
+
 	/**
 	 * Obtains a stream of graph entries whose key is closest to the
 	 * code of a query graph, using a bitwise-XOR metric.

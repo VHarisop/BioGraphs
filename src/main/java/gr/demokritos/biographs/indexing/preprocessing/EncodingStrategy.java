@@ -15,18 +15,19 @@
 
 package gr.demokritos.biographs.indexing.preprocessing;
 
-import gr.demokritos.iit.jinsect.structs.*;
+import gr.demokritos.iit.jinsect.structs.JVertex;
+import gr.demokritos.iit.jinsect.structs.UniqueVertexGraph;
 
 /**
  * An interface that must be implemented for classes that encode a vertex
- * from a UniqueVertexGraph or BioGraph in some way. 
+ * from a UniqueVertexGraph or BioGraph in some way.
  * The resulting code can be of any meaningful type.
  *
  * @author VHarisop
  */
 public interface EncodingStrategy<V> {
 	/**
-	 * Encodes a vertex from a given {@link UniqueVertexGraph} or 
+	 * Encodes a vertex from a given {@link UniqueVertexGraph} or
 	 * a {@link gr.demokritos.biographs.BioGraph} object.
 	 * @param vCurr the vertex to encode
 	 * @param uvg the graph that the vertex resides in
