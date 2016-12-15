@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import gr.demokritos.biographs.Logging;
+
 /**
  * Contains a set of utilities related to querying with
  * BioGraphs classes.
@@ -19,8 +21,8 @@ public class QueryUtils {
 	/*
 	 * Private logger for this class
 	 */
-	private static Logger logger =
-			Logger.getLogger(QueryUtils.class.getName());
+	private static Logger logger = Logging.getLogger(
+			QueryUtils.class.getName());
 
 	/**
 	 * Sets the {@link Logger} used by this class.

@@ -22,13 +22,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.Logging;
 import gr.demokritos.biographs.indexing.QueryUtils;
 import gr.demokritos.biographs.indexing.databases.RadixIndex;
 import gr.demokritos.biographs.indexing.databases.TrieIndex;
@@ -44,17 +44,10 @@ import gr.demokritos.biographs.io.BioInput;
  */
 public final class RadixQuery {
 	/* Create our own logger, register an output file */
-	private static final Logger logger;
-	static {
-		logger = Logger.getLogger(RadixQuery.class.getName());
-		try {
-			logger.addHandler(new FileHandler("radix_query.log", true));
-		}
-		catch (IOException ex) {
-			logger.warning(
-				"Could not set log file -- logging to console instead");
-		}
-	}
+	private static final Logger logger = Logging.getFileLogger(
+			RadixQuery.class.getName(),
+			"radix_query.log");
+
 	/**
 	 * Gson builder for result printing
 	 */
@@ -105,15 +98,15 @@ public final class RadixQuery {
 	private void initIndex(File dataFile) {
 		try {
 			BioInput.fromFastaFileToEntries(dataFile).entrySet()
-				.forEach(e -> {
-					/* Split every string that must be indexed and
-					 * add it to the radix tree.
-					 */
-					QueryUtils.splitIndexedString(e.getValue(), seqSize)
-						.forEach(s -> {
-							graphIndex.addGraph(new BioGraph(s, e.getKey()));
-						});
+			.forEach(e -> {
+				/* Split every string that must be indexed and
+				 * add it to the radix tree.
+				 */
+				QueryUtils.splitIndexedString(e.getValue(), seqSize)
+				.forEach(s -> {
+					graphIndex.addGraph(new BioGraph(s, e.getKey()));
 				});
+			});
 		}
 		catch(IOException ex) {
 			if (null == ex.getMessage()) {
@@ -277,7 +270,7 @@ public final class RadixQuery {
 			List<Long> qTimes = new ArrayList<Long>();
 			List<Integer> matchList = new ArrayList<Integer>();
 			for (Map.Entry<String, String> e:
-					BioInput.fromFastaFileToEntries(test).entrySet())
+				BioInput.fromFastaFileToEntries(test).entrySet())
 			{
 				final String lbl = e.getKey(), dt = e.getValue();
 				/*
@@ -316,8 +309,8 @@ public final class RadixQuery {
 					 * the alternative matching sequences found, if any
 					 */
 					logger.warning(String.format(
-						"Original sequence not found for %s - Found: ",
-						lbl));
+							"Original sequence not found for %s - Found: ",
+							lbl));
 					for (TrieEntry ent: matches) {
 						logger.warning(ent.getLabel());
 					}
@@ -332,28 +325,27 @@ public final class RadixQuery {
 			 */
 			final double avgTime = totalTime / ((double) eCnt);
 			final double runSum = qTimes.stream()
-				.mapToDouble(t -> (t - avgTime) * (t - avgTime))
-				.sum();
+					.mapToDouble(t -> (t - avgTime) * (t - avgTime))
+					.sum();
 			final double stdevTime = Math.sqrt(runSum / eCnt);
 			/*
 			 * calculate standard deviation from average number of matches
 			 */
 			final double avgMatches = totalMatches / ((double) eCnt);
 			final double mRunSum = matchList.stream()
-				.mapToDouble(m -> (m - avgMatches) * (m - avgMatches))
-				.sum();
+					.mapToDouble(m -> (m - avgMatches) * (m - avgMatches))
+					.sum();
 			final double stdevMatches = Math.sqrt(mRunSum / eCnt);
 			/*
 			 * Create a Result object to be serialized to JSON.
 			 */
 			final Result res = new Result(
-				((double) hits) / eCnt,
-				avgTime,
-				stdevTime,
-				avgMatches,
-				stdevMatches,
-				bq.getSize()
-			);
+					((double) hits) / eCnt,
+					avgTime,
+					stdevTime,
+					avgMatches,
+					stdevMatches,
+					bq.getSize());
 			System.out.println(gson.toJson(res));
 		}
 		catch (Exception ex) {
@@ -379,12 +371,12 @@ public final class RadixQuery {
 		 * provided from the caller.
 		 */
 		public Result(
-			double accuracy,
-			double avgQueryTime,
-			double stdevQueryTime,
-			double avgMatches,
-			double stdevMatches,
-			int size)
+				double accuracy,
+				double avgQueryTime,
+				double stdevQueryTime,
+				double avgMatches,
+				double stdevMatches,
+				int size)
 		{
 			this.accuracy = accuracy;
 			this.avgQueryTime = avgQueryTime;

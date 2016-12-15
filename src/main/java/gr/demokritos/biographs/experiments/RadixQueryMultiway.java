@@ -24,19 +24,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.logging.Level;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.Logging;
 import gr.demokritos.biographs.indexing.QueryUtils;
 import gr.demokritos.biographs.indexing.databases.RadixIndex;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
@@ -55,17 +52,10 @@ import gr.demokritos.biographs.io.BioInput;
  */
 public final class RadixQueryMultiway {
 	/* Create our own logger, register an output file */
-	private static final Logger logger;
-	static {
-		logger = Logger.getLogger(RadixQueryMultiway.class.getName());
-		try {
-			logger.addHandler(new FileHandler("radix_query.log", true));
-		}
-		catch (IOException ex) {
-			logger.warning(
-				"Could not set log file -- logging to console instead");
-		}
-	}
+	private static final Logger logger =
+			Logging.getFileLogger(
+				RadixQueryMultiway.class.getName(),
+				"radix_query.log");
 
 	/**
 	 * Gson builder for result printing
@@ -141,7 +131,7 @@ public final class RadixQueryMultiway {
 			});
 		}
 		catch(IOException ex) {
-			logger.log(Level.SEVERE, "", ex);
+			logger.severe(ex.getMessage());
 		}
 	}
 
@@ -231,12 +221,6 @@ public final class RadixQueryMultiway {
 	{
 		List<String> blocks = QueryUtils.splitQueryString(query, seqSize);
 		Set<TrieEntry> matches = new HashSet<TrieEntry>();
-
-		/* loop counter */
-		int loopcnt = 0;
-
-		/* boolean indicating if an absolute match has been found */
-		boolean absMatch = false;
 
 		/*
 		 * search all graphs with a preselected tolerance

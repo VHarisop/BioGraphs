@@ -16,19 +16,18 @@
 package gr.demokritos.biographs.experiments;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.Logging;
 import gr.demokritos.biographs.indexing.databases.TrieIndex;
 import gr.demokritos.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.biographs.indexing.structs.TrieEntry;
@@ -42,17 +41,9 @@ import gr.demokritos.biographs.io.BioInput;
  */
 public final class TrieQueryWithLog {
 	/* Create our own logger, register an output file */
-	private static final Logger logger;
-	static {
-		logger = Logger.getLogger(TrieQueryWithLog.class.getName());
-		try {
-			logger.addHandler(new FileHandler("trie_query.log"));
-		}
-		catch (IOException ex) {
-			logger.warning(
-				"Could not set log file -- logging to console instead");
-		}
-	}
+	private static final Logger logger = Logging.getFileLogger(
+			TrieQueryWithLog.class.getName(),
+			"trie_query.log");
 	/**
 	 * Gson builder for result printing
 	 */

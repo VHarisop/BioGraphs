@@ -22,15 +22,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
-import java.util.logging.Level;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gr.demokritos.biographs.BioGraph;
+import gr.demokritos.biographs.Logging;
 import gr.demokritos.biographs.indexing.QueryUtils;
 import gr.demokritos.biographs.indexing.databases.RadixIndex;
 import gr.demokritos.biographs.indexing.databases.TrieIndex;
@@ -48,17 +46,10 @@ import gr.demokritos.biographs.io.BioInput;
  */
 public final class RadixQueryDetailed {
 	/* Create our own logger, register an output file */
-	private static final Logger logger;
-	static {
-		logger = Logger.getLogger(RadixQueryDetailed.class.getName());
-		try {
-			logger.addHandler(new FileHandler("radix_query.log", true));
-		}
-		catch (IOException ex) {
-			logger.warning(
-				"Could not set log file -- logging to console instead");
-		}
-	}
+	private static final Logger logger =
+			Logging.getFileLogger(
+					RadixQueryDetailed.class.getName(),
+					"radix_query.log");
 	/**
 	 * Gson builder for result printing
 	 */
@@ -119,7 +110,7 @@ public final class RadixQueryDetailed {
 			});
 		}
 		catch(IOException ex) {
-			logger.log(Level.SEVERE, "", ex);
+			logger.severe(ex.getMessage());
 		}
 	}
 
@@ -161,7 +152,7 @@ public final class RadixQueryDetailed {
 		}
 		return blocks;
 	}
-	
+
 	/**
 	 * Returns a list of {@link TrieEntry} objects that exactly
 	 * match a given query string.
@@ -202,7 +193,7 @@ public final class RadixQueryDetailed {
 			 * a tolerance.
 			 */
 			graphIndex.selectAsStream(bg)
-				.filter(t -> 
+				.filter(t ->
 					ClusterDistance.hamming(t.getEncoding(), enc) <= tol)
 				.forEach(t -> {
 					/*
@@ -218,7 +209,7 @@ public final class RadixQueryDetailed {
 		}
 		return matches;
 	}
-	
+
 	/**
 	 * Gets the exact matches for a given query.
 	 * @param query the query string
@@ -240,13 +231,13 @@ public final class RadixQueryDetailed {
 			final byte[] enc = eQuery.getEncoding();
 			/* Put all matches in the set */
 			graphIndex.getNodesAsStream(bg)
-					.filter(t ->
-						ClusterDistance.hamming(t.getEncoding(), enc) <= tol)
-					.forEach(t -> matches.add(t));
+				.filter(t ->
+					ClusterDistance.hamming(t.getEncoding(), enc) <= tol)
+				.forEach(t -> matches.add(t));
 		}
 		return matches;
 	}
-	
+
 
 	/**
 	 * A static main method that performs a short experiment using
@@ -319,7 +310,7 @@ public final class RadixQueryDetailed {
 			List<Long> qTimes = new ArrayList<Long>();
 			List<Integer> matchList = new ArrayList<Integer>();
 			for (Map.Entry<String, String> e:
-					BioInput.fromFastaFileToEntries(test).entrySet())
+				BioInput.fromFastaFileToEntries(test).entrySet())
 			{
 				final String lbl = e.getKey(), dt = e.getValue();
 				/*
@@ -329,7 +320,7 @@ public final class RadixQueryDetailed {
 				Set<TrieEntry> matches = bq.getMatches(dt, lbl, tol);
 				final long end = System.currentTimeMillis();
 				logger.info(String.format(
-					"Queried %s -- Time: %d ms", lbl, end - start));
+						"Queried %s -- Time: %d ms", lbl, end - start));
 				/*
 				 * Update parameters:
 				 * 1) total elapsed time
@@ -382,28 +373,27 @@ public final class RadixQueryDetailed {
 			 */
 			final double avgTime = totalTime / ((double) eCnt);
 			final double runSum = qTimes.stream()
-				.mapToDouble(t -> (t - avgTime) * (t - avgTime))
-				.sum();
+					.mapToDouble(t -> (t - avgTime) * (t - avgTime))
+					.sum();
 			final double stdevTime = Math.sqrt(runSum / eCnt);
 			/*
 			 * calculate standard deviation from average number of matches
 			 */
 			final double avgMatches = totalMatches / ((double) eCnt);
 			final double mRunSum = matchList.stream()
-				.mapToDouble(m -> (m - avgMatches) * (m - avgMatches))
-				.sum();
+					.mapToDouble(m -> (m - avgMatches) * (m - avgMatches))
+					.sum();
 			final double stdevMatches = Math.sqrt(mRunSum / eCnt);
 			/*
 			 * Create a Result object to be serialized to JSON.
 			 */
 			final Result res = new Result(
-				((double) hits) / eCnt,
-				avgTime,
-				stdevTime,
-				avgMatches,
-				stdevMatches,
-				bq.getSize()
-			);
+					((double) hits) / eCnt,
+					avgTime,
+					stdevTime,
+					avgMatches,
+					stdevMatches,
+					bq.getSize());
 			System.out.println(gson.toJson(res));
 		}
 		catch (Exception ex) {
