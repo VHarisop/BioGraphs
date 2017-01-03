@@ -72,7 +72,7 @@ public class SparseIndex extends GraphDatabase {
 	@Override
 	public void addGraph(final BioGraph bg) {
 		data.add(new Pair<String, double[]>(
-			bg.getLabel(), spc.getProjectedVector(bg.getGraph())));
+			bg.getLabel(), spc.getProjectedVectorParallel(bg.getGraph())));
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class SparseIndex extends GraphDatabase {
 	 * @return a list of labels
 	 */
 	public List<String> select(final BioGraph bg, final double tolerance) {
-		final double[] pVec = spc.getProjectedVector(bg.getGraph());
+		final double[] pVec = spc.getProjectedVectorParallel(bg.getGraph());
 		return data.stream()
 			.filter(p -> ClusterDistance.hamming(
 				pVec, p.getSecond()) < tolerance)
