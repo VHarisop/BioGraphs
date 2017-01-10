@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import gr.demokritos.iit.biographs.Logging;
+import gr.demokritos.iit.jinsect.Logging;
 
 /**
  * Contains a set of utilities related to querying with

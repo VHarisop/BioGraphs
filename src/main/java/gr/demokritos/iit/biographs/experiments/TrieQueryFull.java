@@ -27,7 +27,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gr.demokritos.iit.biographs.BioGraph;
-import gr.demokritos.iit.biographs.Logging;
 import gr.demokritos.iit.biographs.indexing.QueryUtils;
 import gr.demokritos.iit.biographs.indexing.databases.TrieIndex;
 import gr.demokritos.iit.biographs.indexing.distances.ClusterDistance;
@@ -35,6 +34,8 @@ import gr.demokritos.iit.biographs.indexing.preprocessing.IndexVector;
 import gr.demokritos.iit.biographs.indexing.preprocessing.Strategies;
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 import gr.demokritos.iit.biographs.io.BioInput;
+
+import gr.demokritos.iit.jinsect.Logging;
 
 /**
  * A class that performs queries from biological sequences using
@@ -152,7 +153,7 @@ public final class TrieQueryFull {
 	 *
 	 * @return the total number of entries in the underlying database
 	 */
-	public int getSize() {
+	public final int getSize() {
 		return graphIndex.getSize();
 	}
 
@@ -165,7 +166,7 @@ public final class TrieQueryFull {
 	 * @param tolerance the search tolerance for BioGraph bins
 	 * @return a set of matching {@link TrieEntry}s.
 	 */
-	public Set<TrieEntry>
+	public final Set<TrieEntry>
 	getMatches(final String query, final String label, final int tolerance)
 	{
 		Set<TrieEntry> matches = new HashSet<TrieEntry>();

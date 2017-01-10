@@ -33,12 +33,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gr.demokritos.iit.biographs.BioGraph;
-import gr.demokritos.iit.biographs.Logging;
 import gr.demokritos.iit.biographs.indexing.QueryUtils;
 import gr.demokritos.iit.biographs.indexing.databases.RadixIndex;
 import gr.demokritos.iit.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 import gr.demokritos.iit.biographs.io.BioInput;
+
+import gr.demokritos.iit.jinsect.Logging;
 
 /**
  * A class that performs queries from biological sequences using

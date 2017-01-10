@@ -41,17 +41,7 @@ public final class BioGraph extends NGramJGraph {
 	/** 
 	 * the label of the dataset this graph represents.
 	 */
-	protected String bioLabel = null;
-
-	/**
-	 * A cached copy of this graph's hash encoding.
-	 */
-	protected double[] hashEncoding = null;
-
-	/**
-	 * A cached copy of this graph's index hash encoding.
-	 */
-	protected double[] indexEncoding = null;
+	protected final String bioLabel;
 	
 	/**
 	 * Creates a BioGraph object to represent a given string.
@@ -61,6 +51,7 @@ public final class BioGraph extends NGramJGraph {
 	 */
 	public BioGraph(String data) {
 		super(data);
+		bioLabel = null;
 	}
 
 	/**
@@ -85,7 +76,8 @@ public final class BioGraph extends NGramJGraph {
 	 * @param order the order of the n-grams
 	 * @param correlationWindow the length of the correlation window
 	 */
-	public BioGraph(String data, String label, int order, int correlationWindow) {
+	public BioGraph(
+		String data, String label, int order, int correlationWindow) {
 		super(data, order, order, correlationWindow);
 		bioLabel = label;
 	}
@@ -100,6 +92,7 @@ public final class BioGraph extends NGramJGraph {
 	 */
 	public BioGraph(String data, int order, int correlationWindow) {
 		super(data, order, order, correlationWindow);
+		bioLabel = null;
 	}
 
 	/**
@@ -122,7 +115,8 @@ public final class BioGraph extends NGramJGraph {
 	 * @param label the associated label
 	 * @return a BioGraph object that represents the sequence
 	 */
-	public static BioGraph fromSequence(DNASequence dnaSeq, String label) {
+	public static BioGraph
+	fromSequence(DNASequence dnaSeq, String label) {
 		return new BioGraph(dnaSeq.getSequenceAsString(), label);
 	}
 

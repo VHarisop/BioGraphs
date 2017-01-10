@@ -28,12 +28,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gr.demokritos.iit.biographs.BioGraph;
-import gr.demokritos.iit.biographs.Logging;
 import gr.demokritos.iit.biographs.indexing.QueryUtils;
 import gr.demokritos.iit.biographs.indexing.databases.SparseIndex;
 import gr.demokritos.iit.biographs.indexing.databases.TrieIndex;
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 import gr.demokritos.iit.biographs.io.BioInput;
+
+import gr.demokritos.iit.jinsect.Logging;
 
 /**
  * A class that performs queries from biological sequences using
@@ -126,7 +127,8 @@ public final class SparseQuery {
 	public Set<String>
 	getMatches(final String query, final String label, final int tolerance)
 	{
-		final List<String> blocks = QueryUtils.splitQueryString(query, seqSize);
+		final List<String> blocks =
+			QueryUtils.splitQueryString(query, seqSize);
 		final Set<String> matches = new HashSet<String>();
 		/*
 		 * search all graphs with a preselected tolerance
