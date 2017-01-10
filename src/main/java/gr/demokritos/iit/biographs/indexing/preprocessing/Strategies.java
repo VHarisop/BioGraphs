@@ -15,6 +15,7 @@
 
 package gr.demokritos.iit.biographs.indexing.preprocessing;
 
+import gr.demokritos.iit.jinsect.JUtils;
 import gr.demokritos.iit.jinsect.structs.JVertex;
 /**
  * A class with static methods to create some of the most common encoding
@@ -142,6 +143,37 @@ public final class Strategies {
 					retB = -1;
 			}
 			return retA * 4 + retB;
+		};
+	}
+
+	/**
+	 * Creates a new {@link HashingStrategy} that encodes vertices based on
+	 * a number of initial letters of their labels, for DNA labels.
+	 * @param rank the number of initial letters to consider
+	 * @return the {@link HashingStrategy<JVertex>} described above
+	 */
+	public static final HashingStrategy<JVertex> dnaHash(final int rank) {
+		return vCurr -> {
+			final String label = vCurr.getLabel().toUpperCase();
+			int totalIndex = 0;
+			for (int i = 0; i < rank; ++i) {
+				final char cCurr = label.charAt(i);
+				final int index;
+				switch (cCurr) {
+					case 'A':
+						index = 0; break;
+					case 'C':
+						index = 1; break;
+					case 'G':
+						index = 2; break;
+					case 'T':
+						index = 3; break;
+					default:
+						index = 0;
+				}
+				totalIndex += JUtils.intPow(i, 4) * index;
+			}
+			return totalIndex;
 		};
 	}
 

@@ -42,7 +42,7 @@ import gr.demokritos.iit.biographs.io.BioInput;
  *
  * @author VHarisop
  */
-public final class TrieIndex extends GraphDatabase {
+public class TrieIndex extends GraphDatabase {
 	/**
 	 * A {@link org.apache.commons.collections4.trie.PatriciaTrie}
 	 * that is used for indexing graphs by using the graphs'
@@ -70,7 +70,7 @@ public final class TrieIndex extends GraphDatabase {
 	 *
 	 * @param order the custom order to be used
 	 */
-	public TrieIndex(int order) {
+	public TrieIndex(final int order) {
 		this();
 		this.order = order;
 	}
@@ -80,7 +80,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * a database in a given directory.
 	 * @param path the directory in which the database resides
 	 */
-	public TrieIndex(String path) {
+	public TrieIndex(final String path) {
 		super(path);
 	}
 
@@ -91,7 +91,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param path the directory in which the database resides
 	 * @param order the custom order to be used
 	 */
-	public TrieIndex(String path, int order) {
+	public TrieIndex(final String path, final int order) {
 		this(path);
 		this.order = order;
 	}
@@ -103,7 +103,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param path a string containing a path to a file or directory
 	 */
 	@Override
-	public void buildIndex(String path)
+	public void buildIndex(final String path)
 	throws Exception
 	{
 		final File fPath = new File(path);
@@ -117,7 +117,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param fPath a path containing one or multiple files
 	 */
 	@Override
-	public void buildIndex(File fPath) throws Exception {
+	public void buildIndex(final File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
 			addAllGraphs(fPath);
 		}
@@ -139,7 +139,7 @@ public final class TrieIndex extends GraphDatabase {
 	 *
 	 * @param f the file to read from
 	 */
-	private void addAllGraphs(File f) throws Exception {
+	private void addAllGraphs(final File f) throws Exception {
 		if (type == GraphType.DNA) {
 			BioInput.fastaFileToGraphStream(f)
 				.forEach(g -> addGraph(g));
@@ -156,7 +156,7 @@ public final class TrieIndex extends GraphDatabase {
 	 *
 	 * @param entry the entry to be added
 	 */
-	public void addEntry(TrieEntry entry) {
+	public void addEntry(final TrieEntry entry) {
 		// update the database's size
 		this.size++;
 
@@ -184,7 +184,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param bg the BioGraph to be added
 	 */
 	@Override
-	public void addGraph(BioGraph bg) {
+	public void addGraph(final BioGraph bg) {
 		addEntry(new TrieEntry(bg));
 	}
 
@@ -197,7 +197,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param bGraph the biograph object
 	 * @return a String representation of the biograph
 	 */
-	protected String getGraphCode(BioGraph bGraph) {
+	protected String getGraphCode(final BioGraph bGraph) {
 		return (new TrieEntry(bGraph)).getKey(this.order);
 	}
 
@@ -208,7 +208,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param bg the query graph
 	 * @return a list of labels
 	 */
-	public final List<TrieEntry> getNodes(BioGraph bg) {
+	public final List<TrieEntry> getNodes(final BioGraph bg) {
 		return getNodes(getGraphCode(bg));
 	}
 
@@ -217,7 +217,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param key a String containing the query graph key
 	 * @return a list of entries pointing to biographs
 	 */
-	public final List<TrieEntry> getNodes(String key) {
+	public final List<TrieEntry> getNodes(final String key) {
 		return trieIndex.get(key);
 	}
 
@@ -228,7 +228,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param bQuery the graph to be queried for
 	 * @return a list of entries whose keys are the closest matches
 	 */
-	public final List<TrieEntry> select(BioGraph bQuery) {
+	public final List<TrieEntry> select(final BioGraph bQuery) {
 		return trieIndex.selectValue(getGraphCode(bQuery));
 	}
 
@@ -240,7 +240,7 @@ public final class TrieIndex extends GraphDatabase {
 	 * @param K the number of requested nearest neighbours
 	 * @return a list of entries that are the closest matches
 	 */
-	public final List<TrieEntry> selectKNearest(BioGraph bQuery, int K) {
+	public final List<TrieEntry> selectKNearest(final BioGraph bQuery, final int K) {
 		final String code = getGraphCode(bQuery);
 		final List<TrieEntry> entries = trieIndex.selectValue(code);
 

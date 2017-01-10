@@ -49,6 +49,11 @@ public class SparseIndex extends GraphDatabase {
 	}
 
 	@Override
+	public int getSize() {
+		return data.size();
+	}
+
+	@Override
 	public void buildIndex(final String path) throws Exception {
 		buildIndex(new File(path));
 	}
