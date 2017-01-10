@@ -256,8 +256,7 @@ public class IndexVector {
 
 		/* populate the vector according to the values stored in the map
 		 * setting 0 to indices with no occurence */
-		return IntStream
-			.range(0, this.K)
+		return IntStream.range(0, this.K)
 			.map(i -> vertexMap.getOrDefault(i, 0))
 			.toArray();
 	}

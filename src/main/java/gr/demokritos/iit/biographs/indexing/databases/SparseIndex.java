@@ -8,33 +8,46 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.trie.PatriciaTrie;
+
 import gr.demokritos.iit.biographs.BioGraph;
 import gr.demokritos.iit.biographs.indexing.GraphDatabase;
 import gr.demokritos.iit.biographs.indexing.distances.ClusterDistance;
+import gr.demokritos.iit.biographs.indexing.preprocessing.SparseIndexVector;
+import gr.demokritos.iit.biographs.indexing.structs.SparseEntry;
 import gr.demokritos.iit.biographs.io.BioInput;
-import gr.demokritos.iit.jinsect.comparators.SparseProjectionComparator;
-import gr.demokritos.iit.jinsect.structs.Pair;
 
 public class SparseIndex extends GraphDatabase {
-	protected List<Pair<String, double[]>> data;
-	protected SparseProjectionComparator spc;
+	/**
+	 * The trie used internally
+	 */
+	protected final PatriciaTrie<List<SparseEntry>> dataTree =
+		new PatriciaTrie<>();
+
+	/**
+	 * The sparse projector used internally
+	 */
+	protected final SparseIndexVector sparseVec;
+
+	/**
+	 * The order of bits used per vector element
+	 */
+	protected final int order;
 
 	/**
 	 * Creates a new {@link SparseIndex} with a target dimensionality
 	 * for the projected feature vector.
 	 * @param featDim the dimension of the projected vector
 	 */
-	public SparseIndex(final int featDim) {
+	public SparseIndex(final int order, final int featDim) {
 		super();
 		final Map<Character, Integer> charIndex = new HashMap<>();
 		charIndex.put('A', 0);
 		charIndex.put('C', 1);
 		charIndex.put('G', 2);
 		charIndex.put('T', 3);
-		spc = new SparseProjectionComparator(
-			charIndex, 3, featDim,
-			SparseProjectionComparator.Projection.SIGN_CONSISTENT);
-		data = new ArrayList<>();
+		sparseVec = new SparseIndexVector(charIndex, 3, featDim);
+		this.order = order;
 	}
 
 	/**
@@ -43,14 +56,15 @@ public class SparseIndex extends GraphDatabase {
 	 * @param path the path of the data
 	 * @param featDim the dimension of the projected vector
 	 */
-	public SparseIndex(final String path, final int featDim) {
-		this(featDim);
+	public SparseIndex(final String path, final int order, final int featDim)
+	{
+		this(order, featDim);
 		this.path = path;
 	}
 
 	@Override
 	public int getSize() {
-		return data.size();
+		return dataTree.size();
 	}
 
 	@Override
@@ -76,8 +90,7 @@ public class SparseIndex extends GraphDatabase {
 
 	@Override
 	public void addGraph(final BioGraph bg) {
-		data.add(new Pair<String, double[]>(
-			bg.getLabel(), spc.getProjectedVectorParallel(bg.getGraph())));
+		addEntry(sparseVec.encodeGraph(bg));
 	}
 
 	/**
@@ -101,18 +114,46 @@ public class SparseIndex extends GraphDatabase {
 	}
 
 	/**
+	 * Add a new sparse entry to the database, appending it to the list
+	 * of entries with the same code, if any.
+	 *
+	 * @param entry the entry to be added
+	 */
+	public void addEntry(final SparseEntry entry) {
+		// update the database's size
+		this.size++;
+
+		/*
+		 * Get already existing entries with the same key first, if any
+		 */
+		final String key = entry.getKey(this.order);
+		List<SparseEntry> entries = dataTree.get(key);
+
+		/* if key was not already there, initialize an array of entries
+		 * otherwise, add an entry to the pre-existing array */
+		if (null == entries) {
+			entries = new ArrayList<>();
+		}
+		/*
+		 * update trie with new array
+		 */
+		entries.add(entry);
+		dataTree.put(key, entries);
+	}
+
+	/**
 	 * Selects the closest graphs, by terms of manhattan distance between
 	 * projected vectors, that match a given tolerance criterion.
 	 * @param bg the query graph
 	 * @param tolerance the tolerance
-	 * @return a list of labels
+	 * @return a list of entries
 	 */
-	public List<String> select(final BioGraph bg, final double tolerance) {
-		final double[] pVec = spc.getProjectedVectorParallel(bg.getGraph());
-		return data.stream()
-			.filter(p -> ClusterDistance.hamming(
-				pVec, p.getSecond()) < tolerance)
-			.map(p -> p.getFirst())
+	public List<SparseEntry> select(final BioGraph bg, final double tolerance) {
+		final SparseEntry queryEntry = sparseVec.encodeGraph(bg);
+		return dataTree.select(queryEntry.getKey(order)).getValue()
+			.stream()
+			.filter(se -> ClusterDistance.hamming(
+					queryEntry.getEncoding(), se.getEncoding()) < tolerance)
 			.collect(Collectors.toList());
 	}
 }

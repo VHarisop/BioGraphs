@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -33,7 +34,6 @@ import gr.demokritos.iit.biographs.indexing.databases.SparseIndex;
 import gr.demokritos.iit.biographs.indexing.databases.TrieIndex;
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 import gr.demokritos.iit.biographs.io.BioInput;
-
 import gr.demokritos.iit.jinsect.Logging;
 
 /**
@@ -73,7 +73,8 @@ public final class SparseQuery {
 	 */
 	public SparseQuery(final int K, final int featDim) {
 		seqSize = K;
-		graphIndex = new SparseIndex(featDim);
+		/* Create a SparseIndex to work with n-grams of order 3 */
+		graphIndex = new SparseIndex(featDim, 3);
 	}
 
 	/**
@@ -129,13 +130,16 @@ public final class SparseQuery {
 	{
 		final List<String> blocks =
 			QueryUtils.splitQueryString(query, seqSize);
-		final Set<String> matches = new HashSet<String>();
+		final Set<String> matches = new HashSet<>();
 		/*
 		 * search all graphs with a preselected tolerance
 		 */
 		for (final String bl: blocks) {
 			final BioGraph bg = new BioGraph(bl, label);
-			matches.addAll(graphIndex.select(bg, tolerance));
+			matches.addAll(graphIndex.select(bg, tolerance)
+				.stream()
+				.map(se -> se.getLabel())
+				.collect(Collectors.toList()));
 		}
 		return matches;
 	}
@@ -204,8 +208,8 @@ public final class SparseQuery {
 			long totalTime = 0L;
 			int eCnt = 0, hits = 0, totalMatches = 0;
 
-			final List<Long> qTimes = new ArrayList<Long>();
-			final List<Integer> matchList = new ArrayList<Integer>();
+			final List<Long> qTimes = new ArrayList<>();
+			final List<Integer> matchList = new ArrayList<>();
 			for (final Map.Entry<String, String> e:
 				BioInput.fromFastaFileToEntries(test).entrySet())
 			{
