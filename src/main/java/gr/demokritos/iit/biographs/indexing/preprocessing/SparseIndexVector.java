@@ -33,7 +33,7 @@ public class SparseIndexVector {
 		characterIndex = charIndex;
 		spc = new SparseProjectionComparator(
 			charIndex, rank, finalDim,
-			SparseProjectionComparator.Projection.SIGN_CONSISTENT);
+			SparseProjectionComparator.Projection.POSITIVE);
 	}
 
 	/**

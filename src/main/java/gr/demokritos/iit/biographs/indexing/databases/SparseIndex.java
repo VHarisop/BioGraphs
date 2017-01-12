@@ -81,7 +81,7 @@ public class SparseIndex extends GraphDatabase {
 			/* get all files in a list, and for each file add all
 			 * the resulting biographs to the database */
 			final File[] fileList = path.listFiles(
-					(FileFilter) toFilter -> toFilter.isFile());
+				(FileFilter) toFilter -> toFilter.isFile());
 			for (final File f: fileList) {
 				addAllGraphs(f);
 			}
@@ -126,7 +126,7 @@ public class SparseIndex extends GraphDatabase {
 		/*
 		 * Get already existing entries with the same key first, if any
 		 */
-		final String key = entry.getKey(this.order);
+		final String key = entry.getKey(order);
 		List<SparseEntry> entries = dataTree.get(key);
 
 		/* if key was not already there, initialize an array of entries
