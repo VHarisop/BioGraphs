@@ -19,26 +19,26 @@ package gr.demokritos.iit.biographs.indexing.structs;
  * Simple class to hold database entries that consist
  * of generic key-value pairs.
  */
-public final class DatabaseEntry<K, V> {
+public abstract class DatabaseEntry<V> {
 	/**
 	 * The key of the entry.
 	 */
-	protected K key;
+	protected String label;
 
 	/**
-	 * The value of the entry
+	 * The encoding of the entry
 	 */
-	protected V value;
+	protected V encoding;
 
 	/**
 	 * Creates a new DatabaseEntry from a key-value pair.
 	 *
-	 * @param key the entry's key
-	 * @param value the entry's value
+	 * @param label the entry's label
+	 * @param encoding the entry's encoding
 	 */
-	public DatabaseEntry(K key, V value) {
-		this.key = key;
-		this.value = value;
+	public DatabaseEntry(final String label, final V encoding) {
+		this.label = label;
+		this.encoding = encoding;
 	}
 
 	/**
@@ -46,22 +46,28 @@ public final class DatabaseEntry<K, V> {
 	 *
 	 * @return the key of the entry
 	 */
-	public K getKey() {
-		return key;
+	public final String getLabel() {
+		return label;
 	}
 
 	/**
-	 * Simple getter for the entry's value.
+	 * Simple getter for the entry's encoding.
 	 *
-	 * @return the value of the entry
+	 * @return the encoding vector of the entry
 	 */
-	public V getValue() {
-		return value;
+	public final V getEncoding() {
+		return encoding;
 	}
 
-	@Override
-	public int hashCode() {
-		return ((key == null) ? 0 : key.hashCode()) ^
-		       ((value == null) ? 0 : value.hashCode());
+	abstract protected String vectorToBits(final V vec, int num_bits);
+
+	/**
+	 * Gets the entry's serialized key of a given order.
+	 *
+	 * @param order the order for serialization
+	 * @return the key of the entry
+	 */
+	public final String getKey(final int order) {
+		return vectorToBits(encoding, order);
 	}
 }

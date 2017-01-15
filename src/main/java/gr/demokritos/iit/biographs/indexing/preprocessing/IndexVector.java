@@ -77,7 +77,7 @@ public class IndexVector {
 	 *
 	 * @param gType the graph type to base the hash strategy on
 	 */
-	public IndexVector(GraphDatabase.GraphType gType) {
+	public IndexVector(final GraphDatabase.GraphType gType) {
 		if (gType == GraphDatabase.GraphType.DNA) {
 			hashStrategy = Strategies.dinucleotideHash();
 			initParameters(10);
@@ -95,7 +95,7 @@ public class IndexVector {
 		vertexMap = new TreeMap<>();
 	}
 
-	private void initParameters(int bins) {
+	private void initParameters(final int bins) {
 		vertexMap = new TreeMap<>();
 		K = bins;
 	}
@@ -112,7 +112,7 @@ public class IndexVector {
 	 * Sets a new encoding strategy to be used by this object.
 	 * @param newSg the new strategy
 	 */
-	public void setEncodingStrategy(EncodingStrategy<Integer> newSg) {
+	public void setEncodingStrategy(final EncodingStrategy<Integer> newSg) {
 		encodingStrategy = newSg;
 	}
 
@@ -128,7 +128,7 @@ public class IndexVector {
 	 * Sets a new hashing strategy to be used by this object.
 	 * @param newSg the new strategy
 	 */
-	public void setHashStrategy(HashingStrategy<JVertex> newSg) {
+	public void setHashStrategy(final HashingStrategy<JVertex> newSg) {
 		hashStrategy = newSg;
 	}
 
@@ -137,7 +137,7 @@ public class IndexVector {
 	 *
 	 * @param newNum the new number of bins
 	 */
-	public void setBins(int newNum) {
+	public void setBins(final int newNum) {
 		K = newNum;
 	}
 
@@ -147,7 +147,7 @@ public class IndexVector {
 	 * @param toAdd the vertex to be added
 	 * @param uvg the graph that the vertex resides in
 	 */
-	protected void addVertex(JVertex toAdd, UniqueVertexGraph uvg) {
+	protected void addVertex(final JVertex toAdd, final UniqueVertexGraph uvg) {
 		/* hash value modulo K */
 		final int hashVal = (hashStrategy.hash(toAdd) % this.K);
 		final Integer previous = vertexMap.get(hashVal);
@@ -172,7 +172,7 @@ public class IndexVector {
 	 * @return a stream with all the labels of "incoming" vertices
 	 */
 	protected Stream<String>
-	getIncomingLabels(JVertex v, UniqueVertexGraph uvg)
+	getIncomingLabels(final JVertex v, final UniqueVertexGraph uvg)
 	{
 		return uvg.incomingEdgesOf(v).stream()
 			.map(e -> uvg.getEdgeSource(e).getLabel());
@@ -186,7 +186,7 @@ public class IndexVector {
 	 * @param uvg the graph to be encoded
 	 * @return an integer vector containing the graph encoding
 	 */
-	public byte[] getGraphEncoding(UniqueVertexGraph uvg) {
+	public byte[] getGraphEncoding(final UniqueVertexGraph uvg) {
 		/*
 		 * Create a HashMap to keep bin - indegree correspondence
 		 */
@@ -223,7 +223,7 @@ public class IndexVector {
 		IntStream.range(0, this.K)
 			.forEach(i -> {
 				encoding[i] =
-				new Integer(inDegreeSet.get(i).size()).byteValue();
+					new Integer(inDegreeSet.get(i).size()).byteValue();
 			});
 		return encoding;
 	}
@@ -231,7 +231,7 @@ public class IndexVector {
 	/**
 	 * @see #getGraphEncoding(UniqueVertexGraph) getGraphEncoding
 	 */
-	public byte[] getGraphEncoding(BioGraph bG) {
+	public byte[] getGraphEncoding(final BioGraph bG) {
 		return getGraphEncoding(bG.getGraph());
 	}
 
@@ -242,7 +242,7 @@ public class IndexVector {
 	 * @param uvg the graph to encode
 	 * @return an int vector that encodes the graph
 	 */
-	public int[] encodeGraph(UniqueVertexGraph uvg) {
+	public int[] encodeGraph(final UniqueVertexGraph uvg) {
 		/* make sure the map is reset before encoding */
 		this.clear();
 
@@ -267,7 +267,7 @@ public class IndexVector {
 	 * @param bg the graph to encode
 	 * @return a vector of doubles that encodes the graph
 	 */
-	public int[] encodeGraph(BioGraph bg) {
+	public int[] encodeGraph(final BioGraph bg) {
 		return encodeGraph(bg.getGraph());
 	}
 

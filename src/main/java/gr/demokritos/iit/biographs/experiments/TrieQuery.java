@@ -26,8 +26,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gr.demokritos.iit.biographs.BioGraph;
+import gr.demokritos.iit.biographs.indexing.GraphDatabase.GraphType;
+import gr.demokritos.iit.biographs.indexing.QueryUtils;
 import gr.demokritos.iit.biographs.indexing.databases.TrieIndex;
 import gr.demokritos.iit.biographs.indexing.distances.ClusterDistance;
+import gr.demokritos.iit.biographs.indexing.preprocessing.IndexVector;
+import gr.demokritos.iit.biographs.indexing.preprocessing.Strategies;
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 import gr.demokritos.iit.biographs.io.BioInput;
 
@@ -46,7 +50,7 @@ public final class TrieQuery {
 	/*
 	 * Size of subsequence.
 	 */
-	private int seqSize;
+	private final int seqSize;
 
 	/**
 	 * The length of the window in which {@link TrieEntry} objects
@@ -57,7 +61,16 @@ public final class TrieQuery {
 	/**
 	 * The graph database to perform queries against.
 	 */
-	private TrieIndex graphIndex;
+	private final TrieIndex graphIndex;
+
+	/*
+	 * get the standard index encoding
+	 */
+	protected final IndexVector indVec; {
+		indVec = new IndexVector(GraphType.DNA);
+		indVec.setHashStrategy(Strategies.dnaHash());
+		indVec.setBins(16);
+	}
 
 	/**
 	 * Creates a new TrieQuery object that performs queries by
@@ -66,7 +79,7 @@ public final class TrieQuery {
 	 *
 	 * @param K the size of the subsequences
 	 */
-	public TrieQuery(int K) {
+	public TrieQuery(final int K) {
 		seqSize = K;
 		graphIndex = new TrieIndex();
 	}
@@ -80,7 +93,7 @@ public final class TrieQuery {
 	 * @param win the length of the window used for consecutive
 	 * entries
 	 */
-	public TrieQuery(int K, int win) {
+	public TrieQuery(final int K, final int win) {
 		this(K);
 		window = win;
 	}
@@ -95,7 +108,7 @@ public final class TrieQuery {
 	 * @param win the length of the window used for consecutive entries
 	 * @param order the order of the encoding vectors' serialization
 	 */
-	public TrieQuery(int K, int win, int order) {
+	public TrieQuery(final int K, final int win, final int order) {
 		seqSize = K;
 		window = win;
 		graphIndex = new TrieIndex(order);
@@ -107,7 +120,7 @@ public final class TrieQuery {
 	 *
 	 * @param dataFile the file containing the database graphs
 	 */
-	private void initIndex(File dataFile) {
+	private void initIndex(final File dataFile) {
 		try {
 			for (Map.Entry<String, String> e:
 					BioInput.fromFastaFileToEntries(dataFile).entrySet())
@@ -146,7 +159,7 @@ public final class TrieQuery {
 	 * @param data the data string
 	 * @return the list of generated subsequences
 	 */
-	private List<String> splitString(String data) {
+	private List<String> splitString(final String data) {
 		int index = 0;
 		final int qLen = data.length();
 		List<String> blocks = new ArrayList<String>();
@@ -170,7 +183,7 @@ public final class TrieQuery {
 	 * @param query the query string
 	 * @return the list of generated subsequences
 	 */
-	protected List<String> splitQueryString(String query) {
+	protected List<String> splitQueryString(final String query) {
 		final int qLen = query.length();
 		List<String> blocks = new ArrayList<String>();
 		/* Increase by window len, since we want <i>overlapping</i>
@@ -193,9 +206,9 @@ public final class TrieQuery {
 	 * @return a set of matching {@link TrieEntry}s.
 	 */
 	public Set<TrieEntry>
-	getMatches(String query, String label, int tolerance)
+	getMatches(final String query, final String label, int tolerance)
 	{
-		List<String> blocks = this.splitQueryString(query);
+		List<String> blocks = QueryUtils.splitQueryString(query, seqSize);
 		Set<TrieEntry> matches = new HashSet<TrieEntry>();
 
 		/* loop counter */
@@ -209,7 +222,9 @@ public final class TrieQuery {
 		 */
 		for (String bl: blocks) {
 			final BioGraph bg = new BioGraph(bl, label);
-			final TrieEntry eQuery = new TrieEntry(bg);
+			final TrieEntry eQuery = new TrieEntry(
+				bg.getLabel(),
+				indVec.getGraphEncoding(bg));
 			final byte[] enc = eQuery.getEncoding();
 			/*
 			 * Get the closest TrieEntry objects and
@@ -267,7 +282,7 @@ public final class TrieQuery {
 	 * A static main method that performs a short experiment using
 	 * a sample graph database.
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		if (args.length <= 1) {
 			System.out.println("Not enough parameters");
 			return;
@@ -412,24 +427,24 @@ public final class TrieQuery {
 	 */
 	@SuppressWarnings("unused")
 	static class Result {
-		private double accuracy;
-		private double avgQueryTime;
-		private double stdevQueryTime;
-		private double avgMatches;
-		private double stdevMatches;
-		private int size;
+		private final double accuracy;
+		private final double avgQueryTime;
+		private final double stdevQueryTime;
+		private final double avgMatches;
+		private final double stdevMatches;
+		private final int size;
 
 		/**
 		 * Creates a new Result object with all the statistics
 		 * provided from the caller.
 		 */
 		public Result(
-			double accuracy,
-			double avgQueryTime,
-			double stdevQueryTime,
-			double avgMatches,
-			double stdevMatches,
-			int size)
+			final double accuracy,
+			final double avgQueryTime,
+			final double stdevQueryTime,
+			final double avgMatches,
+			final double stdevMatches,
+			final int size)
 		{
 			this.accuracy = accuracy;
 			this.avgQueryTime = avgQueryTime;

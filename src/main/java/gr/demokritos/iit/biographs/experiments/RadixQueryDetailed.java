@@ -28,13 +28,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gr.demokritos.iit.biographs.BioGraph;
+import gr.demokritos.iit.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.iit.biographs.indexing.QueryUtils;
 import gr.demokritos.iit.biographs.indexing.databases.RadixIndex;
 import gr.demokritos.iit.biographs.indexing.databases.TrieIndex;
 import gr.demokritos.iit.biographs.indexing.distances.ClusterDistance;
+import gr.demokritos.iit.biographs.indexing.preprocessing.IndexVector;
+import gr.demokritos.iit.biographs.indexing.preprocessing.Strategies;
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 import gr.demokritos.iit.biographs.io.BioInput;
-
 import gr.demokritos.iit.jinsect.Logging;
 
 /**
@@ -59,12 +61,21 @@ public final class RadixQueryDetailed {
 	/*
 	 * Size of subsequence.
 	 */
-	private int seqSize;
+	private final int seqSize;
 
 	/**
 	 * The graph database to perform queries against.
 	 */
-	private RadixIndex graphIndex;
+	private final RadixIndex graphIndex;
+
+	/*
+	 * get the standard index encoding
+	 */
+	protected final IndexVector indVec; {
+		indVec = new IndexVector(GraphType.DNA);
+		indVec.setHashStrategy(Strategies.dnaHash());
+		indVec.setBins(16);
+	}
 
 	/**
 	 * Creates a new TrieQuery object that performs queries by
@@ -73,7 +84,7 @@ public final class RadixQueryDetailed {
 	 *
 	 * @param K the size of the subsequences
 	 */
-	public RadixQueryDetailed(int K) {
+	public RadixQueryDetailed(final int K) {
 		seqSize = K;
 		graphIndex = new RadixIndex();
 	}
@@ -87,7 +98,7 @@ public final class RadixQueryDetailed {
 	 * @param K the size of the subsequences
 	 * @param order the order of the encoding vectors' serialization
 	 */
-	public RadixQueryDetailed(int K, int order) {
+	public RadixQueryDetailed(final int K, final int order) {
 		seqSize = K;
 		graphIndex = new RadixIndex(order);
 	}
@@ -98,7 +109,7 @@ public final class RadixQueryDetailed {
 	 *
 	 * @param dataFile the file containing the database graphs
 	 */
-	private void initIndex(File dataFile) {
+	private void initIndex(final File dataFile) {
 		try {
 			BioInput.fromFastaFileToEntries(dataFile).forEach((k, v) -> {
 				/*
@@ -133,7 +144,7 @@ public final class RadixQueryDetailed {
 	 * @param query the query string
 	 * @return the list of generated subsequences
 	 */
-	protected List<String> splitQueryString(String query) {
+	protected List<String> splitQueryString(final String query) {
 		final int qLen = query.length();
 		List<String> blocks = new ArrayList<String>();
 		/* Unitary length steps, since we want overlapping subsequences */
@@ -160,7 +171,7 @@ public final class RadixQueryDetailed {
 	 * @param query the query string
 	 * @return a list of matching entries
 	 */
-	public List<TrieEntry> getExactMatches(String query) {
+	public List<TrieEntry> getExactMatches(final String query) {
 		return graphIndex.getNodes(query);
 	}
 
@@ -174,7 +185,7 @@ public final class RadixQueryDetailed {
 	 * @return a set of matching {@link TrieEntry}s.
 	 */
 	public Set<TrieEntry>
-	getMatches(String query, String label, final int tol)
+	getMatches(final String query, final String label, final int tol)
 	{
 		List<String> blocks = QueryUtils.splitQueryString(query, seqSize);
 		Set<TrieEntry> matches = new HashSet<TrieEntry>();
@@ -184,7 +195,9 @@ public final class RadixQueryDetailed {
 		 */
 		for (String bl: blocks) {
 			final BioGraph bg = new BioGraph(bl, label);
-			final TrieEntry eQuery = new TrieEntry(bg);
+			final TrieEntry eQuery = new TrieEntry(
+				bg.getLabel(),
+				indVec.getGraphEncoding(bg));
 			final byte[] enc = eQuery.getEncoding();
 
 			logger.info("Query string: " + bl);
@@ -219,7 +232,7 @@ public final class RadixQueryDetailed {
 	 * @return the set of matching entries
 	 */
 	public Set<TrieEntry>
-	getExactMatches(String query, String label, final int tol)
+	getExactMatches(final String query, final String label, final int tol)
 	{
 		List<String> blocks = QueryUtils.splitQueryString(query, seqSize);
 		Set<TrieEntry> matches = new HashSet<TrieEntry>();
@@ -228,7 +241,9 @@ public final class RadixQueryDetailed {
 		 */
 		for (String bl: blocks) {
 			final BioGraph bg = new BioGraph(bl, label);
-			final TrieEntry eQuery = new TrieEntry(bg);
+			final TrieEntry eQuery = new TrieEntry(
+				bg.getLabel(),
+				indVec.getGraphEncoding(bg));
 			final byte[] enc = eQuery.getEncoding();
 			/* Put all matches in the set */
 			graphIndex.getNodesAsStream(bg)
@@ -244,7 +259,7 @@ public final class RadixQueryDetailed {
 	 * A static main method that performs a short experiment using
 	 * a sample graph database.
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		if (args.length <= 1) {
 			System.out.println("Not enough parameters");
 			return;
@@ -408,24 +423,24 @@ public final class RadixQueryDetailed {
 	 */
 	@SuppressWarnings("unused")
 	static class Result {
-		private double accuracy;
-		private double avgQueryTime;
-		private double stdevQueryTime;
-		private double avgMatches;
-		private double stdevMatches;
-		private int size;
+		private final double accuracy;
+		private final double avgQueryTime;
+		private final double stdevQueryTime;
+		private final double avgMatches;
+		private final double stdevMatches;
+		private final int size;
 
 		/**
 		 * Creates a new Result object with all the statistics
 		 * provided from the caller.
 		 */
 		public Result(
-			double accuracy,
-			double avgQueryTime,
-			double stdevQueryTime,
-			double avgMatches,
-			double stdevMatches,
-			int size)
+			final double accuracy,
+			final double avgQueryTime,
+			final double stdevQueryTime,
+			final double avgMatches,
+			final double stdevMatches,
+			final int size)
 		{
 			this.accuracy = accuracy;
 			this.avgQueryTime = avgQueryTime;

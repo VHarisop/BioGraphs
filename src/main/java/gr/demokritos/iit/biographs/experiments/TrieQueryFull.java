@@ -34,7 +34,6 @@ import gr.demokritos.iit.biographs.indexing.preprocessing.IndexVector;
 import gr.demokritos.iit.biographs.indexing.preprocessing.Strategies;
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 import gr.demokritos.iit.biographs.io.BioInput;
-
 import gr.demokritos.iit.jinsect.Logging;
 
 /**
@@ -86,12 +85,16 @@ public final class TrieQueryFull {
 		graphIndex = new TrieIndex() {
 			@Override
 			public void addGraph(final BioGraph bg) {
-				addEntry(new TrieEntry(bg, indCustom));
+				addEntry(new TrieEntry(
+					bg.getLabel(), indCustom.getGraphEncoding(bg)));
 			}
 
 			@Override
 			protected String getGraphCode(final BioGraph bGraph) {
-				return (new TrieEntry(bGraph, indCustom)).getKey(this.order);
+				final TrieEntry toEncode = new TrieEntry(
+					bGraph.getLabel(),
+					indCustom.getGraphEncoding(bGraph));
+				return toEncode.getKey(this.order);
 			}
 		};
 	}
@@ -110,12 +113,16 @@ public final class TrieQueryFull {
 		graphIndex = new TrieIndex(order) {
 			@Override
 			public void addGraph(final BioGraph bg) {
-				addEntry(new TrieEntry(bg, indCustom));
+				addEntry(new TrieEntry(
+					bg.getLabel(), indCustom.getGraphEncoding(bg)));
 			}
 
 			@Override
 			protected String getGraphCode(final BioGraph bGraph) {
-				return (new TrieEntry(bGraph, indCustom)).getKey(this.order);
+				final TrieEntry toEncode = new TrieEntry(
+					bGraph.getLabel(),
+					indCustom.getGraphEncoding(bGraph));
+				return toEncode.getKey(this.order);
 			}
 		};
 	}
@@ -182,7 +189,8 @@ public final class TrieQueryFull {
 		 */
 		for (String bl: QueryUtils.splitQueryString(query, seqSize)) {
 			final BioGraph bg = new BioGraph(bl, label);
-			final TrieEntry eQuery = new TrieEntry(bg, indCustom);
+			final TrieEntry eQuery = new TrieEntry(
+				bg.getLabel(), indCustom.getGraphEncoding(bg));
 			final byte[] enc = eQuery.getEncoding();
 			/*
 			 * Get the closest TrieEntry objects and

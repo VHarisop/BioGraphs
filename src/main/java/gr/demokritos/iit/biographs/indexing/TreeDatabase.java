@@ -18,15 +18,20 @@ package gr.demokritos.iit.biographs.indexing;
 
 import java.io.File;
 import java.io.FileFilter;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.Set;
+import java.util.TreeMap;
 
 import gr.demokritos.iit.biographs.BioGraph;
 import gr.demokritos.iit.biographs.Utils;
-import gr.demokritos.iit.biographs.indexing.comparators.*;
+import gr.demokritos.iit.biographs.indexing.comparators.OrdWeightComparator;
 import gr.demokritos.iit.biographs.indexing.distances.ClusterDistance;
 import gr.demokritos.iit.biographs.indexing.preprocessing.IndexVector;
-import gr.demokritos.iit.biographs.indexing.structs.*;
 import gr.demokritos.iit.biographs.io.BioInput;
 
 
@@ -42,7 +47,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	/**
 	 * A Red-Black tree map implementation that associates biographs
 	 * with lists of value types, which can be any type of feature able
-	 * to be extracted from a BioGraph. 
+	 * to be extracted from a BioGraph.
 	 * @see #getGraphFeature
 	 */
 	protected TreeMap<BioGraph, List<V>> treeIndex;
@@ -62,7 +67,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	/**
 	 * Creates a blank TreeDatabase object.
 	 */
-	public TreeDatabase() { 
+	public TreeDatabase() {
 		super();
 		initIndex();
 	}
@@ -72,19 +77,19 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * a database in a given directory.
 	 * @param path the directory in which the database resides
 	 */
-	public TreeDatabase(String path) {
+	public TreeDatabase(final String path) {
 		super(path);
 		initIndex();
 	}
 
-	
+
 	/**
 	 * Creates a blank TreeDatabase object using a custom provided
 	 * comparator.
-	 * 
+	 *
 	 * @param bgC the custom comparator to be used
 	 */
-	public TreeDatabase(Comparator<BioGraph> bgC) {
+	public TreeDatabase(final Comparator<BioGraph> bgC) {
 		super();
 		initIndex(bgC);
 	}
@@ -96,11 +101,11 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @param path the directory in which the database resides
 	 * @param bgC the custom comparator to be used
 	 */
-	public TreeDatabase(String path, Comparator<BioGraph> bgC) {
+	public TreeDatabase(final String path, final Comparator<BioGraph> bgC) {
 		super(path);
 		initIndex(bgC);
 	}
-	
+
 	/**
 	 * Initialize the database's comparator and tree index.
 	 */
@@ -114,7 +119,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 *
 	 * @param bgC the comparator to use
 	 */
-	protected void initIndex(Comparator<BioGraph> bgC) {
+	protected void initIndex(final Comparator<BioGraph> bgC) {
 		this.bgComp = bgC;
 		this.treeIndex = new TreeMap<BioGraph, List<V>>(this.bgComp);
 	}
@@ -126,7 +131,8 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @param path the file or directory to build from
 	 * @param gType the {@link GraphType} of the graphs to be indexed
 	 */
-	public void build(File path, GraphType gType) throws Exception {
+	@Override
+	public void build(final File path, final GraphType gType) throws Exception {
 		this.type = gType;
 		buildIndex(path);
 	}
@@ -138,7 +144,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @param path a string containing a path to a file or directory
 	 */
 	@Override
-	public void buildIndex(String path) throws Exception {
+	public void buildIndex(final String path) throws Exception {
 		File fPath = new File(path);
 		buildIndex(fPath);
 	}
@@ -147,7 +153,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * Adds a set of data in a file into the database, reading them
 	 * with a method depending on the graph type.
 	 */
-	private void addAllGraphs(File path) throws Exception {
+	private void addAllGraphs(final File path) throws Exception {
 		if (type == GraphType.DNA) {
 			for (BioGraph bg: BioInput.fastaFileToGraphs(path)) {
 				addGraph(bg);
@@ -161,13 +167,13 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	}
 
 	/**
-	 * Builds a graph database index from a given file or a directory 
+	 * Builds a graph database index from a given file or a directory
 	 * of files.
 	 *
 	 * @param fPath a path containing one or multiple files
 	 */
 	@Override
-	public void buildIndex(File fPath) throws Exception {
+	public void buildIndex(final File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
 			addAllGraphs(fPath);
 		}
@@ -175,11 +181,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 			/* get all files in a list, and then add all graphs for
 			 * each file to the database
 			 */
-			File[] fileList = fPath.listFiles(new FileFilter() {
-				public boolean accept(File toFilter) {
-					return toFilter.isFile();
-				}
-			});
+			File[] fileList = fPath.listFiles((FileFilter) toFilter -> toFilter.isFile());
 			for (File f: fileList) {
 				addAllGraphs(f);
 			}
@@ -188,11 +190,11 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 
 	/**
 	 * Adds a new graph to the database, updating the index as well.
-	 * 
+	 *
 	 * @param bg the BioGraph object to be added
 	 */
 	@Override
-	public void addGraph(BioGraph bg) {
+	public void addGraph(final BioGraph bg) {
 		List<V> nodeValues = treeIndex.get(bg);
 
 		// if key was not there, initialize label array
@@ -205,7 +207,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 
 	/**
 	 * Gets the keys of the underlying tree map of the database.
-	 * 
+	 *
 	 * @return a set containing all the keys of the map
 	 */
 	public Set<BioGraph> exposeKeys() {
@@ -243,26 +245,8 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @param bg the {@link BioGraph} key to be searched for
 	 * @return a list of node values
 	 */
-	public List<V> getNodes(BioGraph bg) {
+	public List<V> getNodes(final BioGraph bg) {
 		return treeIndex.get(bg);
-	}
-
-	/**
-	 * Gets the nodes corresponding to a list of query biographs,
-	 * and returns them in an array of entries.
-	 * @param bGraphs the {@link BioGraph} array of query graphs
-	 * @return a list of Entries that map biographs to their resulting nodes
-	 */
-	public List<DatabaseEntry<BioGraph, List<V>>> getNodes(BioGraph[] bGraphs) {
-		List<DatabaseEntry<BioGraph, List<V>>> results = 
-			new ArrayList<DatabaseEntry<BioGraph, List<V>>>();
-		int iCnt;
-		for (iCnt = 0; iCnt < bGraphs.length; ++iCnt) {
-			results.add(new DatabaseEntry<BioGraph, List<V>>(
-						bGraphs[iCnt], getNodes(bGraphs[iCnt])));
-		}
-
-		return results;
 	}
 
 	/**
@@ -273,7 +257,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @param include a flag indicating if exact matches should be included
 	 * @return the unmodifiable node list of the nearest neighbouring key
 	 */
-	public List<V> getNearestNeighbours(BioGraph bQuery, boolean include) {
+	public List<V> getNearestNeighbours(final BioGraph bQuery, final boolean include) {
 		if (include) {
 			/* if an exact match exists, return it */
 			List<V> matches = getNodes(bQuery);
@@ -288,12 +272,12 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 			return null;
 		}
 
-		if (higher == null) 
+		if (higher == null)
 			return Collections.unmodifiableList(getNodes(lower));
-		
+
 		if (lower == null)
 			return Collections.unmodifiableList(getNodes(higher));
-		
+
 		/* get the distance of similarities of both the lower and
 		 * higher keys */
 		double distLo = getDistBetween(bQuery, lower);
@@ -324,15 +308,15 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @param K the order of nearest neighbours
 	 * @return the unmodifiable node list of the K nearest neighbouring keys
 	 */
-	public List<V> getKNearestNeighbours(BioGraph bQuery, boolean include, int K) {
+	public List<V> getKNearestNeighbours(final BioGraph bQuery, final boolean include, int K) {
 		int retCnt = 0;
 		ArrayList<V> nodes = new ArrayList<V>();
 
 		// return up to min(size, K) neighbouring keys
 		K = (K > treeIndex.size()) ? treeIndex.size() : K;
 
-		if (include) {	
-			/* if an exact match exists, add it 
+		if (include) {
+			/* if an exact match exists, add it
 			 * to the list of nodes to return */
 			List<V> matches = getNodes(bQuery);
 			if (matches != null && (matches.size() > 0)) {
@@ -347,9 +331,9 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 
 		/* get tail and head views. The head view should be accessed in reverse
 		 * order, since it contains entries with keys "less" than the query */
-		NavigableMap<BioGraph, List<V>> tail = 
+		NavigableMap<BioGraph, List<V>> tail =
 			treeIndex.tailMap(bQuery, false);
-		NavigableMap<BioGraph, List<V>> head = 
+		NavigableMap<BioGraph, List<V>> head =
 			treeIndex.headMap(bQuery, false);
 
 		// lower values should be polled in reverse order
@@ -359,7 +343,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 
 		/* if stuff remains, loop */
 		while (retCnt < K) {
-		
+
 			/* handle cases where either both maps have been depleted
 			 * or one of them has been depleted */
 
@@ -377,7 +361,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 				retCnt++; continue;
 			}
 
-			/* add low entry to nodes, update head map to start from next 
+			/* add low entry to nodes, update head map to start from next
 			 * entry lower than the one retrieved */
 			if (high == null) {
 				head = head.headMap(low.getKey(), false);
@@ -386,7 +370,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 				retCnt++; continue;
 			}
 
-			/* if none of the maps is depleted yet, 
+			/* if none of the maps is depleted yet,
 			 * we must compare at each step */
 			distLo = getDistBetween(bQuery, low.getKey());
 			distHi = getDistBetween(bQuery, high.getKey());
@@ -396,9 +380,9 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 			if (Utils.compareDouble(distLo, distHi)) {
 				nodes.addAll(new ArrayList<V>(low.getValue()));
 				nodes.addAll(new ArrayList<V>(high.getValue()));
-				tail = tail.tailMap(high.getKey(), false); 
+				tail = tail.tailMap(high.getKey(), false);
 				high = tail.firstEntry();
-				head = head.headMap(low.getKey(), false); 
+				head = head.headMap(low.getKey(), false);
 				low = head.lastEntry();
 				retCnt += 2;
 			}
@@ -420,7 +404,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 
 	/**
 	 * Returns a feature from a given biograph to be stored in the list
-	 * of values kept at each node of the database tree. 
+	 * of values kept at each node of the database tree.
 	 * Classes extending TreeDatabase must override this method.
 	 *
 	 * @param bg the graph from which to extract the feature
@@ -437,7 +421,7 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 	 * @param bgB the second graph
 	 * @return the distance between the two graphs
 	 */
-	protected double getDistBetween(BioGraph bgA, BioGraph bgB) {
+	protected double getDistBetween(final BioGraph bgA, final BioGraph bgB) {
 		int[] encA; int[] encB;
 		IndexVector vHash;
 		if (type == GraphType.DNA) {
@@ -448,6 +432,6 @@ public abstract class TreeDatabase<V> extends GraphDatabase {
 		}
 		encA = vHash.encodeGraph(bgA);
 		encB = vHash.encodeGraph(bgB);
-		return (double) ClusterDistance.hamming(encA, encB);
+		return ClusterDistance.hamming(encA, encB);
 	}
 }

@@ -27,6 +27,8 @@ import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import gr.demokritos.iit.biographs.BioGraph;
 import gr.demokritos.iit.biographs.indexing.GraphDatabase;
+import gr.demokritos.iit.biographs.indexing.preprocessing.IndexVector;
+import gr.demokritos.iit.biographs.indexing.preprocessing.Strategies;
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 import gr.demokritos.iit.biographs.io.BioInput;
 
@@ -50,7 +52,16 @@ public class TrieIndex extends GraphDatabase {
 	 * as keys.
 	 */
 	protected final PatriciaTrie<List<TrieEntry>> trieIndex =
-			new PatriciaTrie<>();
+		new PatriciaTrie<>();
+
+	/*
+	 * get the standard index encoding
+	 */
+	protected final IndexVector indVec; {
+		indVec = new IndexVector(GraphType.DNA);
+		indVec.setHashStrategy(Strategies.dnaHash());
+		indVec.setBins(16);
+	}
 
 	/**
 	 * The default order (number of bits) used for the serialization
@@ -185,7 +196,7 @@ public class TrieIndex extends GraphDatabase {
 	 */
 	@Override
 	public void addGraph(final BioGraph bg) {
-		addEntry(new TrieEntry(bg));
+		addEntry(new TrieEntry(bg.getLabel(), indVec.getGraphEncoding(bg)));
 	}
 
 	/**
@@ -198,7 +209,10 @@ public class TrieIndex extends GraphDatabase {
 	 * @return a String representation of the biograph
 	 */
 	protected String getGraphCode(final BioGraph bGraph) {
-		return (new TrieEntry(bGraph)).getKey(this.order);
+		final TrieEntry toEncode = new TrieEntry(
+			bGraph.getLabel(),
+			indVec.getGraphEncoding(bGraph));
+		return toEncode.getKey(order);
 	}
 
 	/**

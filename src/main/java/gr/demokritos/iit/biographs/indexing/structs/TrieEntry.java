@@ -17,11 +17,6 @@ package gr.demokritos.iit.biographs.indexing.structs;
 
 import java.util.Objects;
 
-import gr.demokritos.iit.biographs.BioGraph;
-import gr.demokritos.iit.biographs.indexing.GraphDatabase.GraphType;
-import gr.demokritos.iit.biographs.indexing.preprocessing.IndexVector;
-import gr.demokritos.iit.biographs.indexing.preprocessing.Strategies;
-
 /**
  * This class represents an entry in the graph index
  * created by BioGraphs that is used by
@@ -33,48 +28,17 @@ import gr.demokritos.iit.biographs.indexing.preprocessing.Strategies;
  *
  * @author VHarisop
  */
-public final class TrieEntry {
-	/**
-	 * The label of the graph that this entry refers to.
-	 */
-	protected final String label;
+public final class TrieEntry extends DatabaseEntry<byte[]> {
 
 	/**
-	 * The hashed vector encoding of the graph that the entry refers to.
-	 */
-	protected final byte[] indexEncoding;
-
-	/**
-	 * Creates a new TrieEntry object from a {@link BioGraph} using
-	 * the default {@link IndexVector} for {@link GraphType#DNA}.
+	 * Creates a new TrieEntry object from with a given label and
+	 * a specified encoding vector.
 	 *
-	 * @param bG the graph that the entry refers to
+	 * @param label the label of the entry
+	 * @param encoding the entry's encoding vector
 	 */
-	public TrieEntry(BioGraph bG) {
-		label = bG.getLabel();
-		/*
-		 * get the standard index encoding
-		 */
-		final IndexVector indVec = new IndexVector(GraphType.DNA);
-		indVec.setHashStrategy(Strategies.dnaHash());
-		indVec.setBins(16);
-		/*
-		 * Obtain the hashed vector encoding for the graph and cache it
-		 * to avoid multiple computations
-		 */
-		indexEncoding = indVec.getGraphEncoding(bG);
-	}
-
-	/**
-	 * Creates a new {@link TrieEntry} from a {@link BioGraph} using a
-	 * provided {@link IndexVector}.
-	 *
-	 * @param bG the graph that the entry refers to
-	 * @param indVec the custom index vector to use
-	 */
-	public TrieEntry(BioGraph bG, IndexVector indVec) {
-		label = bG.getLabel();
-		indexEncoding = indVec.getGraphEncoding(bG);
+	public TrieEntry(final String label, final byte[] encoding) {
+		super(label, encoding);
 	}
 
 	/**
@@ -86,7 +50,8 @@ public final class TrieEntry {
 	 * @param num_bits the number of bits
 	 * @return the vector's bitfield representation
 	 */
-	private String vectorToBits(byte[] vec, final int num_bits) {
+	@Override
+	protected String vectorToBits(final byte[] vec, final int num_bits) {
 		final StringBuilder repr = new StringBuilder(num_bits * vec.length);
 		final float fact = num_bits;
 		for (final byte element : vec) {
@@ -109,34 +74,6 @@ public final class TrieEntry {
 	}
 
 	/**
-	 * Returns the hashed vector encoding of the graph this entry represents.
-	 *
-	 * @return the hashed vector encoding of the underlying graph
-	 */
-	public final byte[] getEncoding() {
-		return indexEncoding;
-	}
-
-	/**
-	 * Simple getter for the entry's graph label.
-	 *
-	 * @return the label of the graph the entry refers to
-	 */
-	public final String getLabel() {
-		return label;
-	}
-
-	/**
-	 * Gets the entry's serialized key of a given order.
-	 *
-	 * @param order the order for serialization
-	 * @return the key of the entry
-	 */
-	public final String getKey(final int order) {
-		return vectorToBits(indexEncoding, order);
-	}
-
-	/**
 	 * The hash of the index entry is determined uniquely by the
 	 * hash of the label of the graph that the entry refers to.
 	 */
@@ -148,10 +85,10 @@ public final class TrieEntry {
 	/**
 	 * Two {@link TrieEntry} objects are considered equal if
 	 * they refer to the same graph and map to the same
-	 * {@link #indexEncoding}.
+	 * {@link #encoding}.
 	 */
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (null == other) {
 			return false;
 		}

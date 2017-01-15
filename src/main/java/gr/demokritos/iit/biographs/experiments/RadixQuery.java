@@ -28,13 +28,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gr.demokritos.iit.biographs.BioGraph;
+import gr.demokritos.iit.biographs.indexing.GraphDatabase.GraphType;
 import gr.demokritos.iit.biographs.indexing.QueryUtils;
 import gr.demokritos.iit.biographs.indexing.databases.RadixIndex;
 import gr.demokritos.iit.biographs.indexing.databases.TrieIndex;
 import gr.demokritos.iit.biographs.indexing.distances.ClusterDistance;
+import gr.demokritos.iit.biographs.indexing.preprocessing.IndexVector;
+import gr.demokritos.iit.biographs.indexing.preprocessing.Strategies;
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 import gr.demokritos.iit.biographs.io.BioInput;
-
 import gr.demokritos.iit.jinsect.Logging;
 
 /**
@@ -57,12 +59,21 @@ public final class RadixQuery {
 	/*
 	 * Size of subsequence.
 	 */
-	private int seqSize;
+	private final int seqSize;
 
 	/**
 	 * The graph database to perform queries against.
 	 */
-	private RadixIndex graphIndex;
+	private final RadixIndex graphIndex;
+
+	/*
+	 * get the standard index encoding
+	 */
+	protected final IndexVector indVec; {
+		indVec = new IndexVector(GraphType.DNA);
+		indVec.setHashStrategy(Strategies.dnaHash());
+		indVec.setBins(16);
+	}
 
 	/**
 	 * Creates a new TrieQuery object that performs queries by
@@ -71,7 +82,7 @@ public final class RadixQuery {
 	 *
 	 * @param K the size of the subsequences
 	 */
-	public RadixQuery(int K) {
+	public RadixQuery(final int K) {
 		seqSize = K;
 		graphIndex = new RadixIndex();
 	}
@@ -85,7 +96,7 @@ public final class RadixQuery {
 	 * @param K the size of the subsequences
 	 * @param order the order of the encoding vectors' serialization
 	 */
-	public RadixQuery(int K, int order) {
+	public RadixQuery(final int K, final int order) {
 		seqSize = K;
 		graphIndex = new RadixIndex(order);
 	}
@@ -96,7 +107,7 @@ public final class RadixQuery {
 	 *
 	 * @param dataFile the file containing the database graphs
 	 */
-	private void initIndex(File dataFile) {
+	private void initIndex(final File dataFile) {
 		try {
 			BioInput.fromFastaFileToEntries(dataFile).entrySet()
 			.forEach(e -> {
@@ -139,7 +150,7 @@ public final class RadixQuery {
 	 * @return a set of matching {@link TrieEntry}s.
 	 */
 	public Set<TrieEntry>
-	getMatches(String query, String label, int tolerance)
+	getMatches(final String query, final String label, final int tolerance)
 	{
 		List<String> blocks = QueryUtils.splitQueryString(query, seqSize);
 		Set<TrieEntry> matches = new HashSet<TrieEntry>();
@@ -155,7 +166,9 @@ public final class RadixQuery {
 		 */
 		for (String bl: blocks) {
 			final BioGraph bg = new BioGraph(bl, label);
-			final TrieEntry eQuery = new TrieEntry(bg);
+			final TrieEntry eQuery = new TrieEntry(
+				bg.getLabel(),
+				indVec.getGraphEncoding(bg));
 			final byte[] enc = eQuery.getEncoding();
 			/*
 			 * Get the closest TrieEntry objects and
@@ -208,7 +221,7 @@ public final class RadixQuery {
 	 * A static main method that performs a short experiment using
 	 * a sample graph database.
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		if (args.length <= 1) {
 			System.out.println("Not enough parameters");
 			return;
@@ -360,24 +373,24 @@ public final class RadixQuery {
 	 */
 	@SuppressWarnings("unused")
 	static class Result {
-		private double accuracy;
-		private double avgQueryTime;
-		private double stdevQueryTime;
-		private double avgMatches;
-		private double stdevMatches;
-		private int size;
+		private final double accuracy;
+		private final double avgQueryTime;
+		private final double stdevQueryTime;
+		private final double avgMatches;
+		private final double stdevMatches;
+		private final int size;
 
 		/**
 		 * Creates a new Result object with all the statistics
 		 * provided from the caller.
 		 */
 		public Result(
-				double accuracy,
-				double avgQueryTime,
-				double stdevQueryTime,
-				double avgMatches,
-				double stdevMatches,
-				int size)
+				final double accuracy,
+				final double avgQueryTime,
+				final double stdevQueryTime,
+				final double avgMatches,
+				final double stdevMatches,
+				final int size)
 		{
 			this.accuracy = accuracy;
 			this.avgQueryTime = avgQueryTime;

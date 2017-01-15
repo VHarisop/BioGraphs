@@ -26,6 +26,8 @@ import com.googlecode.concurrenttrees.radix.RadixTree;
 
 import gr.demokritos.iit.biographs.BioGraph;
 import gr.demokritos.iit.biographs.indexing.GraphDatabase;
+import gr.demokritos.iit.biographs.indexing.preprocessing.IndexVector;
+import gr.demokritos.iit.biographs.indexing.preprocessing.Strategies;
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 import gr.demokritos.iit.biographs.io.BioInput;
 
@@ -54,6 +56,15 @@ public final class RadixIndex extends GraphDatabase {
 	 */
 	protected int order = 64;
 
+	/*
+	 * get the standard index encoding
+	 */
+	protected final IndexVector indVec; {
+		indVec = new IndexVector(GraphType.DNA);
+		indVec.setHashStrategy(Strategies.dnaHash());
+		indVec.setBins(16);
+	}
+
 	/**
 	 * Creates a blank TrieIndex object.
 	 */
@@ -66,7 +77,7 @@ public final class RadixIndex extends GraphDatabase {
 	 *
 	 * @param order the custom order to be used
 	 */
-	public RadixIndex(int order) {
+	public RadixIndex(final int order) {
 		this();
 		this.order = order;
 	}
@@ -76,7 +87,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * a database in a given directory.
 	 * @param path the directory in which the database resides
 	 */
-	public RadixIndex(String path) {
+	public RadixIndex(final String path) {
 		super(path);
 	}
 
@@ -87,7 +98,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param path the directory in which the database resides
 	 * @param order the custom order to be used
 	 */
-	public RadixIndex(String path, int order) {
+	public RadixIndex(final String path, final int order) {
 		this(path);
 		this.order = order;
 	}
@@ -99,7 +110,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param path a string containing a path to a file or directory
 	 */
 	@Override
-	public void buildIndex(String path)
+	public void buildIndex(final String path)
 	throws Exception
 	{
 		final File fPath = new File(path);
@@ -113,7 +124,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param fPath a path containing one or multiple files
 	 */
 	@Override
-	public void buildIndex(File fPath) throws Exception {
+	public void buildIndex(final File fPath) throws Exception {
 		if (!fPath.isDirectory()) {
 			addAllGraphs(fPath);
 		}
@@ -135,7 +146,7 @@ public final class RadixIndex extends GraphDatabase {
 	 *
 	 * @param f the file to read from
 	 */
-	private void addAllGraphs(File f) throws Exception {
+	private void addAllGraphs(final File f) throws Exception {
 		switch (type) {
 			case DNA:
 				BioInput.fastaFileToGraphStream(f)
@@ -154,7 +165,7 @@ public final class RadixIndex extends GraphDatabase {
 	 *
 	 * @param entry the entry to be added
 	 */
-	public void addEntry(TrieEntry entry) {
+	public void addEntry(final TrieEntry entry) {
 		// update the database's size
 		this.size++;
 
@@ -182,8 +193,8 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param bg the BioGraph to be added
 	 */
 	@Override
-	public void addGraph(BioGraph bg) {
-		addEntry(new TrieEntry(bg));
+	public void addGraph(final BioGraph bg) {
+		addEntry(new TrieEntry(bg.getLabel(), indVec.getGraphEncoding(bg)));
 	}
 
 	/**
@@ -195,8 +206,11 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param bGraph the biograph object
 	 * @return a {@link CharSequence} representation of the biograph
 	 */
-	protected CharSequence getGraphCode(BioGraph bGraph) {
-		return new TrieEntry(bGraph).getKey(order);
+	protected CharSequence getGraphCode(final BioGraph bGraph) {
+		final TrieEntry toEncode = new TrieEntry(
+			bGraph.getLabel(),
+			indVec.getGraphEncoding(bGraph));
+		return toEncode.getKey(order);
 	}
 
 	/**
@@ -206,7 +220,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param bg the query graph
 	 * @return a list of labels
 	 */
-	public final List<TrieEntry> getNodes(BioGraph bg) {
+	public final List<TrieEntry> getNodes(final BioGraph bg) {
 		return getNodes(getGraphCode(bg));
 	}
 
@@ -215,7 +229,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param key a String containing the query graph key
 	 * @return a list of entries pointing to biographs
 	 */
-	public final List<TrieEntry> getNodes(CharSequence key) {
+	public final List<TrieEntry> getNodes(final CharSequence key) {
 		return radixIndex.get(key);
 	}
 
@@ -226,7 +240,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param bQuery the graph to be queried for
 	 * @return a list of entries whose keys are the closest matches
 	 */
-	public final List<TrieEntry> select(BioGraph bQuery) {
+	public final List<TrieEntry> select(final BioGraph bQuery) {
 		return radixIndex.select(getGraphCode(bQuery));
 	}
 
@@ -237,7 +251,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param bg the query graph
 	 * @return a {@link Stream} of matching entries
 	 */
-	public final Stream<TrieEntry> getNodesAsStream(BioGraph bg) {
+	public final Stream<TrieEntry> getNodesAsStream(final BioGraph bg) {
 		return getNodesAsStream(getGraphCode(bg));
 	}
 
@@ -246,7 +260,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param key the query graph key
 	 * @return a {@link Stream} of matching entries
 	 */
-	public final Stream<TrieEntry> getNodesAsStream(CharSequence key) {
+	public final Stream<TrieEntry> getNodesAsStream(final CharSequence key) {
 		return radixIndex.get(key).stream();
 	}
 
@@ -258,7 +272,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * @return a {@link Stream} of entries whose keys are the
 	 * closest matches
 	 */
-	public final Stream<TrieEntry> selectAsStream(BioGraph bQuery) {
+	public final Stream<TrieEntry> selectAsStream(final BioGraph bQuery) {
 		return radixIndex.select(getGraphCode(bQuery)).stream();
 	}
 }
