@@ -74,6 +74,41 @@ public final class TrieEntry extends DatabaseEntry<byte[]> {
 	}
 
 	/**
+	 * Converts a given encoding vector to a byte array using a specified
+	 * number of bits per element.
+	 * @param vec the vector to encode
+	 * @param num_bits the number of bits to use
+	 * @return the resulting byte array
+	 */
+	protected byte[] vectorToByteArray(final byte[] vec, final int num_bits) {
+		final byte[] repr = new byte[vec.length * num_bits];
+		final float fact = num_bits;
+		for (final byte element : vec) {
+			/* map vec[i] / 64 ratio to [0, 1] range */
+			final float num_set = Math.min((element) / fact, 1f);
+
+			/* convert to int between [0, Nbits] */
+			final int ones =
+				(Math.min(num_bits - 1, (int) (num_set * fact)));
+			/* Add proper number of leading 1s */
+			for (int j = 0; j < ones; ++j) {
+				repr[j] = 0x1;
+			}
+			/* Rest of array is trailing 0s by initialization */
+		}
+		return repr;
+	}
+
+	/**
+	 * Gets the key of this entry as a byte array.
+	 * @param num_bits the number of bits to use
+	 * @return the trie's key encoded as a byte array
+	 */
+	public byte[] getKeyAsBytes(final int num_bits) {
+		return vectorToByteArray(encoding, num_bits);
+	}
+
+	/**
 	 * The hash of the index entry is determined uniquely by the
 	 * hash of the label of the graph that the entry refers to.
 	 */

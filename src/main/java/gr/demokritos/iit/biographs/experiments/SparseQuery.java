@@ -73,8 +73,11 @@ public final class SparseQuery {
 	 */
 	public SparseQuery(final int K, final int featDim) {
 		seqSize = K;
-		/* Create a SparseIndex to work with n-grams of order 3 */
-		graphIndex = new SparseIndex(3, featDim);
+		/* Create a SparseIndex to work with n-grams of order 3,
+		 * using 16 bits per element of the resulting encoding vector
+		 * for serialization.
+		 */
+		graphIndex = new SparseIndex(16, featDim);
 	}
 
 	/**
