@@ -70,42 +70,33 @@ public final class TrieEntry extends DatabaseEntry<byte[]> {
 				repr.append("0");
 			}
 		}
-		return repr.toString();
+		return packCharArray(repr.toString());
 	}
 
 	/**
-	 * Converts a given encoding vector to a byte array using a specified
-	 * number of bits per element.
-	 * @param vec the vector to encode
-	 * @param num_bits the number of bits to use
-	 * @return the resulting byte array
+	 * Packs a char array (string) into a String of characters formed by
+	 * concatenating consecutive groups of bits from the char array.
+	 * @param charArray the {@link String} to pack
+	 * @return the packed string
 	 */
-	protected byte[] vectorToByteArray(final byte[] vec, final int num_bits) {
-		final byte[] repr = new byte[vec.length * num_bits];
-		final float fact = num_bits;
-		for (final byte element : vec) {
-			/* map vec[i] / 64 ratio to [0, 1] range */
-			final float num_set = Math.min((element) / fact, 1f);
-
-			/* convert to int between [0, Nbits] */
-			final int ones =
-				(Math.min(num_bits - 1, (int) (num_set * fact)));
-			/* Add proper number of leading 1s */
-			for (int j = 0; j < ones; ++j) {
-				repr[j] = 0x1;
+	public static final String packCharArray(final String charArray) {
+		final StringBuilder packed = new StringBuilder();
+		final int endIndex = charArray.length();
+		for (int i = 0; i < (endIndex / 16) + 1; ++i) {
+			/* Obtain a 16-bit string */
+			final int toIndex = Math.min((i + 1) * 16, endIndex);
+			String charPack = charArray.substring(i * 16, toIndex);
+			/* Obtain the character value that matches that int
+			 * and append it to the string builder.
+			 */
+			if (charPack.isEmpty()) {
+				/* We reached the end, nothing more to do */
+				break;
 			}
-			/* Rest of array is trailing 0s by initialization */
+			final int ordinal = Integer.parseUnsignedInt(charPack, 2);
+			packed.append((char) ordinal);
 		}
-		return repr;
-	}
-
-	/**
-	 * Gets the key of this entry as a byte array.
-	 * @param num_bits the number of bits to use
-	 * @return the trie's key encoded as a byte array
-	 */
-	public byte[] getKeyAsBytes(final int num_bits) {
-		return vectorToByteArray(encoding, num_bits);
+		return packed.toString();
 	}
 
 	/**

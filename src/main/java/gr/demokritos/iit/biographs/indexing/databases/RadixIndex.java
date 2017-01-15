@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.googlecode.concurrenttrees.radix.RadixTree;
-import com.googlecode.concurrenttrees.radix.node.concrete.bytearray.ByteArrayCharSequence;
 
 import gr.demokritos.iit.biographs.BioGraph;
 import gr.demokritos.iit.biographs.indexing.GraphDatabase;
@@ -173,7 +172,7 @@ public final class RadixIndex extends GraphDatabase {
 		/*
 		 * Get already existing entries with the same key first, if any
 		 */
-		final CharSequence key = getEntryCode(entry);
+		final CharSequence key = entry.getKey(order);
 		List<TrieEntry> entries = radixIndex.get(key);
 
 		/* if key was not already there, initialize an array of entries
@@ -207,25 +206,11 @@ public final class RadixIndex extends GraphDatabase {
 	 * @param bGraph the biograph object
 	 * @return a {@link CharSequence} representation of the biograph
 	 */
-	protected CharSequence getGraphCode(final BioGraph bGraph) {
+	protected String getGraphCode(final BioGraph bGraph) {
 		final TrieEntry toEncode = new TrieEntry(
 			bGraph.getLabel(),
 			indVec.getGraphEncoding(bGraph));
-		return getEntryCode(toEncode);
-	}
-
-	/**
-	 * Helper function that defines how a string representation is
-	 * acquired from a {@link TrieEntry} object.
-	 * This method can and should be overriden for subclasses that want to use a
-	 * different encoder / string representation.
-	 *
-	 * @param entry the {@link TrieEntry} to encode
-	 * @return
-	 */
-	protected CharSequence getEntryCode(final TrieEntry entry) {
-		final byte[] asBytes = entry.getKeyAsBytes(order);
-		return new ByteArrayCharSequence(asBytes, 0, asBytes.length);
+		return toEncode.getKey(order);
 	}
 
 	/**
