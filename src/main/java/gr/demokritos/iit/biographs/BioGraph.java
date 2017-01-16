@@ -16,15 +16,18 @@
 
 package gr.demokritos.iit.biographs;
 
-import gr.demokritos.iit.jinsect.representations.NGramJGraph;
-import gr.demokritos.iit.jinsect.structs.*;
-import gr.demokritos.iit.jinsect.encoders.*;
-import gr.demokritos.iit.jinsect.JUtils;
+import java.util.HashMap;
+import java.util.Objects;
 
 import org.biojava.nbio.core.sequence.DNASequence;
 
-import java.util.HashMap;
-import java.util.Objects;
+import gr.demokritos.iit.jinsect.JUtils;
+import gr.demokritos.iit.jinsect.encoders.CanonicalCoder;
+import gr.demokritos.iit.jinsect.encoders.DepthFirstEncoder;
+import gr.demokritos.iit.jinsect.representations.NGramJGraph;
+import gr.demokritos.iit.jinsect.structs.JVertex;
+import gr.demokritos.iit.jinsect.structs.Pair;
+import gr.demokritos.iit.jinsect.structs.UniqueVertexGraph;
 
 /**
  * A class for representing N-Gram Graphs for biological sequences.
@@ -38,46 +41,47 @@ public final class BioGraph extends NGramJGraph {
 
 	final static long serialVersionUID = 1L;
 
-	/** 
+	/**
 	 * the label of the dataset this graph represents.
 	 */
 	protected final String bioLabel;
-	
+
 	/**
 	 * Creates a BioGraph object to represent a given string.
 	 * This method invokes the default NGramJGraph constructor.
 	 *
 	 * @param data the string to be represented
 	 */
-	public BioGraph(String data) {
+	public BioGraph(final String data) {
 		super(data);
 		bioLabel = null;
 	}
 
 	/**
 	 * Creates a BioGraph object to represent a given data string
-	 * with an associated label. 
+	 * with an associated label.
 	 *
 	 * @param data the string to be represented
 	 * @param label the label of the data to be represented
 	 */
-	public BioGraph(String data, String label) {
+	public BioGraph(final String data, final String label) {
 		super(data);
 		bioLabel = label;
 	}
 
 	/**
 	 * Creates a BioGraph object to represent a given data string
-	 * with an associated label using a given order for the n-grams 
+	 * with an associated label using a given order for the n-grams
 	 * and a given correlation  window for calculating n-gram co-occurences.
 	 *
-	 * @param data the string to be represented 
+	 * @param data the string to be represented
 	 * @param label the label of the data to be represented
 	 * @param order the order of the n-grams
 	 * @param correlationWindow the length of the correlation window
 	 */
 	public BioGraph(
-		String data, String label, int order, int correlationWindow) {
+		final String data, final String label,
+		final int order, final int correlationWindow) {
 		super(data, order, order, correlationWindow);
 		bioLabel = label;
 	}
@@ -90,25 +94,26 @@ public final class BioGraph extends NGramJGraph {
 	 * @param order the order of the n-grams
 	 * @param correlationWindow the length of the correlation window
 	 */
-	public BioGraph(String data, int order, int correlationWindow) {
+	public BioGraph(
+		final String data, final int order, final int correlationWindow) {
 		super(data, order, order, correlationWindow);
 		bioLabel = null;
 	}
 
 	/**
-	 * Creates a BioGraph object to represent a given 
+	 * Creates a BioGraph object to represent a given
 	 * {@link org.biojava.nbio.core.sequence.DNASequence}
 	 *
-	 * @param dnaSeq a <tt>DNASequence</tt> object 
+	 * @param dnaSeq a <tt>DNASequence</tt> object
 	 * @return a <tt>BioGraph</tt> object to represent the sequence
 	 */
-	public static BioGraph fromSequence(DNASequence dnaSeq) {
+	public static BioGraph fromSequence(final DNASequence dnaSeq) {
 		return new BioGraph(dnaSeq.getSequenceAsString());
 	}
 
 	/**
 	 * Creates a BioGraph object to represent a given
-	 * {@link org.biojava.nbio.core.sequence.DNASequence} 
+	 * {@link org.biojava.nbio.core.sequence.DNASequence}
 	 * with an associated label.
 	 *
 	 * @param dnaSeq a DNASequence object
@@ -116,15 +121,15 @@ public final class BioGraph extends NGramJGraph {
 	 * @return a BioGraph object that represents the sequence
 	 */
 	public static BioGraph
-	fromSequence(DNASequence dnaSeq, String label) {
+	fromSequence(final DNASequence dnaSeq, final String label) {
 		return new BioGraph(dnaSeq.getSequenceAsString(), label);
 	}
 
 	/**
-	 * Returns the underlying {@link UniqueVertexGraph} object that 
+	 * Returns the underlying {@link UniqueVertexGraph} object that
 	 * implements the N-gram graph representation. By definition, it is
 	 * the zero-index graph in the vertex graph array.
-	 * @return the underlying UniqueVertexGraph 
+	 * @return the underlying UniqueVertexGraph
 	 */
 	public final UniqueVertexGraph getGraph() {
 		return getGraphLevel(0);
@@ -144,12 +149,13 @@ public final class BioGraph extends NGramJGraph {
 	 *
 	 * @return the graph's bioLabel
 	 */
+	@Override
 	public final String getLabel() {
 		return bioLabel;
 	}
 
 	/**
-	 * Return a String representation of the graph in DOT format. The 
+	 * Return a String representation of the graph in DOT format. The
 	 * representation is a directed graph.
 	 *
 	 * @return the string representation of the graph in DOT format
@@ -160,7 +166,7 @@ public final class BioGraph extends NGramJGraph {
 
 	/**
 	 * Returns the string produced by the DFS encoding of the
-	 * underlying graph. 
+	 * underlying graph.
 	 * @see gr.demokritos.iit.jinsect.encoders.DepthFirstEncoder#getEncoding()
 	 * for label ordering and implementation. The simple encode() method
 	 * should be used by default, since indexing N-gram graphs has not
@@ -168,9 +174,9 @@ public final class BioGraph extends NGramJGraph {
 	 * @return an array of dfs labels
 	 */
 	public final String getDfsCode() {
-		return (new DepthFirstEncoder(getGraph())).getEncoding();
+		return new DepthFirstEncoder().getEncoding(getGraphLevel(0));
 	}
-	
+
 	/**
 	 * Returns the label produced by the DFS encoding of the underlying graph.
 	 * @see gr.demokritos.iit.jinsect.structs.DepthFirstEncoder#getEncoding()
@@ -179,25 +185,25 @@ public final class BioGraph extends NGramJGraph {
 	 * @param vFrom the starting node
 	 * @return the dfs label
 	 */
-	public final String getDfsCode(JVertex vFrom) {
-		return (new DepthFirstEncoder(getGraph(), vFrom)).getEncoding();
+	public final String getDfsCode(final JVertex vFrom) {
+		return new DepthFirstEncoder().getEncoding(getGraphLevel(0), vFrom);
 	}
-	
+
 	/**
 	 * Returns the string representation produced by the canonical coding
-	 * of the underlying graph. 
-	 * @see gr.demokritos.iit.jinsect.encoders.CanonicalCoder 
+	 * of the underlying graph.
+	 * @see gr.demokritos.iit.jinsect.encoders.CanonicalCoder
 	 * for implementation and details.
 	 *
 	 * @return the canonical code of the graph
 	 */
 	public final String getCanonicalCode() {
-		return (new CanonicalCoder(getGraph())).getEncoding();
+		return new CanonicalCoder().getEncoding(getGraphLevel(0));
 	}
 
 	/**
 	 * Returns a string representation of the list of ordered vertex pairs.
-	 * @see UniqueVertexGraph#getOrderedWeightPairs 
+	 * @see UniqueVertexGraph#getOrderedWeightPairs
 	 *
 	 * @return the string representation of the weight-ordered vertices
 	 */
@@ -219,10 +225,10 @@ public final class BioGraph extends NGramJGraph {
 	 */
 	public NGramJGraph getSuper() {
 		return new NGramJGraph(
-					this.DataString, 
-					this.MinSize, 
-					this.MaxSize, 
-					this.CorrelationWindow);
+			this.DataString,
+			this.MinSize,
+			this.MaxSize,
+			this.CorrelationWindow);
 	}
 
 	@Override
