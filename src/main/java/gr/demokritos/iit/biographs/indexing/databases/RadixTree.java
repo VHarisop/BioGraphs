@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.googlecode.concurrenttrees.radix.ConcurrentRadixTree;
-import com.googlecode.concurrenttrees.radix.node.concrete.DefaultCharSequenceNodeFactory;
+import com.googlecode.concurrenttrees.radix.node.concrete.DefaultCharArrayNodeFactory;
 
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 
@@ -16,7 +16,7 @@ extends ConcurrentRadixTree<List<TrieEntry>> {
 	private static final long serialVersionUID = 348335668340411699L;
 
 	public RadixTree() {
-		super(new DefaultCharSequenceNodeFactory());
+		super(new DefaultCharArrayNodeFactory());
 	}
 
 	/**

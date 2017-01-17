@@ -85,7 +85,7 @@ public final class TrieEntry extends DatabaseEntry<byte[]> {
 		for (int i = 0; i < (endIndex / 16) + 1; ++i) {
 			/* Obtain a 16-bit string */
 			final int toIndex = Math.min((i + 1) * 16, endIndex);
-			String charPack = charArray.substring(i * 16, toIndex);
+			final String charPack = charArray.substring(i * 16, toIndex);
 			/* Obtain the character value that matches that int
 			 * and append it to the string builder.
 			 */
@@ -93,8 +93,7 @@ public final class TrieEntry extends DatabaseEntry<byte[]> {
 				/* We reached the end, nothing more to do */
 				break;
 			}
-			final int ordinal = Integer.parseUnsignedInt(charPack, 2);
-			packed.append((char) ordinal);
+			packed.append((char) Integer.parseUnsignedInt(charPack, 2));
 		}
 		return packed.toString();
 	}
