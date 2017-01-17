@@ -4,19 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.googlecode.concurrenttrees.radix.ConcurrentRadixTree;
-import com.googlecode.concurrenttrees.radix.node.concrete.DefaultByteArrayNodeFactory;
+import com.googlecode.concurrenttrees.radix.node.concrete.DefaultCharSequenceNodeFactory;
 
 import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
 
-public class ByteRadixTree
+public class RadixTree
 extends ConcurrentRadixTree<List<TrieEntry>> {
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 348335668340411699L;
 
-	public ByteRadixTree() {
-		super(new DefaultByteArrayNodeFactory());
+	public RadixTree() {
+		super(new DefaultCharSequenceNodeFactory());
 	}
 
 	/**
@@ -24,7 +24,7 @@ extends ConcurrentRadixTree<List<TrieEntry>> {
 	 * @param seq the key {@link CharSequence}
 	 * @return the value for this exact key
 	 */
-	public List<TrieEntry> get(CharSequence key) {
+	public List<TrieEntry> get(final CharSequence key) {
 		return getValueForExactKey(key);
 	}
 
@@ -33,7 +33,7 @@ extends ConcurrentRadixTree<List<TrieEntry>> {
 	 * @param key the key to search for
 	 * @return an {@link List<TrieEntry>} with the values
 	 */
-	public List<TrieEntry> select(CharSequence key) {
+	public List<TrieEntry> select(final CharSequence key) {
 		final List<TrieEntry> results = new ArrayList<>();
 		getValuesForClosestKeys(key).forEach(lst -> results.addAll(lst));
 		return results;

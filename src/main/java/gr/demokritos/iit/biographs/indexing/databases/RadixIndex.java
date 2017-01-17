@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.googlecode.concurrenttrees.radix.RadixTree;
-
 import gr.demokritos.iit.biographs.BioGraph;
 import gr.demokritos.iit.biographs.indexing.GraphDatabase;
 import gr.demokritos.iit.biographs.indexing.preprocessing.IndexVector;
@@ -48,7 +46,7 @@ public final class RadixIndex extends GraphDatabase {
 	 * A {@link RadixTree} that is used for indexing graphs by using a
 	 * graph's relevant {@link TrieEntry#getEncoding()} to obtain its key.
 	 */
-	protected final ByteRadixTree radixIndex = new ByteRadixTree();
+	protected final RadixTree radixIndex = new RadixTree();
 
 	/**
 	 * The default order (number of bits) used for the serialization

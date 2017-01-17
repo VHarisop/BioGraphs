@@ -1,7 +1,7 @@
 package gr.demokritos.iit.biographs.indexing.databases;
 
 
-import gr.demokritos.iit.biographs.indexing.structs.TrieEntry;
+import gr.demokritos.iit.jinsect.JUtils;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -25,9 +25,9 @@ public class PackedStringTest extends TestCase {
 	}
 
 	public void testPacking() {
-		final String aDH = 		"00000000010011000000000001001000";
-		final String twoLs = 	"00000000010011000000000001001100";
-		System.out.println(TrieEntry.packCharArray(twoLs));
-		System.out.println(TrieEntry.packCharArray(aDH));
+		final String aLH =     "00000000010011000000000001001000";
+		final String twoLs =   "00000000010011000000000001001100";
+		assertTrue(JUtils.packCharArray(twoLs).equalsIgnoreCase("LL"));
+		assertTrue(JUtils.packCharArray(aLH).equalsIgnoreCase("LH"));
 	}
 }
